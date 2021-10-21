@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <ThingDef ParentName="SculptureBase">
+    <defName>PS_PawnStatue</defName>
+    <label>Statue</label>
+    <description>A torso-sized piece of material sculpted into an artistic form.</description>
+    <graphicData>
+      <graphicClass>Graphic_Random</graphicClass>
+      <texPath>Things/Building/Art/SculptureSmall</texPath>
+    </graphicData>
+    <fillPercent>0.35</fillPercent>
+    <rotatable>false</rotatable>
+	<drawerType>RealtimeOnly</drawerType>
+    <statBases>
+      <MaxHitPoints>90</MaxHitPoints>
+      <Mass>3</Mass>
+      <Beauty>50</Beauty>
+      <WorkToMake>18000</WorkToMake>
+      <StyleDominance MayRequire="Ludeon.RimWorld.Ideology">10</StyleDominance>
+    </statBases>
+    <stuffCategories>
+      <li>Metallic</li>
+      <li>Woody</li>
+      <li>Stony</li>
+    </stuffCategories>
+    <costStuffCount>50</costStuffCount>
+	<comps>
+		<li Class="PawnStorages.CompProperties_PawnStorage">
+			<maxStoredPawns>1</maxStoredPawns>
+			<releaseOption>true</releaseOption>
+			<convertOption>true</convertOption>
+			<appendOfName>true</appendOfName>
+			<showStoredPawn>true</showStoredPawn>
+		</li>
+	</comps>
+  </ThingDef>
+  
+</Defs>

@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <ThingDef ParentName="ResourceBase">
+    <defName>PS_PawnDisc</defName>
+    <label>pawn disc</label>
+    <description>A hyper-advanced computer core that houses a peak-human-equivalent machine persona. In its isolated state, the core is dormant. Installed in a proper support structure, however, it can become a mind of great power.</description>
+    <graphicData>
+      <texPath>Things/Item/Special/AIPersonaCore</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <resourceReadoutPriority>Middle</resourceReadoutPriority>
+    <soundInteract>Metal_Drop</soundInteract>
+    <soundDrop>Metal_Drop</soundDrop>
+    <stackLimit>1</stackLimit>
+    <useHitPoints>true</useHitPoints>
+    <statBases>
+      <MarketValue>4000</MarketValue>
+      <MaxHitPoints>100</MaxHitPoints>
+      <Mass>2</Mass>
+      <Flammability>0.2</Flammability>
+    </statBases>
+    <thingCategories>
+      <li>Items</li>
+    </thingCategories>
+    <drawGUIOverlay>false</drawGUIOverlay>
+    <tradeability>Sellable</tradeability>
+    <techLevel>Ultra</techLevel>
+    <tradeTags>
+      <li>ExoticMisc</li>
+    </tradeTags>
+	<comps>
+		<li Class="PawnStorages.CompProperties_PawnStorage">
+			<maxStoredPawns>1</maxStoredPawns>
+			<convertOption>true</convertOption>
+			<appendOfName>true</appendOfName>
+		</li>
+	</comps>
+  </ThingDef>
+  
+  <RecipeDef>
+    <defName>PS_Make_PawnDisc</defName>
+    <label>Make Pawn Disc</label>
+    <description>Make a Pawn Disc</description>
+    <jobString>Making Pawn Disc.</jobString>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Cook</effectWorking>
+    <soundWorking>Recipe_Machining</soundWorking>
+    <workAmount>6000</workAmount>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>ComponentSpacer</li>
+          </thingDefs>
+        </filter>
+        <count>5</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Plasteel</li>
+          </thingDefs>
+        </filter>
+        <count>50</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>ComponentSpacer</li>
+        <li>Plasteel</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <products>
+      <PS_PawnDisc>1</PS_PawnDisc>
+    </products>
+    <researchPrerequisite>AdvancedFabrication</researchPrerequisite>
+    <skillRequirements>
+      <Intellectual>6</Intellectual>
+      <Crafting>8</Crafting>
+    </skillRequirements>
+	<workSkill>Crafting</workSkill>
+    <recipeUsers>
+      <li>FabricationBench</li>
+    </recipeUsers>
+  </RecipeDef>
+
+  <RecipeDef>
+    <defName>PS_Release_PawnDisc</defName>
+    <label>Release Pawn from Pawn Disc</label>
+    <description>Release Pawn from Pawn Disc</description>
+    <jobString>Releasing Pawn from Pawn Disc.</jobString>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Cook</effectWorking>
+    <soundWorking>Recipe_Machining</soundWorking>
+    <workAmount>6000</workAmount>
+    <researchPrerequisite>AdvancedFabrication</researchPrerequisite>
+	<workerClass>PawnStorages.Recipe_ReleasePawn</workerClass>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>PS_PawnDisc</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>PS_PawnDisc</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <skillRequirements>
+      <Intellectual>6</Intellectual>
+      <Crafting>8</Crafting>
+    </skillRequirements>
+	<workSkill>Crafting</workSkill>
+    <recipeUsers>
+      <li>FabricationBench</li>
+    </recipeUsers>
+  </RecipeDef>
+</Defs>
