@@ -18,7 +18,6 @@ namespace PawnStorages
         public bool convertOption;
         public bool appendOfName;
         public bool showStoredPawn;
-
         public bool idleResearch;
         public CompProperties_PawnStorage()
         {
@@ -27,6 +26,7 @@ namespace PawnStorages
     }
     public class CompPawnStorage : ThingComp
     {
+        public Pawn toStore;
         public override void PostDraw()
         {
             base.PostDraw();
@@ -69,14 +69,14 @@ namespace PawnStorages
                         selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
                     });
                 }
-                if (Props.releaseOption)
+                Log.Message("Props.releaseOption: " + Props.releaseOption);
+                if (Props.releaseOption && CanRelease(selPawn))
                 {
                     foreach (var pawn in storedPawns)
                     {
                         yield return new FloatMenuOption("PS.Release".Translate(pawn.LabelCap), delegate
                         {
-                            Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, this.parent, pawn);
-                            selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+                            selPawn.jobs.TryTakeOrderedJob(ReleaseJob(selPawn, pawn), JobTag.Misc);
                         });
                     }
                 }
@@ -92,9 +92,48 @@ namespace PawnStorages
             }
         }
 
+        public virtual bool CanRelease(Pawn releaser)
+        {
+            return true;
+        }
+        public virtual Job ReleaseJob(Pawn releaser, Pawn toRelease)
+        {
+            return JobMaker.MakeJob(PS_DefOf.PS_Release, this.parent, toRelease);
+        }
+
+        public override IEnumerable<FloatMenuOption> CompMultiSelectFloatMenuOptions(List<Pawn> selPawns)
+        {
+            var selPawnsCopy = selPawns.ListFullCopy();
+            if (Props.convertOption && Props.maxStoredPawns > this.storedPawns.Count)
+            {
+                yield return new FloatMenuOption("PS.Enter".Translate(), delegate
+                {
+                    var diff = Props.maxStoredPawns - this.storedPawns.Count;
+                    for (var i = 0; i < diff; i++)
+                    {
+                        if (i < selPawnsCopy.Count)
+                        {
+                            Job job = JobMaker.MakeJob(PS_DefOf.PS_Enter, this.parent);
+                            selPawnsCopy[i].jobs.TryTakeOrderedJob(job, JobTag.Misc);
+                        }
+                    }
+                });
+            }
+
+            foreach (var f in base.CompMultiSelectFloatMenuOptions(selPawns))
+            {
+                yield return f;
+            }
+        }
         public override void CompTick()
         {
             base.CompTick();
+            if (toStore != null)
+            {
+                toStore.DeSpawn();
+                this.storedPawns.Add(toStore);
+                toStore = null;
+            }
             if (Props.idleResearch && (this.storedPawns?.Any() ?? false) && Find.ResearchManager.currentProj != null)
             {
                 foreach (var pawn in this.storedPawns)
@@ -125,42 +164,33 @@ namespace PawnStorages
         }
     }
 
-    public class Recipe_ReleasePawn : RecipeWorker
+    public class CompPawnStorageDisc : CompPawnStorage
     {
-        public override void ConsumeIngredient(Thing ingredient, RecipeDef recipe, Map map)
+        public override bool CanRelease(Pawn releaser)
         {
-
-        }
-        public override void Notify_IterationCompleted(Pawn billDoer, List<Thing> ingredients)
-        {
-            base.Notify_IterationCompleted(billDoer, ingredients);
-            var pawnStorage = ingredients.FirstOrDefault(x => x.TryGetComp<CompPawnStorage>() != null);
-            var comp = pawnStorage.TryGetComp<CompPawnStorage>();
-            var pawn = comp.storedPawns.First();
-            GenSpawn.Spawn(pawn, billDoer.Position, billDoer.Map);
-            comp.storedPawns.Remove(pawn);
-        }
-    }
-
-    [HarmonyPatch(typeof(Bill), "IsFixedOrAllowedIngredient", new Type[] { typeof(Thing) })]
-    public static class IsFixedOrAllowedIngredient_Patch
-    {
-        private static bool Prefix(ref bool __result, Bill __instance, Thing thing)
-        {
-            if (thing != null && __instance.recipe?.Worker is Recipe_ReleasePawn && thing.TryGetComp<CompPawnStorage>() is CompPawnStorage comp && (!comp?.storedPawns?.Any() ?? false))
+            var bench = GenClosest.ClosestThingReachable(releaser.Position, releaser.Map, ThingRequest.ForDef(PS_DefOf.PS_DigitalBench), PathEndMode.InteractionCell
+                , TraverseParms.For(releaser), 9999f, (Thing x) => releaser.CanReserve(x));
+            Log.Message("bench: " + bench);
+            if (bench != null)
             {
-                __result = false;
-                return false;
+                return true;
             }
-            return true;
+            return false;
+        }
+        public override Job ReleaseJob(Pawn releaser, Pawn toRelease)
+        {
+            var bench = GenClosest.ClosestThingReachable(releaser.Position, releaser.Map, ThingRequest.ForDef(PS_DefOf.PS_DigitalBench), PathEndMode.InteractionCell, 
+                TraverseParms.For(releaser), 9999f, (Thing x) => releaser.CanReserve(x));
+            var job = JobMaker.MakeJob(PS_DefOf.PS_ReleasePawnDisc, this.parent, toRelease, bench);
+            job.count = 1;
+            return job;
         }
     }
-
     public class JobDriver_Enter : JobDriver
     {
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(job.targetA, job, 1, -1, null, errorOnFailed);
+            return true;
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
@@ -201,10 +231,10 @@ namespace PawnStorages
             toil.FailOnCannotTouch(TargetIndex.A, PathEndMode.ClosestTouch);
             toil.WithProgressBarToilDelay(TargetIndex.A);
             yield return toil;
-            Toil enter = new Toil();
-            enter.initAction = delegate
+            Toil release = new Toil();
+            release.initAction = delegate
             {
-                Pawn actor = enter.actor;
+                Pawn actor = release.actor;
                 var comp = TargetA.Thing.TryGetComp<CompPawnStorage>();
                 if (TargetB.Thing is null)
                 {
@@ -223,8 +253,75 @@ namespace PawnStorages
                 }
 
             };
-            enter.defaultCompleteMode = ToilCompleteMode.Instant;
-            yield return enter;
+            release.defaultCompleteMode = ToilCompleteMode.Instant;
+            yield return release;
+        }
+    }
+
+    public class JobDriver_ReleasePawnDisc : JobDriver
+    {
+        public override bool TryMakePreToilReservations(bool errorOnFailed)
+        {
+            if (pawn.Reserve(job.targetA, job, 1, -1, null, errorOnFailed))
+            {
+                return pawn.Reserve(job.targetC, job, 1, -1, null, errorOnFailed);
+            }
+            return false;
+        }
+        protected override IEnumerable<Toil> MakeNewToils()
+        {
+            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.ClosestTouch);
+            yield return Toils_Haul.StartCarryThing(TargetIndex.A);
+            yield return Toils_Goto.GotoThing(TargetIndex.C, PathEndMode.InteractionCell);
+            Toil toil = Toils_General.Wait(60);
+            toil.WithProgressBarToilDelay(TargetIndex.A);
+            yield return toil;
+            Toil release = new Toil();
+            release.initAction = delegate
+            {
+                Pawn actor = release.actor;
+                var comp = TargetA.Thing.TryGetComp<CompPawnStorage>();
+                if (TargetB.Thing is null)
+                {
+                    for (int num = comp.storedPawns.Count - 1; num >= 0; num--)
+                    {
+                        var pawn = comp.storedPawns[num];
+                        comp.storedPawns.Remove(pawn);
+                        GenSpawn.Spawn(pawn, TargetA.Cell, actor.Map);
+                    }
+                }
+                else
+                {
+                    var pawn = TargetB.Pawn;
+                    comp.storedPawns.Remove(pawn);
+                    GenSpawn.Spawn(pawn, TargetA.Cell, actor.Map);
+                }
+            };
+            release.defaultCompleteMode = ToilCompleteMode.Instant;
+            yield return release;
+            yield return Toils_Haul.PlaceCarriedThingInCellFacing(TargetIndex.C);
+            yield return new Toil
+            {
+                initAction = delegate
+                {
+                    TargetA.Thing.Destroy();
+                }
+            };
+        }
+    }
+
+    [HarmonyPatch(typeof(GenRecipe))]
+    [HarmonyPatch("PostProcessProduct")]
+    public static class Patch_PostProcessProduct
+    {
+        [HarmonyPostfix]
+        public static void Postfix(ref Thing product, RecipeDef recipeDef, Pawn worker)
+        {
+            if (recipeDef == PS_DefOf.PS_Make_PawnDisc)
+            {
+                var comp = product.TryGetComp<CompPawnStorage>();
+                comp.toStore = worker;
+            }
         }
     }
 
@@ -234,6 +331,9 @@ namespace PawnStorages
         public static JobDef PS_Enter;
         public static JobDef PS_Release;
         public static JobDef PS_ReleaseAll;
+        public static JobDef PS_ReleasePawnDisc;
+        public static ThingDef PS_DigitalBench;
+        public static RecipeDef PS_Make_PawnDisc;
     }
 
     [StaticConstructorOnStartup]

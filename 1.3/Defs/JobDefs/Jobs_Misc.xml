@@ -15,7 +15,13 @@
 		<reportString>Releasing TargetB from TargetA</reportString>
 		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
 	</JobDef>
-	
+
+	<JobDef>
+		<defName>PS_ReleasePawnDisc</defName>
+		<driverClass>PawnStorages.JobDriver_ReleasePawnDisc</driverClass>
+		<reportString>Releasing TargetB from TargetA</reportString>
+		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+	</JobDef>
 		<JobDef>
 		<defName>PS_ReleaseAll</defName>
 		<driverClass>PawnStorages.JobDriver_Release</driverClass>
