@@ -3,14 +3,15 @@
 
   <ThingDef ParentName="SculptureBase">
     <defName>PS_PawnStatue</defName>
-    <label>Statue</label>
+    <label>Peculiar Statue</label>
     <description>A torso-sized piece of material sculpted into an artistic form.</description>
+	<thingClass>PawnStorages.Building_PawnStorage</thingClass>
     <graphicData>
       <graphicClass>Graphic_Random</graphicClass>
       <texPath>Things/Building/Art/SculptureSmall</texPath>
     </graphicData>
     <fillPercent>0.35</fillPercent>
-    <rotatable>false</rotatable>
+    <rotatable>true</rotatable>
 	<drawerType>RealtimeOnly</drawerType>
     <statBases>
       <MaxHitPoints>90</MaxHitPoints>

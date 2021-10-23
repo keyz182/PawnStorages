@@ -80,7 +80,7 @@
   </RecipeDef>
 
   <WorkGiverDef>
-    <defName>DoBillsDigitalBench</defName>
+    <defName>PS_DoBillsDigitalBench</defName>
     <label>fabricate things</label>
     <giverClass>WorkGiver_DoBill</giverClass>
     <workType>Smithing</workType>

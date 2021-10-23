@@ -4,4 +4,5 @@
 	<PS.Release>Release {0}</PS.Release>
 	<PS.Enter>Enter</PS.Enter>
 	<PS.Of> of {0}</PS.Of>
+	<PS.WorkOn>Work on {0}</PS.WorkOn>
 </LanguageData>

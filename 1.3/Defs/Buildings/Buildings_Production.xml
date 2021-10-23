@@ -35,6 +35,11 @@
       </li>
       <li Class="CompProperties_Flickable"/>
       <li Class="CompProperties_Breakdownable"/>
+	  <li Class="PawnStorages.CompProperties_RightClickToWorkOnBills">
+		<recipeToCallRightClick>
+			<li>PS_Make_PawnDisc</li>
+		</recipeToCallRightClick>
+	  </li>
     </comps>
     <graphicData>
       <texPath>Things/Building/Production/DigitalBench</texPath>

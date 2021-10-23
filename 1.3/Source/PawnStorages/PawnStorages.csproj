@@ -41,10 +41,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Building_PawnStorage.cs" />
     <Compile Include="CompPawnStorage.cs" />
+    <Compile Include="CompPawnStorageDisc.cs" />
+    <Compile Include="CompProperties_PawnStorage.cs" />
+    <Compile Include="CompProperties_RightClickToWorkOnBills.cs" />
+    <Compile Include="CompRightClickToWorkOnBills.cs" />
+    <Compile Include="HarmonyInit.cs" />
+    <Compile Include="ITab_Pawn_Character_PawnToShowInfoAbout_Patch.cs" />
+    <Compile Include="JobDriver_Enter.cs" />
+    <Compile Include="JobDriver_Release.cs" />
+    <Compile Include="JobDriver_ReleasePawnDisc.cs" />
+    <Compile Include="Patch_PostProcessProduct.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PS_DefOf.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Krafs.Publicizer">
+      <Version>1.0.1</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Krafs.Rimworld.Ref">
       <Version>1.3.3158-beta</Version>
     </PackageReference>
@@ -53,4 +70,7 @@
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Publicize Include="Assembly-CSharp" />
+  </ItemGroup>
 </Project>
