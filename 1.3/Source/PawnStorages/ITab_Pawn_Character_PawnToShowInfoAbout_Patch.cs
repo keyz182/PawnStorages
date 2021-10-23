@@ -11,9 +11,9 @@ namespace PawnStorages
         public static bool Prefix(ref Pawn __result)
         {
             var comp = Find.Selector.SingleSelectedThing.TryGetComp<CompPawnStorage>();
-            if (comp != null && comp.storedPawns.Any())
+            if (comp != null && comp.StoredPawns.Any())
             {
-                __result = comp.storedPawns.First();
+                __result = comp.StoredPawns.First();
                 return false;
             }
             return true;

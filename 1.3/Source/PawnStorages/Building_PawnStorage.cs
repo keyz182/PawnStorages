@@ -16,11 +16,11 @@ namespace PawnStorages
 
         public override void Draw()
         {
-            if (comp.Props.showStoredPawn && comp.storedPawns.Any())
+            if (comp.Props.showStoredPawn && comp.StoredPawns.Any())
             {
                 var pos = this.DrawPos;
                 pos.y += 0.1f;
-                var pawn = comp.storedPawns.First();
+                var pawn = comp.StoredPawns.First();
                 var rot = this.Rotation;
                 var texture = PortraitsCache.Get(pawn, new Vector2(100f, 100f), rot, new Vector3(0f, 0f, 0.1f), 1.5f);
                 MaterialRequest req2 = default(MaterialRequest);

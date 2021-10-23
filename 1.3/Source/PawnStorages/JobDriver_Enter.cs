@@ -24,10 +24,9 @@ namespace PawnStorages
             {
                 Pawn actor = enter.actor;
                 var comp = TargetA.Thing.TryGetComp<CompPawnStorage>();
-                if (comp.Props.maxStoredPawns > comp.storedPawns.Count)
+                if (comp.Props.maxStoredPawns > comp.StoredPawns.Count)
                 {
-                    actor.DeSpawn();
-                    comp.storedPawns.Add(actor);
+                    comp.StorePawn(actor);
                 }
             };
             enter.defaultCompleteMode = ToilCompleteMode.Instant;

@@ -7,8 +7,8 @@
     <description>A torso-sized piece of material sculpted into an artistic form.</description>
 	<thingClass>PawnStorages.Building_PawnStorage</thingClass>
     <graphicData>
-      <graphicClass>Graphic_Random</graphicClass>
-      <texPath>Things/Building/Art/SculptureSmall</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <texPath>Things/Building/Art/PeculiarStatue</texPath>
     </graphicData>
     <fillPercent>0.35</fillPercent>
     <rotatable>true</rotatable>
@@ -33,6 +33,7 @@
 			<convertOption>true</convertOption>
 			<appendOfName>true</appendOfName>
 			<showStoredPawn>true</showStoredPawn>
+			<transformEffect>true</transformEffect>
 		</li>
 	</comps>
   </ThingDef>

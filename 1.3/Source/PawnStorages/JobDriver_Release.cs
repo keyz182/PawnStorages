@@ -25,18 +25,14 @@ namespace PawnStorages
                 var comp = TargetA.Thing.TryGetComp<CompPawnStorage>();
                 if (TargetB.Thing is null)
                 {
-                    for (int num = comp.storedPawns.Count - 1; num >= 0; num--)
+                    for (int num = comp.StoredPawns.Count - 1; num >= 0; num--)
                     {
-                        var pawn = comp.storedPawns[num];
-                        comp.storedPawns.Remove(pawn);
-                        GenSpawn.Spawn(pawn, TargetA.Cell, actor.Map);
+                        comp.ReleasePawn(comp.StoredPawns[num], TargetA.Cell, actor.Map);
                     }
                 }
                 else
                 {
-                    var pawn = TargetB.Pawn;
-                    comp.storedPawns.Remove(pawn);
-                    GenSpawn.Spawn(pawn, TargetA.Cell, actor.Map);
+                    comp.ReleasePawn(TargetB.Pawn, TargetA.Cell, actor.Map);
                 }
 
             };

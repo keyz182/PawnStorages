@@ -11,6 +11,8 @@ namespace PawnStorages
         public bool appendOfName;
         public bool showStoredPawn;
         public bool idleResearch;
+        public bool lightEffect;
+        public bool transformEffect;
         public CompProperties_PawnStorage()
         {
             this.compClass = typeof(CompPawnStorage);

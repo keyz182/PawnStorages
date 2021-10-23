@@ -22,11 +22,12 @@ namespace PawnStorages
             }
             return base.TransformLabel(label);
         }
-        public List<Pawn> storedPawns;
-        public List<Pawn> spawnedPawns;
+
+        private List<Pawn> storedPawns;
+
+        public List<Pawn> StoredPawns => storedPawns;
         public CompPawnStorage()
         {
-            spawnedPawns = new List<Pawn>();
             storedPawns = new List<Pawn>();
         }
         public CompProperties_PawnStorage Props => base.props as CompProperties_PawnStorage;
@@ -69,6 +70,33 @@ namespace PawnStorages
             }
         }
 
+        public void ReleasePawn(Pawn pawn, IntVec3 cell, Map map)
+        {
+            this.storedPawns.Remove(pawn);
+            GenSpawn.Spawn(pawn, cell, map);
+            if (this.Props.lightEffect)
+            {
+                FleckMaker.ThrowLightningGlow(cell.ToVector3Shifted(), map, 0.5f);
+            }
+            if (this.Props.transformEffect)
+            {
+                FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
+            }
+        }
+        public void StorePawn(Pawn pawn)
+        {
+            if (this.Props.lightEffect)
+            {
+                FleckMaker.ThrowLightningGlow(pawn.Position.ToVector3Shifted(), pawn.Map, 0.5f);
+            }
+            if (this.Props.transformEffect)
+            {
+                FleckMaker.ThrowExplosionCell(pawn.Position, pawn.Map, FleckDefOf.ExplosionFlash, Color.white);
+            }
+            pawn.DeSpawn();
+            this.storedPawns.Add(pawn);
+
+        }
         public override void PostDestroy(DestroyMode mode, Map previousMap)
         {
             for (int num = this.storedPawns.Count - 1; num >= 0; num--)
@@ -161,16 +189,11 @@ namespace PawnStorages
         {
             base.PostExposeData();
             Scribe_Collections.Look(ref storedPawns, "storedPawns", LookMode.Deep);
-            Scribe_Collections.Look(ref spawnedPawns, "spawnedPawns", LookMode.Reference);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 if (storedPawns is null)
                 {
                     storedPawns = new List<Pawn>();
-                }
-                if (spawnedPawns is null)
-                {
-                    spawnedPawns = new List<Pawn>();
                 }
             }
         }

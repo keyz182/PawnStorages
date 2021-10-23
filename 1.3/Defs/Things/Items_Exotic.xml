@@ -37,6 +37,7 @@
 			<releaseOption>true</releaseOption>
 			<convertOption>true</convertOption>
 			<appendOfName>true</appendOfName>
+			<lightEffect>true</lightEffect>
 		</li>
 	</comps>
   </ThingDef>
@@ -49,7 +50,7 @@
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Cook</effectWorking>
     <soundWorking>Recipe_Machining</soundWorking>
-    <workAmount>6000</workAmount>
+    <workAmount>2000</workAmount>
     <ingredients>
       <li>
         <filter>
