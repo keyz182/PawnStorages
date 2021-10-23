@@ -64,7 +64,7 @@ namespace PawnStorages
             {
                 yield return new FloatMenuOption("PS.Enter".Translate(), delegate
                 {
-                    Job job = JobMaker.MakeJob(PS_DefOf.PS_Enter, this.parent);
+                    Job job = EnterJob(selPawn);
                     selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
                 });
             }
@@ -115,7 +115,10 @@ namespace PawnStorages
         {
             return JobMaker.MakeJob(PS_DefOf.PS_Release, this.parent, toRelease);
         }
-
+        public virtual Job EnterJob(Pawn enterer)
+        {
+            return JobMaker.MakeJob(PS_DefOf.PS_Enter, this.parent);
+        }
         public override IEnumerable<FloatMenuOption> CompMultiSelectFloatMenuOptions(List<Pawn> selPawns)
         {
             var selPawnsCopy = selPawns.ListFullCopy();

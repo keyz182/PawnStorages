@@ -51,8 +51,8 @@
     <Compile Include="ITab_Pawn_Character_PawnToShowInfoAbout_Patch.cs" />
     <Compile Include="JobDriver_Enter.cs" />
     <Compile Include="JobDriver_Release.cs" />
+    <Compile Include="JobDriver_EnterPawnDisc.cs" />
     <Compile Include="JobDriver_ReleasePawnDisc.cs" />
-    <Compile Include="Patch_PostProcessProduct.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PS_DefOf.cs" />
   </ItemGroup>

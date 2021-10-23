@@ -7,7 +7,13 @@
 		<reportString>Entering TargetA</reportString>
 		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
 	</JobDef>
-
+	
+	<JobDef>
+		<defName>PS_EnterPawnDisc</defName>
+		<driverClass>PawnStorages.JobDriver_EnterPawnDisc</driverClass>
+		<reportString>Entering TargetA</reportString>
+		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+	</JobDef>
 
 	<JobDef>
 		<defName>PS_Release</defName>

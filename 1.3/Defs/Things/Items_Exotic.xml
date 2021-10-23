@@ -44,9 +44,9 @@
   
   <RecipeDef>
     <defName>PS_Make_PawnDisc</defName>
-    <label>Digitize Pawn</label>
-    <description>Digitize Pawn</description>
-    <jobString>Digitizing Pawn.</jobString>
+    <label>Make Pawn Disc</label>
+    <description>Make Pawn Disc</description>
+    <jobString>Making Pawn Disc.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Cook</effectWorking>
     <soundWorking>Recipe_Machining</soundWorking>
