@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 
   <ThingDef ParentName="SculptureBase">
     <defName>PS_PawnStatue</defName>
-    <label>Peculiar Statue</label>
-    <description>A torso-sized piece of material sculpted into an artistic form.</description>
+    <label>Peculiar Stand</label>
+    <description>A seemingly generic base for a statue</description>
 	<thingClass>PawnStorages.Building_PawnStorage</thingClass>
     <graphicData>
       <graphicClass>Graphic_Multi</graphicClass>
@@ -12,12 +12,12 @@
     </graphicData>
     <fillPercent>0.35</fillPercent>
     <rotatable>true</rotatable>
-	<drawerType>RealtimeOnly</drawerType>
+	<drawerType>MapMeshOnly</drawerType>
     <statBases>
       <MaxHitPoints>90</MaxHitPoints>
       <Mass>3</Mass>
       <Beauty>50</Beauty>
-      <WorkToMake>18000</WorkToMake>
+      <WorkToMake>500</WorkToMake>
       <StyleDominance MayRequire="Ludeon.RimWorld.Ideology">10</StyleDominance>
     </statBases>
     <stuffCategories>
@@ -34,8 +34,17 @@
 			<appendOfName>true</appendOfName>
 			<showStoredPawn>true</showStoredPawn>
 			<transformEffect>true</transformEffect>
+			<canBeScheduled>true</canBeScheduled>
 		</li>
 	</comps>
+	<placeWorkers>
+		<li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
+	</placeWorkers>
+	<modExtensions>
+		<li Class="PawnStorages.PSExtension">
+			<statueOffset>(0,0,0.5)</statueOffset>
+		</li>
+	</modExtensions>
   </ThingDef>
   
 </Defs>

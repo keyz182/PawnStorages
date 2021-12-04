@@ -12,91 +12,39 @@ namespace PawnStorages
 {
     public class CompPawnStorage : ThingComp
     {
-        public Pawn toStore;
-
-        public override string TransformLabel(string label)
-        {
-            if (Props.appendOfName && storedPawns.Any())
-            {
-                return base.TransformLabel(label) + "PS.Of".Translate(storedPawns.First().LabelCap);
-            }
-            return base.TransformLabel(label);
-        }
-
         private List<Pawn> storedPawns;
+        private string transformLabelCache;
+        private bool labelDirty = true;
+        public bool schedulingEnabled;
 
+        public CompProperties_PawnStorage Props => base.props as CompProperties_PawnStorage;
         public List<Pawn> StoredPawns => storedPawns;
+        public bool CanStore => storedPawns.Count < Props.maxStoredPawns;
+
+        private CompAssignableToPawn_PawnStorage compAssignable;
+        public override void PostSpawnSetup(bool respawningAfterLoad)
+        {
+            base.PostSpawnSetup(respawningAfterLoad);
+            compAssignable = this.parent.TryGetComp<CompAssignableToPawn_PawnStorage>();
+        }
         public CompPawnStorage()
         {
             storedPawns = new List<Pawn>();
         }
-        public CompProperties_PawnStorage Props => base.props as CompProperties_PawnStorage;
-        public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
+
+        public override void PostExposeData()
         {
-            foreach (var f in base.CompFloatMenuOptions(selPawn))
+            Scribe_Collections.Look(ref storedPawns, "storedPawns", LookMode.Deep);
+            Scribe_Values.Look(ref schedulingEnabled, "schedulingEnabled");
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
-                yield return f;
-            }
-            if (storedPawns.Any())
-            {
-                if (Props.releaseAllOption)
+                if (storedPawns is null)
                 {
-                    yield return new FloatMenuOption("PS.ReleaseAll".Translate(), delegate
-                    {
-                        Job job = JobMaker.MakeJob(PS_DefOf.PS_ReleaseAll, this.parent);
-                        selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
-                    });
-                }
-                Log.Message("Props.releaseOption: " + Props.releaseOption);
-                if (Props.releaseOption && CanRelease(selPawn))
-                {
-                    foreach (var pawn in storedPawns)
-                    {
-                        yield return new FloatMenuOption("PS.Release".Translate(pawn.LabelCap), delegate
-                        {
-                            selPawn.jobs.TryTakeOrderedJob(ReleaseJob(selPawn, pawn), JobTag.Misc);
-                        });
-                    }
+                    storedPawns = new List<Pawn>();
                 }
             }
-
-            if (Props.convertOption && Props.maxStoredPawns > this.storedPawns.Count)
-            {
-                yield return new FloatMenuOption("PS.Enter".Translate(), delegate
-                {
-                    Job job = EnterJob(selPawn);
-                    selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
-                });
-            }
         }
 
-        public void ReleasePawn(Pawn pawn, IntVec3 cell, Map map)
-        {
-            this.storedPawns.Remove(pawn);
-            GenSpawn.Spawn(pawn, cell, map);
-            if (this.Props.lightEffect)
-            {
-                FleckMaker.ThrowLightningGlow(cell.ToVector3Shifted(), map, 0.5f);
-            }
-            if (this.Props.transformEffect)
-            {
-                FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
-            }
-        }
-        public void StorePawn(Pawn pawn)
-        {
-            if (this.Props.lightEffect)
-            {
-                FleckMaker.ThrowLightningGlow(pawn.Position.ToVector3Shifted(), pawn.Map, 0.5f);
-            }
-            if (this.Props.transformEffect)
-            {
-                FleckMaker.ThrowExplosionCell(pawn.Position, pawn.Map, FleckDefOf.ExplosionFlash, Color.white);
-            }
-            pawn.DeSpawn();
-            this.storedPawns.Add(pawn);
-
-        }
         public override void PostDestroy(DestroyMode mode, Map previousMap)
         {
             for (int num = this.storedPawns.Count - 1; num >= 0; num--)
@@ -107,24 +55,193 @@ namespace PawnStorages
             }
             base.PostDestroy(mode, previousMap);
         }
+
+        public override void CompTick()
+        {
+            if (Props.idleResearch && (this.storedPawns?.Any() ?? false) && Find.ResearchManager.currentProj != null)
+            {
+                foreach (var pawn in this.storedPawns)
+                {
+                    float statValue = pawn.GetStatValue(StatDefOf.ResearchSpeed);
+                    statValue *= 0.5f;
+                    Find.ResearchManager.ResearchPerformed(statValue, pawn);
+                    pawn.skills.Learn(SkillDefOf.Intellectual, 0.1f);
+                }
+            }
+
+            if (schedulingEnabled && compAssignable != null)
+            {
+                foreach (var pawn in this.compAssignable.AssignedPawns)
+                {
+                    if (pawn.Spawned && pawn.timetable.CurrentAssignment == PS_DefOf.PS_Home)
+                    {
+                        Job job = EnterJob(pawn);
+                        pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+                    }
+                    else if (!pawn.Spawned && StoredPawns.Contains(pawn) && pawn.timetable.CurrentAssignment != PS_DefOf.PS_Home)
+                    {
+                        ReleasePawn(pawn, this.parent.Position, this.parent.Map);
+                    }
+                }
+            }
+        }
+
+
+        public override string TransformLabel(string label)
+        {
+            if (labelDirty)
+            {
+                if (!StoredPawns.NullOrEmpty())
+                {
+                    transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
+                }
+                else
+                {
+                    transformLabelCache = $"{base.TransformLabel(label)} {"PS_Empty".Translate()}";
+                }
+                labelDirty = false;
+            }
+
+            return transformLabelCache;
+        }
+
+        public override bool AllowStackWith(Thing other)
+        {
+            if (!StoredPawns.NullOrEmpty()) return false;
+            return base.AllowStackWith(other);
+        }
+
+        public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
+        {
+            foreach (var f in base.CompFloatMenuOptions(selPawn))
+            {
+                yield return f;
+            }
+
+            if (Props.convertOption && CanStore)
+            {
+                yield return new FloatMenuOption("PS_Enter".Translate(), delegate
+                {
+                    Job job = EnterJob(selPawn);
+                    selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+                });
+            }
+
+            if (storedPawns.Any())
+            {
+                if (Props.releaseAllOption)
+                {
+                    yield return new FloatMenuOption("PS_ReleaseAll".Translate(), delegate
+                    {
+                        Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, this.parent);
+                        selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+                    });
+                }
+                if (Props.releaseOption && CanRelease(selPawn))
+                {
+                    foreach (var pawn in storedPawns)
+                    {
+                        yield return new FloatMenuOption("PS_Release".Translate(pawn.LabelCap), delegate
+                        {
+                            selPawn.jobs.TryTakeOrderedJob(ReleaseJob(selPawn, pawn), JobTag.Misc);
+                        });
+                    }
+                }
+            }
+        }
+
+        //Funcs
+        public void ReleasePawn(Pawn pawn, IntVec3 cell, Map map)
+        {
+            storedPawns.Remove(pawn);
+
+            GenSpawn.Spawn(pawn, cell, map);
+
+            //Spawn the release effecter
+            Props.releaseEffect?.Spawn(cell, map);
+
+            if (this.Props.lightEffect)
+            {
+                FleckMaker.ThrowLightningGlow(cell.ToVector3Shifted(), map, 0.5f);
+            }
+            if (this.Props.transformEffect)
+            {
+                FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
+            }
+
+            map.mapDrawer.MapMeshDirty(cell, MapMeshFlag.Things);
+
+            labelDirty = true;
+        }
+
+        public void StorePawn(Pawn pawn)
+        {
+            if (this.Props.lightEffect)
+            {
+                FleckMaker.ThrowLightningGlow(pawn.Position.ToVector3Shifted(), pawn.Map, 0.5f);
+            }
+            if (this.Props.transformEffect)
+            {
+                FleckMaker.ThrowExplosionCell(pawn.Position, pawn.Map, FleckDefOf.ExplosionFlash, Color.white);
+            }
+            //Spawn the store effecter
+            Props.storeEffect?.Spawn(pawn.Position, parent.Map);
+
+            pawn.DeSpawn();
+            this.storedPawns.Add(pawn);
+
+            parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlag.Things);
+
+            if (this.compAssignable != null && !this.compAssignable.AssignedPawns.Contains(pawn))
+            {
+                this.compAssignable.TryAssignPawn(pawn);
+            }
+            labelDirty = true;
+        }
+
         public virtual bool CanRelease(Pawn releaser)
         {
+            if (parent.def.EverHaulable && parent.def.category == ThingCategory.Item && Props.storageStation != null)
+            {
+                return GenClosest.ClosestThingReachable(releaser.Position, releaser.Map,
+                    ThingRequest.ForDef(Props.storageStation), PathEndMode.InteractionCell, TraverseParms.For(releaser),
+                    9999f, (Thing x) => releaser.CanReserve(x)) != null;
+            }
             return true;
         }
+
         public virtual Job ReleaseJob(Pawn releaser, Pawn toRelease)
         {
-            return JobMaker.MakeJob(PS_DefOf.PS_Release, this.parent, toRelease);
+            if (parent.def.EverHaulable && parent.def.category == ThingCategory.Item && Props.storageStation != null)
+            {
+                var station = GenClosest.ClosestThingReachable(releaser.Position, releaser.Map, ThingRequest.ForDef(Props.storageStation), PathEndMode.InteractionCell, TraverseParms.For(releaser), 9999f, (Thing x) => releaser.CanReserve(x));
+                var job = JobMaker.MakeJob(PS_DefOf.PS_Release, this.parent, station, toRelease);
+                job.count = 1;
+                return job;
+            }
+            return JobMaker.MakeJob(PS_DefOf.PS_Release, this.parent, null, toRelease);
         }
+
         public virtual Job EnterJob(Pawn enterer)
         {
+            //Check is storage is item with station
+            if (parent.def.EverHaulable && parent.def.category == ThingCategory.Item && Props.storageStation != null)
+            {
+                var station = GenClosest.ClosestThingReachable(enterer.Position, enterer.Map, ThingRequest.ForDef(Props.storageStation), PathEndMode.InteractionCell, TraverseParms.For(enterer), 9999f, (Thing x) => enterer.CanReserve(x));
+                var job = JobMaker.MakeJob(PS_DefOf.PS_Enter, this.parent, station);
+                job.count = 1;
+                return job;
+            }
+            //Store in side parent directly
             return JobMaker.MakeJob(PS_DefOf.PS_Enter, this.parent);
         }
+
         public override IEnumerable<FloatMenuOption> CompMultiSelectFloatMenuOptions(List<Pawn> selPawns)
         {
             var selPawnsCopy = selPawns.ListFullCopy();
             if (Props.convertOption && Props.maxStoredPawns > this.storedPawns.Count)
             {
-                yield return new FloatMenuOption("PS.Enter".Translate(), delegate
+                yield return new FloatMenuOption("PS_Enter".Translate(), delegate
                 {
                     var diff = Props.maxStoredPawns - this.storedPawns.Count;
                     for (var i = 0; i < diff; i++)
@@ -144,6 +261,21 @@ namespace PawnStorages
             }
         }
 
+        public override string CompInspectStringExtra()
+        {
+            StringBuilder sb = new StringBuilder(base.CompInspectStringExtra());
+            if (StoredPawns.Any())
+            {
+                sb.AppendLine();
+                sb.AppendLine("PS_StoredPawns".Translate());
+                foreach (var pawn in StoredPawns)
+                {
+                    sb.AppendLine($"    - {pawn.LabelCap}");
+                }
+            }
+            return sb.ToString().TrimStart().TrimEnd();
+        }
+
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
             foreach (var g in base.CompGetGizmosExtra())
@@ -154,7 +286,7 @@ namespace PawnStorages
             {
                 yield return new Command_Action
                 {
-                    defaultLabel = "PS.ReleaseAll".Translate(),
+                    defaultLabel = "PS_ReleaseAll".Translate(),
                     action = delegate
                     {
                         for (int num = this.storedPawns.Count - 1; num >= 0; num--)
@@ -167,38 +299,18 @@ namespace PawnStorages
                     icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
                 };
             }
-        }
-        public override void CompTick()
-        {
-            base.CompTick();
-            if (toStore != null)
+
+            if (Props.canBeScheduled)
             {
-                toStore.DeSpawn();
-                this.storedPawns.Add(toStore);
-                toStore = null;
-            }
-            if (Props.idleResearch && (this.storedPawns?.Any() ?? false) && Find.ResearchManager.currentProj != null)
-            {
-                foreach (var pawn in this.storedPawns)
+                yield return new Command_Toggle
                 {
-                    float statValue = pawn.GetStatValue(StatDefOf.ResearchSpeed);
-                    statValue *= 0.5f;
-                    Find.ResearchManager.ResearchPerformed(statValue, pawn);
-                    pawn.skills.Learn(SkillDefOf.Intellectual, 0.1f);
-                }
+                    defaultLabel = "PS_EnableScheduling".Translate(),
+                    toggleAction = () => schedulingEnabled = !schedulingEnabled,
+                    isActive = () => schedulingEnabled,
+                    icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
+                };
             }
-        }
-        public override void PostExposeData()
-        {
-            base.PostExposeData();
-            Scribe_Collections.Look(ref storedPawns, "storedPawns", LookMode.Deep);
-            if (Scribe.mode == LoadSaveMode.PostLoadInit)
-            {
-                if (storedPawns is null)
-                {
-                    storedPawns = new List<Pawn>();
-                }
-            }
+
         }
     }
 }

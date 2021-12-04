@@ -1,10 +1,13 @@
-﻿using RimWorld;
+﻿using System;
+using RimWorld;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
 
 namespace PawnStorages
 {
+    //This is a redundant way for a very very specific way to do recipes, making the bench a normal workbench with a bills tab is a lot more intuitive
+    [Obsolete] //For now
     public class CompRightClickToWorkOnBills : ThingComp
     {
         public IBillGiver BillGiver => this.parent as IBillGiver;
@@ -18,7 +21,7 @@ namespace PawnStorages
 
             foreach (var recipe in Props.recipeToCallRightClick)
             {
-                yield return new FloatMenuOption("PS.WorkOn".Translate(recipe.label), delegate
+                yield return new FloatMenuOption("PS_WorkOn".Translate(recipe.label), delegate
                 {
                     if (!BillGiver.BillStack.Bills.Any(x => x.recipe == recipe))
                     {

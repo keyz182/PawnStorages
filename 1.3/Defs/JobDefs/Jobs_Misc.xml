@@ -9,16 +9,18 @@
 	</JobDef>
 	
 	<JobDef>
-		<defName>PS_EnterPawnDisc</defName>
-		<driverClass>PawnStorages.JobDriver_EnterPawnDisc</driverClass>
-		<reportString>Entering TargetA</reportString>
+		<defName>PS_Release</defName>
+		<driverClass>PawnStorages.JobDriver_Release</driverClass>
+		<reportString>N/A</reportString>
+		<!--<reportString>Releasing TargetB from TargetA</reportString>-->
 		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
 	</JobDef>
 
+	<!--
 	<JobDef>
-		<defName>PS_Release</defName>
-		<driverClass>PawnStorages.JobDriver_Release</driverClass>
-		<reportString>Releasing TargetB from TargetA</reportString>
+		<defName>PS_EnterPawnDisc</defName>
+		<driverClass>PawnStorages.JobDriver_EnterPawnDisc</driverClass>
+		<reportString>Entering TargetA</reportString>
 		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
 	</JobDef>
 
@@ -28,10 +30,12 @@
 		<reportString>Releasing TargetB from TargetA</reportString>
 		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
 	</JobDef>
-		<JobDef>
+	
+	<JobDef>
 		<defName>PS_ReleaseAll</defName>
 		<driverClass>PawnStorages.JobDriver_Release</driverClass>
 		<reportString>Releasing pawns from TargetA</reportString>
 		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
 	</JobDef>
+	-->
 </Defs>

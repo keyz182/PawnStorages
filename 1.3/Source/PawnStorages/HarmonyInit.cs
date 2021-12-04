@@ -3,6 +3,7 @@ using Verse;
 
 namespace PawnStorages
 {
+
     [StaticConstructorOnStartup]
     public static class HarmonyInit
     {
