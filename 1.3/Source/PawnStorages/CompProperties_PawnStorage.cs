@@ -14,7 +14,7 @@ namespace PawnStorages
         public bool idleResearch;
         public bool lightEffect;
         public bool transformEffect;
-
+        public float pawnRestIncreaseTick;
         //
         public ThingDef storageStation;
 

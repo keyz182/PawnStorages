@@ -39,6 +39,7 @@
 				<convertOption>true</convertOption>
 				<idleResearch>true</idleResearch>
 				<canBeScheduled>true</canBeScheduled>
+				<pawnRestIncreaseTick>0.00003</pawnRestIncreaseTick>
 			</li>
 			<li Class="CompProperties_AssignableToPawn">
 				<drawAssignmentOverlay>false</drawAssignmentOverlay>
@@ -98,6 +99,7 @@
 				<convertOption>true</convertOption>
 				<idleResearch>true</idleResearch>
 				<canBeScheduled>true</canBeScheduled>
+				<pawnRestIncreaseTick>0.00003</pawnRestIncreaseTick>
 			</li>
 			<li Class="CompProperties_AssignableToPawn">
 				<drawAssignmentOverlay>false</drawAssignmentOverlay>

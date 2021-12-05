@@ -58,14 +58,21 @@ namespace PawnStorages
 
         public override void CompTick()
         {
-            if (Props.idleResearch && (this.storedPawns?.Any() ?? false) && Find.ResearchManager.currentProj != null)
             {
                 foreach (var pawn in this.storedPawns)
                 {
-                    float statValue = pawn.GetStatValue(StatDefOf.ResearchSpeed);
-                    statValue *= 0.5f;
-                    Find.ResearchManager.ResearchPerformed(statValue, pawn);
-                    pawn.skills.Learn(SkillDefOf.Intellectual, 0.1f);
+                    if (Props.idleResearch && (this.storedPawns?.Any() ?? false) && Find.ResearchManager.currentProj != null)
+                    {
+                        float statValue = pawn.GetStatValue(StatDefOf.ResearchSpeed);
+                        statValue *= 0.5f;
+                        Find.ResearchManager.ResearchPerformed(statValue, pawn);
+                        pawn.skills.Learn(SkillDefOf.Intellectual, 0.1f);
+                    }
+
+                    if (Props.pawnRestIncreaseTick != 0)
+                    {
+                        pawn.needs.rest.CurLevel += Props.pawnRestIncreaseTick;
+                    }
                 }
             }
 
@@ -84,6 +91,7 @@ namespace PawnStorages
                     }
                 }
             }
+            
         }
 
 
