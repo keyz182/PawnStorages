@@ -73,7 +73,7 @@ namespace PawnStorages
             {
                 foreach (var pawn in this.compAssignable.AssignedPawns)
                 {
-                    if (pawn.Spawned && pawn.timetable.CurrentAssignment == PS_DefOf.PS_Home)
+                    if (pawn.Spawned && pawn.timetable.CurrentAssignment == PS_DefOf.PS_Home && pawn.CurJobDef != PS_DefOf.PS_Enter)
                     {
                         Job job = EnterJob(pawn);
                         pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
@@ -153,8 +153,21 @@ namespace PawnStorages
         //Funcs
         public void ReleasePawn(Pawn pawn, IntVec3 cell, Map map)
         {
-            storedPawns.Remove(pawn);
+            if (!cell.Walkable(map))
+            {
+                for (int i = 0; i < GenRadial.RadialPattern.Length; i++)
+                {
+                    IntVec3 intVec = pawn.Position + GenRadial.RadialPattern[i];
+                    if (!intVec.Walkable(map))
+                    {
+                        continue;
+                    }
+                    cell = intVec;
+                    break;
+                }
+            }
 
+            storedPawns.Remove(pawn);
             GenSpawn.Spawn(pawn, cell, map);
 
             //Spawn the release effecter
