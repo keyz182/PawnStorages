@@ -1,17 +1,16 @@
 ﻿using HarmonyLib;
 using Verse;
 
-namespace PawnStorages
-{
+namespace PawnStorages;
 
-    [StaticConstructorOnStartup]
-    public static class HarmonyInit
+[StaticConstructorOnStartup]
+public static class HarmonyInit
+{
+    public static Harmony harmonyInstance;
+
+    static HarmonyInit()
     {
-        public static Harmony harmonyInstance;
-        static HarmonyInit()
-        {
-            harmonyInstance = new Harmony("PawnStorages.Mod");
-            harmonyInstance.PatchAll();
-        }
+        harmonyInstance = new Harmony("PawnStorages.Mod");
+        harmonyInstance.PatchAll();
     }
 }

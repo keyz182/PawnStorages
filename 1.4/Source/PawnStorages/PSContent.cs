@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 using Verse;
 
-namespace PawnStorages
+namespace PawnStorages;
+
+[StaticConstructorOnStartup]
+public static class PSContent
 {
-    [StaticConstructorOnStartup]
-    public static class PSContent
-    {
-        public static Texture2D DirectionArrow = ContentFinder<Texture2D>.Get("UI/Direction");
-    }
+    public static Texture2D DirectionArrow = ContentFinder<Texture2D>.Get("UI/Direction");
 }

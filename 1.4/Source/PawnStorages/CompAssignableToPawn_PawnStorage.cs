@@ -1,55 +1,48 @@
-﻿using RimWorld;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+using RimWorld;
 using Verse;
-using Verse.AI;
 
-namespace PawnStorages
+namespace PawnStorages;
+
+public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
 {
-	public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
-	{
-		public static HashSet<CompAssignableToPawn_PawnStorage> compAssiblables = new HashSet<CompAssignableToPawn_PawnStorage>();
+    public static HashSet<CompAssignableToPawn_PawnStorage> compAssiblables = new();
 
-        public override void PostSpawnSetup(bool respawningAfterLoad)
+    public override IEnumerable<Pawn> AssigningCandidates
+    {
+        get
         {
-            base.PostSpawnSetup(respawningAfterLoad);
-			compAssiblables.Add(this);
-		}
+            return !parent.Spawned
+                ? Enumerable.Empty<Pawn>()
+                : parent.Map.mapPawns.FreeColonists.OrderByDescending(p => CanAssignTo(p).Accepted);
+        }
+    }
 
-        public override void PostDeSpawn(Map map)
-        {
-            base.PostDeSpawn(map);
-			compAssiblables.Remove(this);
-		}
-		public override IEnumerable<Pawn> AssigningCandidates
-		{
-			get
-			{
-				if (!parent.Spawned)
-				{
-					return Enumerable.Empty<Pawn>();
-				}
-				return parent.Map.mapPawns.FreeColonists.OrderByDescending((Pawn p) => CanAssignTo(p).Accepted);
-			}
-		}
+    public override void PostSpawnSetup(bool respawningAfterLoad)
+    {
+        base.PostSpawnSetup(respawningAfterLoad);
+        compAssiblables.Add(this);
+    }
 
-		public override string GetAssignmentGizmoDesc()
-		{
-			return "PS_CommandSetOwnerDesc".Translate();
-		}
+    public override void PostDeSpawn(Map map)
+    {
+        base.PostDeSpawn(map);
+        compAssiblables.Remove(this);
+    }
 
-		public override bool AssignedAnything(Pawn pawn)
-		{
-			return compAssiblables.Any(x => x != this && x.AssignedPawns.Contains(pawn));
-		}
+    public override string GetAssignmentGizmoDesc()
+    {
+        return "PS_CommandSetOwnerDesc".Translate();
+    }
 
-		public override bool ShouldShowAssignmentGizmo()
-		{
-			return this.parent.Faction == Faction.OfPlayer;
-		}
-	}
+    public override bool AssignedAnything(Pawn pawn)
+    {
+        return compAssiblables.Any(x => x != this && x.AssignedPawns.Contains(pawn));
+    }
+
+    public override bool ShouldShowAssignmentGizmo()
+    {
+        return parent.Faction == Faction.OfPlayer;
+    }
 }

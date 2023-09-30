@@ -1,29 +1,29 @@
 ﻿using Verse;
 
-namespace PawnStorages
+namespace PawnStorages;
+
+public class CompProperties_PawnStorage : CompProperties
 {
-    public class CompProperties_PawnStorage : CompProperties
+    public bool appendOfName;
+    public bool canBeScheduled;
+    public bool convertOption;
+    public bool idleResearch;
+    public bool lightEffect;
+    public int maxStoredPawns = 1;
+    public float pawnRestIncreaseTick;
+    public bool releaseAllOption;
+    public EffecterDef releaseEffect;
+    public bool releaseOption;
+
+    public bool showStoredPawn;
+
+    public ThingDef storageStation;
+
+    public EffecterDef storeEffect;
+    public bool transformEffect;
+
+    public CompProperties_PawnStorage()
     {
-        public int maxStoredPawns = 1;
-        public bool releaseOption;
-        public bool releaseAllOption;
-        public bool canBeScheduled;
-        public bool convertOption;
-        public bool appendOfName;
-        public bool showStoredPawn;
-        public bool idleResearch;
-        public bool lightEffect;
-        public bool transformEffect;
-        public float pawnRestIncreaseTick;
-        //
-        public ThingDef storageStation;
-
-        public EffecterDef storeEffect;
-        public EffecterDef releaseEffect;
-
-        public CompProperties_PawnStorage()
-        {
-            this.compClass = typeof(CompPawnStorage);
-        }
+        compClass = typeof(CompPawnStorage);
     }
 }
