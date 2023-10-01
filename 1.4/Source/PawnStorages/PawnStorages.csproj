@@ -7,8 +7,10 @@
         <TargetFramework>net472</TargetFramework>
         <LangVersion>latest</LangVersion>
         <PlatformTarget>x64</PlatformTarget>
-        <OutputPath>..\..\Assemblies\</OutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <OutputPath>../../Assemblies/</OutputPath>
+        <ZipFilePath>../../../$(AssemblyName).zip</ZipFilePath>
+        <ReleasePath>../../../Release</ReleasePath>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -25,8 +27,28 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Optimize>false</Optimize>
+        <DebugSymbols>true</DebugSymbols>
         <DebugType>portable</DebugType>
     </PropertyGroup>
+
+    <ItemGroup>
+        <ReleaseFiles Include="../../../*.xml;../../../*.md;../../../LICENSE;../../../1.*/**"
+                      Exclude="../../../1.*/Source/**;../../../1.*/Assemblies/**">
+            <Link>Files/%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </ReleaseFiles>
+        <AboutFiles Include="../../../About/**;">
+            <Link>Files/About/%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </AboutFiles>
+        <CommonFiles Include="../../../Common/**">
+            <Link>Files/Common/%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </CommonFiles>
+        <ReleaseAssemblies Include="../../../1.*/Assemblies/*.dll" Exclude="../../../1.*/Assemblies/0Harmony.dll">
+            <Link>Files/Assemblies/%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </ReleaseAssemblies>
+        <GitMeta Include="../../../.git*">
+            <Link>Files/%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </GitMeta>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Krafs.Publicizer" Version="2.1.0">
@@ -56,4 +78,22 @@
     <ItemGroup>
         <Publicize Include="Assembly-CSharp"/>
     </ItemGroup>
+
+    <Target Name="CleanAssemblies" AfterTargets="Clean" >
+        <RemoveDir Directories="$(OutputPath)" Condition="Exists('$(OutputPath)')"/>
+    </Target>
+
+    <Target Name="CleanRelease" AfterTargets="Clean" >
+        <RemoveDir Directories="$(ReleasePath)" Condition="Exists('$(ReleasePath)')"/>
+        <Delete Files="$(ZipFilePath)" Condition="Exists('$(ZipFilePath)')" />
+    </Target>
+
+    <Target Name="PostBuild" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' " DependsOnTargets="CleanRelease">
+        <MakeDir Directories="$(ReleasePath)" />
+        <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles->'$(ReleasePath)/%(RecursiveDir)%(Filename)%(Extension)')" />
+        <Copy SourceFiles="@(ReleaseAssemblies)" DestinationFiles="@(ReleaseAssemblies->'$(ReleasePath)/%(RecursiveDir)%(Filename)%(Extension)')" />
+        <Copy SourceFiles="@(AboutFiles)" DestinationFolder="$(ReleasePath)/About" />
+        <Copy SourceFiles="@(CommonFiles)" DestinationFiles="@(CommonFiles->'$(ReleasePath)/Common/%(RecursiveDir)%(Filename)%(Extension)')" />
+        <ZipDirectory DestinationFile="$(ZipFilePath)" SourceDirectory="$(ReleasePath)" Overwrite="true" />
+    </Target>
 </Project>
