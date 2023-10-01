@@ -2,45 +2,44 @@
 using Verse;
 using Verse.AI;
 
-namespace PawnStorages
+namespace PawnStorages;
+
+public class JobDriver_Enter : JobDriver
 {
-    public class JobDriver_Enter : JobDriver
+    private bool HasStation => TargetB.IsValid && TargetB.HasThing && TargetB.Thing is Building;
+
+    public override bool TryMakePreToilReservations(bool errorOnFailed)
     {
-        private bool HasStation => TargetB.IsValid && TargetB.HasThing && TargetB.Thing is Building;
+        return true; // pawn.Reserve(job.targetA, job, 1, -1, null, errorOnFailed);
+    }
 
-        public override bool TryMakePreToilReservations(bool errorOnFailed)
+    public override IEnumerable<Toil> MakeNewToils()
+    {
+        if (HasStation)
         {
-            return true;// pawn.Reserve(job.targetA, job, 1, -1, null, errorOnFailed);
+            this.FailOnDespawnedOrNull(TargetIndex.B);
+            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.ClosestTouch);
+            yield return Toils_Haul.StartCarryThing(TargetIndex.A);
+            yield return Toils_Goto.GotoThing(TargetIndex.B, PathEndMode.InteractionCell);
+        }
+        else
+        {
+            this.FailOnDespawnedOrNull(TargetIndex.A);
+            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.ClosestTouch);
         }
 
-        public override IEnumerable<Toil> MakeNewToils()
+        Toil toil = Toils_General.Wait(60);
+        toil.WithProgressBarToilDelay(TargetIndex.B);
+        yield return toil;
+        Toil enter = new();
+        enter.initAction = delegate
         {
-            if (HasStation)
-            {
-                this.FailOnDespawnedOrNull(TargetIndex.B);
-                yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.ClosestTouch);
-                yield return Toils_Haul.StartCarryThing(TargetIndex.A);
-                yield return Toils_Goto.GotoThing(TargetIndex.B, PathEndMode.InteractionCell);
-            }
-            else
-            {
-                this.FailOnDespawnedOrNull(TargetIndex.A);
-                yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.ClosestTouch);
-            }
-
-            Toil toil = Toils_General.Wait(60);
-            toil.WithProgressBarToilDelay(TargetIndex.B);
-            yield return toil;
-            Toil enter = new Toil();
-            enter.initAction = delegate
-            {
-                Pawn actor = enter.actor;
-                var comp = TargetA.Thing.TryGetComp<CompPawnStorage>();
-                if(comp.CanStore) 
-                    comp.StorePawn(actor);
-            };
-            enter.defaultCompleteMode = ToilCompleteMode.Instant;
-            yield return enter;
-        }
+            Pawn actor = enter.actor;
+            CompPawnStorage comp = TargetA.Thing.TryGetComp<CompPawnStorage>();
+            if (comp.CanStore)
+                comp.StorePawn(actor);
+        };
+        enter.defaultCompleteMode = ToilCompleteMode.Instant;
+        yield return enter;
     }
 }

@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Verse;
 
-namespace PawnStorages
+namespace PawnStorages;
+
+public class CompProperties_RightClickToWorkOnBills : CompProperties
 {
-    public class CompProperties_RightClickToWorkOnBills : CompProperties
+    public List<RecipeDef> recipeToCallRightClick;
+
+    [Obsolete("Redundant way for a very very specific way to do recipes")]
+    public CompProperties_RightClickToWorkOnBills()
     {
-        public List<RecipeDef> recipeToCallRightClick;
-        public CompProperties_RightClickToWorkOnBills()
-        {
-            this.compClass = typeof(CompRightClickToWorkOnBills);
-        }
+        compClass = typeof(CompRightClickToWorkOnBills);
     }
 }

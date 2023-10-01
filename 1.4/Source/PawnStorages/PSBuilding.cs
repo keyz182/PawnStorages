@@ -1,52 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 using Verse;
 
-namespace PawnStorages
+namespace PawnStorages;
+
+public class PSExtension : DefModExtension
 {
-    public class PSExtension : DefModExtension
+    public GraphicData extraGraphicData;
+    public Vector3 statueOffset = Vector3.zero;
+}
+
+public class PSBuilding : Building
+{
+    private Graphic alternativeGraphicInt;
+    private PSExtension defExtension;
+
+    //
+    protected bool HasExtension => defExtension != null;
+    public virtual bool ShouldUseAlternative => HasExtension && defExtension.extraGraphicData != null;
+
+    protected Vector3 StatueOffset => HasExtension ? defExtension.statueOffset : Vector3.zero;
+
+    protected Graphic AlternateGraphic
     {
-        public GraphicData extraGraphicData;
-        public Vector3 statueOffset = Vector3.zero;
+        get
+        {
+            if (alternativeGraphicInt != null) return alternativeGraphicInt;
+            if (!HasExtension || defExtension.extraGraphicData == null) return BaseContent.BadGraphic;
+
+            alternativeGraphicInt = defExtension.extraGraphicData.GraphicColoredFor(this);
+
+            return alternativeGraphicInt;
+        }
     }
 
-    public class PSBuilding : Building
+    public override Graphic Graphic => ShouldUseAlternative ? AlternateGraphic : base.Graphic;
+
+    public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
-        private PSExtension defExtension;
-        private Graphic alternativeGraphicInt;
-
-        public override void SpawnSetup(Map map, bool respawningAfterLoad)
-        {
-            base.SpawnSetup(map, respawningAfterLoad);
-            defExtension = def.GetModExtension<PSExtension>();
-            
-        }
-
-        //
-        protected bool HasExtension => defExtension != null;
-        public virtual bool ShouldUseAlternative => HasExtension && defExtension.extraGraphicData != null;
-
-        protected Vector3 StatueOffset => HasExtension ? defExtension.statueOffset : Vector3.zero;
-        protected Graphic AlternateGraphic
-        {
-            get
-            {
-                if (alternativeGraphicInt == null)
-                {
-                    if (!HasExtension || defExtension.extraGraphicData == null)
-                    {
-                        return BaseContent.BadGraphic;
-                    }
-                    alternativeGraphicInt = defExtension.extraGraphicData.GraphicColoredFor(this);
-                }
-                return alternativeGraphicInt;
-            }
-        }
-
-        public override Graphic Graphic => ShouldUseAlternative ? AlternateGraphic : base.Graphic;
+        base.SpawnSetup(map, respawningAfterLoad);
+        defExtension = def.GetModExtension<PSExtension>();
     }
 }
