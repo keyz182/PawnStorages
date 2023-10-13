@@ -101,8 +101,9 @@ public class CompPawnStorage : ThingComp
 
     public override bool AllowStackWith(Thing other)
     {
-        if (!StoredPawns.NullOrEmpty()) return false;
-        return base.AllowStackWith(other);
+        return StoredPawns.NullOrEmpty()
+               && base.AllowStackWith(other)
+               && (other.TryGetComp<CompPawnStorage>()?.storedPawns?.NullOrEmpty() ?? true);
     }
 
     public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)

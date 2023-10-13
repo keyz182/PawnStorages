@@ -54,7 +54,7 @@
 		<defName>PS_PawnCrystal</defName>
 		<label>mysterious gem</label>
 		<!--ASK: Keep Feynman Digitizer desc instead?-->
-		<description>A storage medium for a pawn. This magical crystal can be embued with the physical essence of a colonist.</description>
+		<description>A storage medium for a pawn. This magical crystal can be imbued with the physical essence of a colonist.</description>
 		<stackLimit>16</stackLimit>
 		<tickerType>Never</tickerType>
 		<drawGUIOverlay>true</drawGUIOverlay>
