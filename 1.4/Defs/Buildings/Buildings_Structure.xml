@@ -33,6 +33,7 @@
 		<costStuffCount>25</costStuffCount>
 		<comps>
 			<li Class="PawnStorages.CompProperties_PawnStorage">
+				<needsDrop>true</needsDrop>
 				<maxStoredPawns>9</maxStoredPawns>
 				<releaseOption>true</releaseOption>
 				<releaseAllOption>true</releaseAllOption>
@@ -93,6 +94,7 @@
 		<costStuffCount>25</costStuffCount>
 		<comps>
 			<li Class="PawnStorages.CompProperties_PawnStorage">
+				<needsDrop>true</needsDrop>
 				<maxStoredPawns>9</maxStoredPawns>
 				<releaseOption>true</releaseOption>
 				<releaseAllOption>true</releaseAllOption>

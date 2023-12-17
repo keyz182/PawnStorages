@@ -40,6 +40,7 @@
 		<comps>
 			<li Class="PawnStorages.CompProperties_PawnStorage">
 				<compClass>PawnStorages.CompPawnStorage</compClass>
+				<needsDrop>false</needsDrop>
 				<maxStoredPawns>1</maxStoredPawns>
 				<releaseOption>true</releaseOption>
 				<convertOption>true</convertOption>
@@ -65,6 +66,7 @@
 		<comps>
 			<li Class="PawnStorages.CompProperties_PawnStorage">
 				<compClass>PawnStorages.CompPawnStorage</compClass>
+				<needsDrop>false</needsDrop>
 				<maxStoredPawns>1</maxStoredPawns>
 				<releaseOption>true</releaseOption>
 				<convertOption>true</convertOption>
@@ -85,6 +87,7 @@
 		<comps>
 			<li Class="PawnStorages.CompProperties_PawnStorage">
 				<compClass>PawnStorages.CompPawnStorageDisc</compClass>
+				<needsDrop>false</needsDrop>
 				<maxStoredPawns>1</maxStoredPawns>
 				<releaseOption>true</releaseOption>
 				<convertOption>true</convertOption>

@@ -8,6 +8,7 @@ public class CompProperties_PawnStorage : CompProperties
     public bool canBeScheduled;
     public bool convertOption;
     public bool idleResearch;
+    public bool needsDrop;
     public bool lightEffect;
     public int maxStoredPawns = 1;
     public float pawnRestIncreaseTick;

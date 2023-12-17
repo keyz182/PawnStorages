@@ -10,6 +10,9 @@ public static class HarmonyInit
 
     static HarmonyInit()
     {
+#if DEBUG
+        Harmony.DEBUG = true;
+#endif
         harmonyInstance = new Harmony("PawnStorages.Mod");
         harmonyInstance.PatchAll();
     }
