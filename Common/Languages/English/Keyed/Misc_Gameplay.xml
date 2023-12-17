@@ -17,4 +17,7 @@
 	<PS_ReleaseReportD>Releasing all colonists from {0}</PS_ReleaseReportD>
 	<PS_CommandSetOwnerDesc>Assign specific colonists to be stored in this storage.</PS_CommandSetOwnerDesc>
 	<PS_EnableScheduling>Enable scheduling</PS_EnableScheduling>
+
+	<PS_Settings_AllowNeedsDrop>Allow needs to drop at home</PS_Settings_AllowNeedsDrop>
+	<PS_Settings_Category>Homebound - Pawn Storages</PS_Settings_Category>
 </LanguageData>
