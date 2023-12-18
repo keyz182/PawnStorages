@@ -6,54 +6,6 @@ using Verse.Sound;
 
 namespace PawnStorages;
 
-[HarmonyPatch(typeof(ThinkNode_Priority_GetJoy), "GetPriority")]
-public static class ThinkNode_Priority_GetJoy_Patch
-{
-    public static bool Prefix(ref float __result, Pawn pawn)
-    {
-        TimeAssignmentDef timeAssignmentDef = pawn.timetable == null ? TimeAssignmentDefOf.Anything : pawn.timetable.CurrentAssignment;
-        if (timeAssignmentDef == PS_DefOf.PS_Home)
-        {
-            __result = 0f;
-            return false;
-        }
-
-        return true;
-    }
-}
-
-[HarmonyPatch(typeof(JobGiver_GetRest), "GetPriority")]
-public static class JobGiver_GetRest_Patch
-{
-    public static bool Prefix(ref float __result, Pawn pawn)
-    {
-        TimeAssignmentDef timeAssignmentDef = pawn.timetable == null ? TimeAssignmentDefOf.Anything : pawn.timetable.CurrentAssignment;
-        if (timeAssignmentDef == PS_DefOf.PS_Home)
-        {
-            __result = 0f;
-            return false;
-        }
-
-        return true;
-    }
-}
-
-[HarmonyPatch(typeof(JobGiver_Work), "GetPriority")]
-public static class JobGiver_Work_Patch
-{
-    public static bool Prefix(ref float __result, Pawn pawn)
-    {
-        TimeAssignmentDef timeAssignmentDef = pawn.timetable == null ? TimeAssignmentDefOf.Anything : pawn.timetable.CurrentAssignment;
-        if (timeAssignmentDef == PS_DefOf.PS_Home)
-        {
-            __result = 0f;
-            return false;
-        }
-
-        return true;
-    }
-}
-
 [HarmonyPatch(typeof(TimeAssignmentSelector), "DrawTimeAssignmentSelectorGrid")]
 public static class DrawTimeAssignmentSelectorGrid_Patch
 {
