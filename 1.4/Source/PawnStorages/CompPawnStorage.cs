@@ -29,6 +29,7 @@ public class CompPawnStorage : ThingComp
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
     public List<Pawn> StoredPawns => storedPawns;
     public bool CanStore => storedPawns.Count < Props.maxStoredPawns;
+    public void SetLabelDirty() => labelDirty = true;
 
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {

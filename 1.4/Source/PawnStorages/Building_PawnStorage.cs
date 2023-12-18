@@ -7,7 +7,7 @@ namespace PawnStorages;
 
 public class Building_PawnStorage : PSBuilding
 {
-    private CompPawnStorage storageComp;
+    public CompPawnStorage storageComp;
 
     public override bool ShouldUseAlternative => base.ShouldUseAlternative && !(storageComp?.StoredPawns.NullOrEmpty() ?? true);
 
