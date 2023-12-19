@@ -51,6 +51,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Reference Include="KCSG">
+            <HintPath>../../../../2023507013/1.4/Assemblies/KCSG.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
         <PackageReference Include="Krafs.Publicizer" Version="2.1.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -12,6 +12,7 @@ public static class PS_DefOf
 
     //Things
     public static ThingDef PS_DigitizerFabricator;
+    public static ThingDef PS_PawnStatue;
 
     //Misc
     public static RecipeDef PS_MakePawnStorageDisc;

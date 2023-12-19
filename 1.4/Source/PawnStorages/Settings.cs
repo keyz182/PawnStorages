@@ -6,6 +6,7 @@ namespace PawnStorages;
 public class Settings : ModSettings
 {
     public bool AllowNeedsDrop = true;
+    public string ForcedPawn = "";
 
     public void DoWindowContents(Rect wrect)
     {
@@ -13,6 +14,7 @@ public class Settings : ModSettings
         options.Begin(wrect);
 
         options.CheckboxLabeled("PS_Settings_AllowNeedsDrop".Translate(), ref AllowNeedsDrop);
+        ForcedPawn = options.TextEntryLabeled("Force Pawn in Statue", ForcedPawn);
         options.Gap();
 
         options.End();
