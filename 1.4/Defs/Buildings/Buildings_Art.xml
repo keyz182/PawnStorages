@@ -47,12 +47,4 @@
 		</li>
 	</modExtensions>
   </ThingDef>
-
-	<KCSG.SymbolDef>
-		<defName>PS_PawnStatue_Ice_South</defName>
-		<thing>PS_PawnStatue</thing>
-		<stuff>Gold</stuff>
-		<rotation>South</rotation>
-	</KCSG.SymbolDef>
-
 </Defs>

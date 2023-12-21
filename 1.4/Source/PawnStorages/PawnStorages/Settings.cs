@@ -14,7 +14,9 @@ public class Settings : ModSettings
         options.Begin(wrect);
 
         options.CheckboxLabeled("PS_Settings_AllowNeedsDrop".Translate(), ref AllowNeedsDrop);
-        ForcedPawn = options.TextEntryLabeled("Force Pawn in Statue", ForcedPawn);
+        options.Gap();
+        options.Label("PS_Settings_Advanced".Translate());
+        ForcedPawn = options.TextEntryLabeled("PS_Settings_ForceNextPawnStatue".Translate(), ForcedPawn);
         options.Gap();
 
         options.End();
