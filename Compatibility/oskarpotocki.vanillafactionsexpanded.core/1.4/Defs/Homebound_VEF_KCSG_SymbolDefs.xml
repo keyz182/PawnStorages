@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Defs>
+
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Gold_South</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>Gold</stuff>
+        <rotation>South</rotation>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Gold_North</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>Gold</stuff>
+        <rotation>North</rotation>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Gold_East</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>Gold</stuff>
+        <rotation>East</rotation>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Gold_West</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>Gold</stuff>
+        <rotation>West</rotation>
+    </KCSG.SymbolDef>
+
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Slate_South</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>BlocksSlate</stuff>
+        <rotation>South</rotation>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Slate_North</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>BlocksSlate</stuff>
+        <rotation>North</rotation>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Slate_East</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>BlocksSlate</stuff>
+        <rotation>East</rotation>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Slate_West</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>BlocksSlate</stuff>
+        <rotation>West</rotation>
+    </KCSG.SymbolDef>
+
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Marble_South</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>BlocksMarble</stuff>
+        <rotation>South</rotation>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Marble_North</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>BlocksMarble</stuff>
+        <rotation>North</rotation>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Marble_East</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>BlocksMarble</stuff>
+        <rotation>East</rotation>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_Marble_West</defName>
+        <thing>PS_PawnStatue</thing>
+        <stuff>BlocksMarble</stuff>
+        <rotation>West</rotation>
+    </KCSG.SymbolDef>
+
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_RandomStuff_South</defName>
+        <thing>PS_PawnStatue</thing>
+        <rotation>South</rotation>
+        <randomizeStuff>true</randomizeStuff>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_RandomStuff_North</defName>
+        <thing>PS_PawnStatue</thing>
+        <rotation>North</rotation>
+        <randomizeStuff>true</randomizeStuff>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_RandomStuff_East</defName>
+        <thing>PS_PawnStatue</thing>
+        <rotation>East</rotation>
+        <randomizeStuff>true</randomizeStuff>
+    </KCSG.SymbolDef>
+    <KCSG.SymbolDef>
+        <defName>PS_PawnStatue_RandomStuff_West</defName>
+        <thing>PS_PawnStatue</thing>
+        <rotation>West</rotation>
+        <randomizeStuff>true</randomizeStuff>
+    </KCSG.SymbolDef>
+
+</Defs>

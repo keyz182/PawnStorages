@@ -269,7 +269,7 @@ public class CompPawnStorage : ThingComp
     public override string CompInspectStringExtra()
     {
         StringBuilder sb = new(base.CompInspectStringExtra());
-        if (StoredPawns.Any())
+        if (StoredPawns?.Any() == true)
         {
             sb.AppendLine();
             sb.AppendLine("PS_StoredPawns".Translate());
