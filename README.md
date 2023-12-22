@@ -1,6 +1,6 @@
 <p>
-  <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2674603226" alt="Steam Workshop Link">
-  <img src="https://img.shields.io/static/v1?label=Steam&message=Workshop&color=blue&logo=steam&link=https://steamcommunity.com/sharedfiles/filedetails/?id=2674603226"/>
+  <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3119559485" alt="Steam Workshop Link">
+  <img src="https://img.shields.io/static/v1?label=Steam&message=Workshop&color=blue&logo=steam&link=https://steamcommunity.com/sharedfiles/filedetails/?id=3119559485"/>
   </a>
 </p>
 
@@ -10,7 +10,7 @@
 ![RimWorld Version](https://img.shields.io/badge/Built_for_RimWorld-1.4-blue.svg)
 ![Harmony Version](https://img.shields.io/badge/Powered_by_Harmony-2.2.2-blue.svg)
 ![GitHub Downloads](https://img.shields.io/github/downloads/feldoh/PawnStorages/total?colorB=blue&label=GitHub+Downloads)
-![Steam Downloads](https://img.shields.io/steam/downloads/2674603226?colorB=blue&label=Steam+Downloads)
+![Steam Downloads](https://img.shields.io/steam/downloads/3119559485?colorB=blue&label=Steam+Downloads)
 
 Homebound - An experimental mod offering a variety of ways to tuck pawns away when they're not needed in order to preserve system resources
 
