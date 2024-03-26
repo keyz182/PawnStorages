@@ -36,6 +36,11 @@
 			<showStoredPawn>true</showStoredPawn>
 			<transformEffect>true</transformEffect>
 			<canBeScheduled>true</canBeScheduled>
+			<allowNonColonist>true</allowNonColonist>
+		</li>
+		<li Class="CompProperties_AssignableToPawn">
+			<drawAssignmentOverlay>false</drawAssignmentOverlay>
+			<compClass>PawnStorages.CompAssignableToPawn_PawnStorage</compClass>
 		</li>
 	</comps>
 	<placeWorkers>

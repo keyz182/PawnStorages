@@ -6,7 +6,7 @@ namespace PawnStorages;
 
 public class JobDriver_Enter : JobDriver
 {
-    private bool HasStation => TargetB.IsValid && TargetB.HasThing && TargetB.Thing is Building;
+    private bool HasStation => TargetB is { IsValid: true, HasThing: true, Thing: Building };
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)
     {

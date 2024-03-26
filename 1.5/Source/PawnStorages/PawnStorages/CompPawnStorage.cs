@@ -163,6 +163,7 @@ public class CompPawnStorage : ThingComp
 
         labelDirty = true;
         ApplyNeedsForStoredPeriodFor(pawn);
+        pawn.guest?.WaitInsteadOfEscapingFor(1250);
     }
 
     public virtual void ApplyNeedsForStoredPeriodFor(Pawn pawn)
@@ -306,5 +307,8 @@ public class CompPawnStorage : ThingComp
                 isActive = () => schedulingEnabled,
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
+
+        Log.Message($"AllowNonColonist: {Props.allowNonColonist} - CompAssignable: {compAssignable == null}");
+        if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
     }
 }
