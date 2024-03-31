@@ -10,9 +10,9 @@ public class JobDriver_TakeToStorage : JobDriver
 {
     private const TargetIndex TakeeIndex = TargetIndex.A;
 
-    private const TargetIndex BedIndex = TargetIndex.B;
+    private const TargetIndex StorageIndex = TargetIndex.B;
 
-    protected Pawn Takee => (Pawn)job.GetTarget(TargetIndex.A).Thing;
+    protected Pawn Takee => (Pawn)job.GetTarget(TakeeIndex).Thing;
 
     private bool TakeeRescued
     {
@@ -32,7 +32,7 @@ public class JobDriver_TakeToStorage : JobDriver
         }
     }
 
-    protected ThingWithComps PawnStorageAssigned => (ThingWithComps)job.GetTarget(TargetIndex.B).Thing;
+    protected ThingWithComps PawnStorageAssigned => (ThingWithComps)job.GetTarget(StorageIndex).Thing;
     protected CompPawnStorage PawnStorageComp => PawnStorageAssigned.TryGetComp<CompPawnStorage>();
     protected CompAssignableToPawn_PawnStorage PawnStorageAssignmentComp => PawnStorageAssigned.TryGetComp<CompAssignableToPawn_PawnStorage>();
 
@@ -40,7 +40,7 @@ public class JobDriver_TakeToStorage : JobDriver
     {
         if (job.def == JobDefOf.Rescue && !TakeeRescued)
         {
-            return "TakingToStorage".Translate(Takee);
+            return "PS_TakingToStorage".Translate(Takee);
         }
 
         return base.GetReport();
@@ -53,9 +53,9 @@ public class JobDriver_TakeToStorage : JobDriver
 
     public override IEnumerable<Toil> MakeNewToils()
     {
-        this.FailOnDestroyedOrNull(TargetIndex.A);
-        this.FailOnDestroyedOrNull(TargetIndex.B);
-        this.FailOnAggroMentalStateAndHostile(TargetIndex.A);
+        this.FailOnDestroyedOrNull(TakeeIndex);
+        this.FailOnDestroyedOrNull(StorageIndex);
+        this.FailOnAggroMentalStateAndHostile(TakeeIndex);
         this.FailOn(delegate
         {
             if (job.def.makeTargetPrisoner)
@@ -72,7 +72,7 @@ public class JobDriver_TakeToStorage : JobDriver
 
             return false;
         });
-        Toil goToTakee = Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.ClosestTouch).FailOnDespawnedNullOrForbidden(TargetIndex.A).FailOnDespawnedNullOrForbidden(TargetIndex.B)
+        Toil goToTakee = Toils_Goto.GotoThing(TakeeIndex, PathEndMode.ClosestTouch).FailOnDespawnedNullOrForbidden(TakeeIndex).FailOnDespawnedNullOrForbidden(StorageIndex)
             .FailOn(() => job.def == JobDefOf.Arrest && !Takee.CanBeArrestedBy(pawn))
             .FailOn(() => !pawn.CanReach(PawnStorageAssigned, PathEndMode.OnCell, Danger.Deadly))
             .FailOn(() => (job.def == JobDefOf.Rescue || job.def == JobDefOf.Capture) && !Takee.Downed)
@@ -100,10 +100,11 @@ public class JobDriver_TakeToStorage : JobDriver
                 }
             }
         };
+        checkArrestResistance.debugName = "checkArrestResistance";
         yield return Toils_Jump.JumpIf(checkArrestResistance, () => pawn.IsCarryingPawn(Takee));
         yield return goToTakee;
         yield return checkArrestResistance;
-        Toil startCarrying = Toils_Haul.StartCarryThing(TargetIndex.A);
+        Toil startCarrying = Toils_Haul.StartCarryThing(TakeeIndex);
         startCarrying.AddPreInitAction(CheckMakeTakeeGuest);
         startCarrying.AddFinishAction(delegate
         {
@@ -112,22 +113,22 @@ public class JobDriver_TakeToStorage : JobDriver
                 CheckMakeTakeePrisoner();
             }
         });
-        Toil goToStorage = Toils_Goto.GotoThing(TargetIndex.B, PathEndMode.Touch).FailOn(() => !pawn.IsCarryingPawn(Takee));
-        goToStorage.FailOnDespawnedNullOrForbidden(TargetIndex.B);
+        startCarrying.debugName = "startCarrying";
+        Toil goToStorage = Toils_Goto.GotoThing(StorageIndex, PathEndMode.Touch).FailOn(() => !pawn.IsCarryingPawn(Takee));
+        goToStorage.FailOnDespawnedNullOrForbidden(StorageIndex);
+        goToStorage.debugName = "goToStorage";
         yield return Toils_Jump.JumpIf(goToStorage, () => pawn.IsCarryingPawn(Takee));
         yield return startCarrying;
         yield return goToStorage;
-        Toil toil = ToilMaker.MakeToil("MakeNewToils");
-        toil.initAction = delegate
+        Toil setTakeeSettings = ToilMaker.MakeToil();
+        setTakeeSettings.debugName = "takeeSettings";
+        setTakeeSettings.initAction = delegate
         {
             CheckMakeTakeePrisoner();
-            if (Takee.playerSettings == null)
-            {
-                Takee.playerSettings = new Pawn_PlayerSettings(Takee);
-            }
+            Takee.playerSettings ??= new Pawn_PlayerSettings(Takee);
         };
-        yield return toil;
-        yield return Toils_Reserve.Release(TargetIndex.B);
+        yield return setTakeeSettings;
+        yield return Toils_Reserve.Release(StorageIndex);
         yield return StoreIntoStorage(PawnStorageAssigned, pawn, Takee, TakeeRescued);
         yield return Toils_General.Do(delegate
         {
@@ -144,7 +145,7 @@ public class JobDriver_TakeToStorage : JobDriver
                 }
             }
         });
-        yield return Toils_General.WaitWith(TargetIndex.B, 75);
+        yield return Toils_General.WaitWith(StorageIndex, 75);
     }
 
     public static Toil StoreIntoStorage(ThingWithComps storage, Pawn taker, Pawn takee, bool rescued = false)
@@ -156,6 +157,12 @@ public class JobDriver_TakeToStorage : JobDriver
             taker.carryTracker.TryDropCarriedThing(position, ThingPlaceMode.Direct, out Thing _);
             takee.Notify_Teleported(false);
             takee.stances.CancelBusyStanceHard();
+            if (takee.Downed)
+            {
+                CompPawnStorage comp = storage.TryGetComp<CompPawnStorage>();
+                if (comp.CanStore)
+                    comp.StorePawn(takee);
+            }
             takee.jobs.StartJob(JobMaker.MakeJob(PS_DefOf.PS_Enter, (LocalTargetInfo)(Thing)storage), JobCondition.InterruptForced, tag: JobTag.Misc);
             if (rescued)
                 takee.relations.Notify_RescuedBy(taker);

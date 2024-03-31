@@ -45,13 +45,20 @@
         <Delete Files="$(ZipFilePath)" Condition="Exists('$(ZipFilePath)')" />
     </Target>
 
-    <Target Name="PostBuild" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' " DependsOnTargets="CleanRelease">
+    <Target Name="PostBuild" AfterTargets="Build" DependsOnTargets="CleanRelease">
         <MakeDir Directories="$(ReleasePath)" />
         <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles->'$(ReleasePath)/%(RecursiveDir)%(Filename)%(Extension)')" />
         <Copy SourceFiles="@(ReleaseAssemblies)" DestinationFiles="@(ReleaseAssemblies->'$(ReleasePath)/%(RecursiveDir)%(Filename)%(Extension)')" />
         <Copy SourceFiles="@(AboutFiles)" DestinationFolder="$(ReleasePath)/About" />
         <Copy SourceFiles="@(CommonFiles)" DestinationFiles="@(CommonFiles->'$(ReleasePath)/Common/%(RecursiveDir)%(Filename)%(Extension)')" />
         <Copy SourceFiles="@(CompatibilityFiles)" DestinationFiles="@(CompatibilityFiles->'$(ReleasePath)/Compatibility/%(RecursiveDir)%(Filename)%(Extension)')" />
-        <ZipDirectory DestinationFile="$(ZipFilePath)" SourceDirectory="$(ReleasePath)" Overwrite="true" />
+        <ZipDirectory Condition=" '$(Configuration)' == 'Release' " DestinationFile="$(ZipFilePath)" SourceDirectory="$(ReleasePath)" Overwrite="true" />
+
+        <ItemGroup>
+            <ReleaseFolder Include="../../../../Release/**" />
+            <ReleaseFolder Condition=" '$(Configuration)' == 'Debug' " Include="../../../../1.*/Assemblies/*.pdb;../../../../Compatibility/**/*.pdb" />
+        </ItemGroup>
+        <RemoveDir Condition="Exists('D:/SteamLibrary/steamapps/common/RimWorld/Mods')" Directories="D:/SteamLibrary/steamapps/common/RimWorld/Mods/Homebound" ContinueOnError="true"/>
+        <Copy Condition="Exists('D:/SteamLibrary/steamapps/common/RimWorld/Mods')" SourceFiles="@(ReleaseFolder)" DestinationFiles="@(ReleaseFolder->'D:/SteamLibrary/steamapps/common/RimWorld/Mods/Homebound/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     </Target>
 </Project>

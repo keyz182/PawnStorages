@@ -12,7 +12,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <DefineConstants>TRACE;DEBUG</DefineConstants> <!-- All published builds have to be built as 'release' because of the debug flag! -->
+        <DefineConstants>TRACE;DEBUG</DefineConstants>
         <WarningLevel>4</WarningLevel>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks> <!-- Unsafe is required for publicising! -->
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>

@@ -10,6 +10,8 @@ public static class PS_DefOf
     public static JobDef PS_Enter;
     public static JobDef PS_Release;
     public static JobDef PS_CaptureInPawnStorage;
+    public static JobDef PS_TakeToPawnStorage;
+    public static JobDef PS_CaptureCarriedToPawnStorage;
 
     //Things
     public static ThingDef PS_DigitizerFabricator;

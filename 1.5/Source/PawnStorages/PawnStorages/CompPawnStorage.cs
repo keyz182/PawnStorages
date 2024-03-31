@@ -29,6 +29,18 @@ public class CompPawnStorage : ThingComp
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
     public List<Pawn> StoredPawns => storedPawns;
     public bool CanStore => storedPawns.Count < Props.maxStoredPawns;
+
+    public bool CanAssign(Pawn pawn, bool couldMakePrisoner) =>
+        compAssignable?.OwnerType switch
+        {
+            BedOwnerType.Colonist => pawn.IsColonist,
+            BedOwnerType.Slave => pawn.IsSlave,
+            BedOwnerType.Prisoner => pawn.IsPrisoner || couldMakePrisoner,
+            _ => true
+        } && (compAssignable == null || compAssignable.AssignedPawns.Contains(pawn) || compAssignable.HasFreeSlot);
+
+    public void TryAssignPawn(Pawn pawn) => compAssignable?.TryAssignPawn(pawn);
+
     public void SetLabelDirty() => labelDirty = true;
 
     public override void PostSpawnSetup(bool respawningAfterLoad)
@@ -289,7 +301,7 @@ public class CompPawnStorage : ThingComp
                 defaultLabel = "PS_ReleaseAll".Translate(),
                 action = delegate
                 {
-                    for (var num = storedPawns.Count - 1; num >= 0; num--)
+                    for (int num = storedPawns.Count - 1; num >= 0; num--)
                     {
                         Pawn pawn = storedPawns[num];
                         storedPawns.Remove(pawn);
@@ -308,7 +320,6 @@ public class CompPawnStorage : ThingComp
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
 
-        Log.Message($"AllowNonColonist: {Props.allowNonColonist} - CompAssignable: {compAssignable == null}");
         if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
     }
 }

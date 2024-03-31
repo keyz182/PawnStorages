@@ -25,4 +25,6 @@
 
 	<PS_Storage_Use_Slaves>For slaves</PS_Storage_Use_Slaves>
 	<PS_Storage_Use_Desc>Whether this storage should be used by colonists, prisoners or slaves.</PS_Storage_Use_Desc>
+	<PS_TakeToStorageFloatMenu>Try to take {0} to {1_Label}</PS_TakeToStorageFloatMenu>
+	<PS_TakingToStorage>Taking {0} to {1_Label}</PS_TakingToStorage>
 </LanguageData>

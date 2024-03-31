@@ -26,6 +26,30 @@
 		<carryThingAfterJob>true</carryThingAfterJob>
 	</JobDef>
 
+	<JobDef>
+		<defName>PS_TakeToPawnStorage</defName>
+		<driverClass>PawnStorages.JobDriver_TakeToStorage</driverClass>
+		<reportString>storing TargetA.</reportString>
+		<alwaysShowWeapon>true</alwaysShowWeapon>
+		<makeTargetPrisoner>false</makeTargetPrisoner>
+		<casualInterruptible>false</casualInterruptible>
+		<carryThingAfterJob>true</carryThingAfterJob>
+		<dropThingBeforeJob>false</dropThingBeforeJob>
+	</JobDef>
+
+	<JobDef>
+		<defName>PS_CaptureCarriedToPawnStorage</defName>
+		<driverClass>PawnStorages.JobDriver_TakeToStorage</driverClass>
+		<reportString>storing TargetA.</reportString>
+		<alwaysShowWeapon>true</alwaysShowWeapon>
+		<makeTargetPrisoner>true</makeTargetPrisoner>
+		<casualInterruptible>false</casualInterruptible>
+		<carryThingAfterJob>true</carryThingAfterJob>
+		<dropThingBeforeJob>false</dropThingBeforeJob>
+	</JobDef>
+
+
+
 	<WorkGiverDef>
 		<defName>PS_TakePrisonerToPawnStorage</defName>
 		<label>take prisoners to storage</label>
