@@ -9,6 +9,8 @@
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <IncludeCopyLocalFilesOutputGroup>false</IncludeCopyLocalFilesOutputGroup>
         <OutputPath>.vs/unused/</OutputPath>
+        <ModName>Homebound</ModName>
+        <SteamModsPath>$(RIMWORLD_STEAM_MODS_PATH)</SteamModsPath>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' " />
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' " />
@@ -58,7 +60,7 @@
             <ReleaseFolder Include="../../../../Release/**" />
             <ReleaseFolder Condition=" '$(Configuration)' == 'Debug' " Include="../../../../1.*/Assemblies/*.pdb;../../../../Compatibility/**/*.pdb" />
         </ItemGroup>
-        <RemoveDir Condition="Exists('D:/SteamLibrary/steamapps/common/RimWorld/Mods')" Directories="D:/SteamLibrary/steamapps/common/RimWorld/Mods/Homebound" ContinueOnError="true"/>
-        <Copy Condition="Exists('D:/SteamLibrary/steamapps/common/RimWorld/Mods')" SourceFiles="@(ReleaseFolder)" DestinationFiles="@(ReleaseFolder->'D:/SteamLibrary/steamapps/common/RimWorld/Mods/Homebound/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+        <RemoveDir Condition="Exists('$(SteamModsPath)')" Directories="$(SteamModsPath)/$(ModName)" ContinueOnError="true"/>
+        <Copy Condition="Exists('$(SteamModsPath)')" SourceFiles="@(ReleaseFolder)" DestinationFiles="@(ReleaseFolder->'$(SteamModsPath)/$(ModName)/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     </Target>
 </Project>
