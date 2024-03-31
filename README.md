@@ -19,6 +19,7 @@ Homebound - An experimental mod offering a variety of ways to tuck pawns away wh
 * Pawns will rest while at "home" and leave again when they're scheduled for another task.
 * Includes a number of WIP experimental ways to store pawns. This includes digitizing them, storing them in a magic crystal, or keeping them visible as statues.
 * Can be used to keep larger groups of pawns out of the way, while maintaining their ability to do their jobs when needed. Build a barracks for your army, a neighborhood for your farmers, store a noteworthy pawn for later, and more.
+* Can store prisoners in statues for later.
 
 
 ## Details
