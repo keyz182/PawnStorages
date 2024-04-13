@@ -15,7 +15,7 @@ public static class DrawTimeAssignmentSelectorGrid_Patch
         Rect rect2 = rect;
         rect2.xMax = rect2.center.x;
         rect2.yMax = rect2.center.y;
-        rect2.x += 2f * rect2.width;
+        rect2.x += 4f * rect2.width;
         if (ModsConfig.RoyaltyActive) rect2.x += rect2.width;
         DrawTimeAssignmentSelectorFor(rect2, PS_DefOf.PS_Home);
     }

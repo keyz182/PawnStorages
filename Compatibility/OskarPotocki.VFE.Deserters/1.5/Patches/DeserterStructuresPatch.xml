@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+    <Operation Class="PawnStorages.PatchOperationReplaceInValue">
+        <xpath>Defs/KCSG.StructureLayoutDef[defName="VFED_LargeGalleryA"]/layouts/li/li/text()</xpath>
+        <find>VFEE_RoyalSculptureLarge_BlocksMarble</find>
+        <replace>PS_PawnStatue_Marble_East</replace>
+        <all>false</all>
+        <chance>0.5</chance>
+    </Operation>
+    <Operation Class="PawnStorages.PatchOperationReplaceInValue">
+        <xpath>Defs/KCSG.StructureLayoutDef[defName="VFED_LargeGalleryB"]/layouts/li/li/text()</xpath>
+        <find>VFEE_RoyalSculptureLarge_BlocksMarble</find>
+        <replace>PS_PawnStatue_RandomStuff_East</replace>
+        <all>false</all>
+        <chance>0.3</chance>
+    </Operation>
+    <Operation Class="PawnStorages.PatchOperationReplaceInValue">
+        <xpath>Defs/KCSG.StructureLayoutDef[defName="VFED_MediumGalleryA"]/layouts/li/li/text()</xpath>
+        <find>VFEE_RoyalSculptureSmall_BlocksSlate</find>
+        <replace>PS_PawnStatue_Slate_East</replace>
+        <all>false</all>
+        <chance>0.8</chance>
+    </Operation>
+    <Operation Class="PawnStorages.PatchOperationReplaceInValue">
+        <xpath>Defs/KCSG.StructureLayoutDef[defName="VFED_MediumGalleryB"]/layouts/li/li/text()</xpath>
+        <find>Sarcophagus_BlocksSlate_East,.</find>
+        <replace>PS_PawnStatue_Slate_South,PS_PawnStatue_Slate_South</replace>
+        <all>false</all>
+        <chance>0.5</chance>
+    </Operation>
+    <Operation Class="PawnStorages.PatchOperationReplaceInValue">
+        <xpath>Defs/KCSG.StructureLayoutDef[defName="VFED_LargeNobleThroneRoomA"]/layouts/li/li[5]/text()</xpath>
+        <find>VFEE_ImperialBanner_DevilstrandCloth</find>
+        <replace>PS_PawnStatue_Marble_South</replace>
+        <all>true</all>
+        <chance>0.5</chance>
+    </Operation>
+    <Operation Class="PawnStorages.PatchOperationReplaceInValue">
+        <xpath>Defs/KCSG.StructureLayoutDef[defName="VFED_GrandNobleThroneRoomA"]/layouts/li/li/text()</xpath>
+        <find>Wall_BlocksLimestone,.,.,.,.,.,.,.,.,.,.,.,.,.,Wall_BlocksLimestone</find>
+        <replace>Wall_BlocksLimestone,PS_PawnStatue_Gold_East,.,.,.,.,.,.,.,.,.,.,.,PS_PawnStatue_Gold_West,Wall_BlocksLimestone</replace>
+        <all>false</all>
+        <chance>1.0</chance>
+    </Operation>
+</Patch>
