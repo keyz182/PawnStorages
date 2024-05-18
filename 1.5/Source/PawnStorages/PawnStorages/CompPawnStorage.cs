@@ -138,7 +138,7 @@ public class CompPawnStorage : ThingComp
 
         if (!storedPawns.Any()) yield break;
         {
-            if (Props.releaseAllOption)
+            if (Props.releaseAllOption && !(Props.releaseOption && storedPawns.Count == 1))
                 yield return new FloatMenuOption("PS_ReleaseAll".Translate(), delegate
                 {
                     Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, parent);
@@ -170,8 +170,7 @@ public class CompPawnStorage : ThingComp
 
         if (Props.lightEffect) FleckMaker.ThrowLightningGlow(cell.ToVector3Shifted(), map, 0.5f);
         if (Props.transformEffect) FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
-
-        map.mapDrawer.MapMeshDirty(cell, MapMeshFlagDefOf.Things);
+        parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
 
         labelDirty = true;
         ApplyNeedsForStoredPeriodFor(pawn);
@@ -308,6 +307,7 @@ public class CompPawnStorage : ThingComp
                         Pawn pawn = storedPawns[num];
                         storedPawns.Remove(pawn);
                         GenSpawn.Spawn(pawn, parent.Position, parent.Map);
+                        parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
                     }
                 },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")

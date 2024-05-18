@@ -72,7 +72,8 @@ public static class OrdersPatch
                     };
                     opts.Add(FloatMenuUtility.DecoratePrioritizedTask(
                         new FloatMenuOption(
-                            "PS_TakeToStorageFloatMenu".Translate((NamedArgument)dest.Thing.LabelCap, (NamedArgument)dest.Thing), action, MenuOptionPriority.High, revalidateClickTarget: dest.Thing), pawn,
+                            "PS_TakeToStorageFloatMenu".Translate((NamedArgument)dest.Thing.LabelCap, (NamedArgument)dest.Thing), action, MenuOptionPriority.High,
+                            revalidateClickTarget: dest.Thing), pawn,
                         (LocalTargetInfo)(Thing)pTarg));
                 }
             }
@@ -96,5 +97,22 @@ public static class OrdersPatch
                 opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(label, action), pawn, (LocalTargetInfo)casket));
             }
         }
+    }
+}
+
+[HarmonyPatch(typeof(FloatMenuMakerMap), "AddMutantOrders")]
+public static class MutantOrdersPatch
+{
+    [HarmonyPostfix]
+    private static void Postfix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts)
+    {
+        if (IntVec3.FromVector3(clickPos).GetFirstThingWithComp<CompPawnStorage>(pawn.Map) is not { } storage) return;
+        CompPawnStorage storageComp = storage.TryGetComp<CompPawnStorage>();
+        if (storageComp.Props.convertOption && storageComp.CanStore)
+            opts.Add(new FloatMenuOption("PS_Enter".Translate(), delegate
+            {
+                Job job = storageComp.EnterJob(pawn);
+                pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+            }));
     }
 }

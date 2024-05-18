@@ -3,7 +3,7 @@
 
   <ThingDef Abstract="True" Name="PS_BasePawnStatue" ParentName="SculptureBase">
     <label>Peculiar Stand</label>
-    <description>A seemingly generic base for a statue</description>
+    <description>A seemingly generic base for a statue, there's an odd energy about it.\n\nIt is possible to seal someone away into a statue by putting them on this stand, voluntarily or otherwise.</description>
     <thingClass>PawnStorages.Building_PawnStorage</thingClass>
     <graphicData>
       <graphicClass>Graphic_Multi</graphicClass>
