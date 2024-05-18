@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 
-  <ThingDef ParentName="SculptureBase">
-    <defName>PS_PawnStatue</defName>
+  <ThingDef Abstract="True" Name="PS_BasePawnStatue" ParentName="SculptureBase">
     <label>Peculiar Stand</label>
     <description>A seemingly generic base for a statue</description>
-	<thingClass>PawnStorages.Building_PawnStorage</thingClass>
+    <thingClass>PawnStorages.Building_PawnStorage</thingClass>
     <graphicData>
       <graphicClass>Graphic_Multi</graphicClass>
       <texPath>Things/Building/Art/PeculiarStatue</texPath>
     </graphicData>
     <fillPercent>0.35</fillPercent>
     <rotatable>true</rotatable>
-	<drawerType>MapMeshOnly</drawerType>
+    <drawerType>MapMeshOnly</drawerType>
     <statBases>
       <MaxHitPoints>90</MaxHitPoints>
       <Mass>3</Mass>
@@ -26,30 +25,59 @@
       <li>Stony</li>
     </stuffCategories>
     <costStuffCount>50</costStuffCount>
-	<comps>
-		<li Class="PawnStorages.CompProperties_PawnStorage">
-			<needsDrop>false</needsDrop>
-			<maxStoredPawns>1</maxStoredPawns>
-			<releaseOption>true</releaseOption>
-			<convertOption>true</convertOption>
-			<appendOfName>true</appendOfName>
-			<showStoredPawn>true</showStoredPawn>
-			<transformEffect>true</transformEffect>
-			<canBeScheduled>true</canBeScheduled>
-			<allowNonColonist>true</allowNonColonist>
-		</li>
-		<li Class="CompProperties_AssignableToPawn">
-			<drawAssignmentOverlay>false</drawAssignmentOverlay>
-			<compClass>PawnStorages.CompAssignableToPawn_PawnStorage</compClass>
-		</li>
-	</comps>
-	<placeWorkers>
-		<li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
-	</placeWorkers>
-	<modExtensions>
-		<li Class="PawnStorages.PSExtension">
-			<statueOffset>(0,0,0.5)</statueOffset>
-		</li>
-	</modExtensions>
+    <comps>
+      <li Class="CompProperties_AssignableToPawn">
+        <drawAssignmentOverlay>false</drawAssignmentOverlay>
+        <compClass>PawnStorages.CompAssignableToPawn_PawnStorage</compClass>
+      </li>
+    </comps>
+    <placeWorkers>
+      <li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
+    </placeWorkers>
+    <modExtensions>
+      <li Class="PawnStorages.PSExtension">
+        <statueOffset>(0,0,0.5)</statueOffset>
+      </li>
+    </modExtensions>
+  </ThingDef>
+  <ThingDef ParentName="PS_BasePawnStatue">
+    <defName>PS_PawnStatueSelfRelease</defName>
+    <label>Jeweled Peculiar Stand</label>
+    <description>A base for a statue with a small pattern of gold just barely visible.\n\nThe gold acts as a conduit for the statue allowing a sentient entity sealed into a statue in this stand to release itself at any time.</description>
+    <comps>
+      <li Class="PawnStorages.CompProperties_PawnStorage">
+        <needsDrop>false</needsDrop>
+        <maxStoredPawns>1</maxStoredPawns>
+        <releaseOption>true</releaseOption>
+        <releaseAllOption>true</releaseAllOption>
+        <convertOption>true</convertOption>
+        <appendOfName>true</appendOfName>
+        <showStoredPawn>true</showStoredPawn>
+        <transformEffect>true</transformEffect>
+        <canBeScheduled>true</canBeScheduled>
+        <allowNonColonist>true</allowNonColonist>
+      </li>
+    </comps>
+    <costList>
+      <Gold>1</Gold>
+    </costList>
+  </ThingDef>
+  <ThingDef ParentName="PS_BasePawnStatue">
+    <defName>PS_PawnStatue</defName>
+    <label>Peculiar Stand</label>
+    <description>A seemingly generic base for a statue</description>
+    <comps>
+      <li Class="PawnStorages.CompProperties_PawnStorage">
+        <needsDrop>false</needsDrop>
+        <maxStoredPawns>1</maxStoredPawns>
+        <releaseOption>true</releaseOption>
+        <convertOption>true</convertOption>
+        <appendOfName>true</appendOfName>
+        <showStoredPawn>true</showStoredPawn>
+        <transformEffect>true</transformEffect>
+        <canBeScheduled>true</canBeScheduled>
+        <allowNonColonist>true</allowNonColonist>
+      </li>
+    </comps>
   </ThingDef>
 </Defs>

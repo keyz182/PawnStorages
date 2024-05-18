@@ -298,7 +298,9 @@ public class CompPawnStorage : ThingComp
         if (Props.releaseAllOption)
             yield return new Command_Action
             {
-                defaultLabel = "PS_ReleaseAll".Translate(),
+                defaultLabel = storedPawns.Count == 1
+                    ? "PS_Release".Translate(storedPawns[0].Name.ToStringShort)
+                    : "PS_ReleaseAll".Translate(),
                 action = delegate
                 {
                     for (int num = storedPawns.Count - 1; num >= 0; num--)
