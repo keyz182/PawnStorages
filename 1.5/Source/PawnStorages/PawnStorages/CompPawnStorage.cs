@@ -294,7 +294,7 @@ public class CompPawnStorage : ThingComp
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
         foreach (Gizmo g in base.CompGetGizmosExtra()) yield return g;
-        if (Props.releaseAllOption)
+        if (Props.releaseAllOption && storedPawns.Any())
             yield return new Command_Action
             {
                 defaultLabel = storedPawns.Count == 1
