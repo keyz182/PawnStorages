@@ -2,6 +2,7 @@
 <LanguageData>
 
 	<PS_ReleaseAll>Release all</PS_ReleaseAll>
+	<PS_ReleaseAllSelected>Release all selected</PS_ReleaseAllSelected>
 	<PS_Release>Release {0}</PS_Release>
 	<PS_Enter>Enter</PS_Enter>
 	<PS_Of> of {0}</PS_Of>

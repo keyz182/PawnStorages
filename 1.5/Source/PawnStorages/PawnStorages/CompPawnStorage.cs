@@ -295,6 +295,7 @@ public class CompPawnStorage : ThingComp
     {
         foreach (Gizmo g in base.CompGetGizmosExtra()) yield return g;
         if (Props.releaseAllOption && storedPawns.Any())
+        {
             yield return new Command_Action
             {
                 defaultLabel = storedPawns.Count == 1
@@ -312,6 +313,33 @@ public class CompPawnStorage : ThingComp
                 },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
+
+            if (Find.Selector.SelectedObjectsListForReading
+                    .Select(o => (o as ThingWithComps)?.TryGetComp<CompPawnStorage>())
+                    .Where(o => o?.storedPawns?.Any() == true)
+                    .ToList() is { Count: > 1 } comps
+                && this == comps.First())
+            {
+                yield return new Command_Action
+                {
+                    defaultLabel = "PS_ReleaseAllSelected".Translate(),
+                    action = delegate
+                    {
+                        foreach (CompPawnStorage compPawnStorage in comps)
+                        {
+                            for (int num = compPawnStorage.storedPawns.Count - 1; num >= 0; num--)
+                            {
+                                Pawn pawn = compPawnStorage.storedPawns[num];
+                                compPawnStorage.storedPawns.Remove(pawn);
+                                GenSpawn.Spawn(pawn, compPawnStorage.parent.Position, compPawnStorage.parent.Map);
+                                compPawnStorage.parent.Map.mapDrawer.MapMeshDirty(compPawnStorage.parent.Position, MapMeshFlagDefOf.Things);
+                            }
+                        }
+                    },
+                    icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
+                };
+            }
+        }
 
         if (Props.canBeScheduled)
             yield return new Command_Toggle
