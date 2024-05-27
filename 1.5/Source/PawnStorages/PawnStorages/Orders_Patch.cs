@@ -116,7 +116,7 @@ public static class OrdersPatch
                 }
             }
 
-            var targets = GenUI.TargetsAt(clickPos, OrdersPatch.ForEntityOrAnimalCapture(), true);
+            IEnumerable<LocalTargetInfo> targets = GenUI.TargetsAt(clickPos, ForEntityOrAnimalCapture(), true);
             // ForColonistAnimalCapture
             foreach (LocalTargetInfo localTargetInfo in targets)
             {
@@ -148,7 +148,6 @@ public static class OrdersPatch
                         opts.Add(new FloatMenuOption(
                             "PS_NoEntityStore".Translate((NamedArgument)localTargetInfo.Thing.Label),
                             (Action)null));
-
                     }
                 }
             }

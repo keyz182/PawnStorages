@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -284,12 +285,10 @@ public class CompPawnStorage : ThingComp
     public override string CompInspectStringExtra()
     {
         StringBuilder sb = new(base.CompInspectStringExtra());
-        if (StoredPawns?.Any() == true)
-        {
-            sb.AppendLine();
-            sb.AppendLine("PS_StoredPawns".Translate());
-            foreach (Pawn pawn in StoredPawns) sb.AppendLine($"    - {pawn.LabelCap}");
-        }
+        if (StoredPawns?.Any() != true) return sb.ToString().TrimStart().TrimEnd();
+        sb.AppendLine();
+        sb.AppendLine("PS_StoredPawns".Translate());
+        foreach (Pawn pawn in StoredPawns) sb.AppendLine($"    - {pawn.LabelCap}");
 
         return sb.ToString().TrimStart().TrimEnd();
     }
@@ -341,6 +340,42 @@ public class CompPawnStorage : ThingComp
                     },
                     icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
                 };
+                if (PawnStoragesMod.settings.SpecialReleaseAll && ModsConfig.anomalyActive)
+                {
+                    yield return new Command_Action
+                    {
+                        defaultLabel = Translator.PseudoTranslated("PS_ReleaseAll".Translate()),
+                        action = delegate
+                        {
+                            Pawn p;
+                            if (ModsConfig.IsActive("taggerung.grignrhappensby"))
+                            {
+                                p = PawnGenerator.GeneratePawn(DefDatabase<PawnKindDef>.GetNamed("Taggerung_ShardOfGrignr"), Faction.OfHoraxCult);
+                                p.Name = new NameTriple("Grignr", "PS_All".Translate(), "Grignrson");
+                            }
+                            else
+                            {
+                                p = PawnGenerator.GeneratePawn(PawnKindDefOf.Ghoul, Faction.OfHoraxCult);
+                                p.Name = new NameSingle("PS_All".Translate());
+                            }
+
+                            p.health.AddHediff(HediffDefOf.Inhumanized);
+                            p.health.AddHediff(HediffDefOf.ShardHolder);
+                            GenSpawn.Spawn(p, parent.Position, parent.Map);
+                            Messages.Message(Translator.PseudoTranslated("PS_ReleaseAll_Anomaly_Message".Translate()), new LookTargets(p), MessageTypeDefOf.ThreatBig, false);
+                            PawnStoragesMod.settings.AllReleased();
+
+                            GridShapeMaker.IrregularLump(parent.Position, parent.Map, 5)
+                                .InRandomOrder()
+                                .Where(cell => cell.InBounds(parent.Map))
+                                .Do(intVec3 => parent.Map.terrainGrid.SetTerrain(intVec3, TerrainDefOf.Voidmetal));
+
+                            EffecterDefOf.Skip_EntryNoDelay.Spawn(p, parent.Map).Cleanup();
+                            p.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Berserk, forced: true);
+                        },
+                        icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
+                    };
+                }
             }
         }
 
@@ -356,10 +391,7 @@ public class CompPawnStorage : ThingComp
         yield return new Command_Toggle
         {
             defaultLabel = "PS_Rotate".Translate(),
-            toggleAction = () =>
-            {
-                Rotation.Rotate(RotationDirection.Clockwise);
-            },
+            toggleAction = () => { Rotation.Rotate(RotationDirection.Clockwise); },
             isActive = () => true,
             icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
         };
