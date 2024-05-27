@@ -15,6 +15,8 @@ public class Building_PawnStorage : PSBuilding
     {
         base.SpawnSetup(map, respawningAfterLoad);
         storageComp = this.TryGetComp<CompPawnStorage>();
+        // Set the default rotation
+        storageComp.Rotation = Rotation;
         if (storageComp == null)
             Log.Warning($"{this} has null CompPawnStorage even though of type {nameof(Building_PawnStorage)}");
     }
@@ -34,8 +36,11 @@ public class Building_PawnStorage : PSBuilding
         {
             Vector3 pos = DrawPos;
             pos.y += Altitudes.AltInc;
-            Rot4 rot = Rotation;
-            RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f), rot, new Vector3(0f, 0f, 0.1f), 1.5f);
+
+            // Grab the set rotation from the storage comp so the user can tweak the rotation
+            Rot4 rot = storageComp.Rotation;
+            // Pass in PawnHealthState.Mobile as an override to ensure the pawn is drawn upright
+            RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f), rot, new Vector3(0f, 0f, 0.1f), 1.5f, healthStateOverride: PawnHealthState.Mobile);
 
             MaterialRequest req2 = default;
             req2.mainTex = texture.GetGreyscale();
