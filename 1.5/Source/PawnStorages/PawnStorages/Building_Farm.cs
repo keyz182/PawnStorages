@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using RimWorld;
@@ -16,6 +18,9 @@ public class Building_Farm : PSBuilding,
     public ThingOwner innerContainer;
     private float containedNutrition;
 
+    public Building_Farm()
+    { this.innerContainer = (ThingOwner) new ThingOwner<Thing>((IThingHolder) this);
+    }
     public override bool ShouldUseAlternative =>
         base.ShouldUseAlternative && !(storageComp?.StoredPawns.NullOrEmpty() ?? true);
 
@@ -102,6 +107,7 @@ public class Building_Farm : PSBuilding,
     public override void ExposeData()
     {
         base.ExposeData();
+        Scribe_Deep.Look<ThingOwner>(ref this.innerContainer, "innerContainer", (object)this);
         Scribe_Values.Look<float>(ref this.containedNutrition, "containedNutrition");
         Scribe_Deep.Look<StorageSettings>(ref this.allowedNutritionSettings, "allowedNutritionSettings", (object)this);
         if (this.allowedNutritionSettings != null)
@@ -122,5 +128,56 @@ public class Building_Farm : PSBuilding,
             sb.Append(" (-").Append((string)"PerDay".Translate((NamedArgument)this.NutritionNeeded.ToString("F1"))).Append(")");
 
         return sb.ToString();
+    }
+
+
+    public override IEnumerable<Gizmo> GetGizmos()
+    {
+        foreach (var gizmo in base.GetGizmos())
+            yield return gizmo;
+
+
+        foreach (Gizmo gizmo in StorageSettingsClipboard.CopyPasteGizmosFor(this.allowedNutritionSettings))
+            yield return gizmo;
+
+
+        foreach (Thing thing in (IEnumerable<Thing>)this.innerContainer)
+        {
+            Gizmo gizmo;
+            if ((gizmo = Building.SelectContainedItemGizmo((Thing)this, thing)) != null)
+                yield return gizmo;
+        }
+
+        if (DebugSettings.ShowDevGizmos)
+        {
+            Command_Action fillAction = new Command_Action();
+            fillAction.defaultLabel = "DEV: Fill nutrition";
+            fillAction.action = new Action(() =>
+            {
+                // Create and add food to innerContainer
+            });
+            yield return (Gizmo)fillAction;
+            Command_Action emptyAction = new Command_Action();
+            emptyAction.defaultLabel = "DEV: Empty nutrition";
+            emptyAction.action = new Action(() =>
+            {
+                innerContainer.Clear();
+            });
+            yield return (Gizmo)emptyAction;
+        }
+    }
+
+    public bool CanAcceptNutrition(Thing thing)
+    {
+        return this.allowedNutritionSettings.AllowedToAccept(thing);
+    }
+
+    public override void PostMake()
+    {
+        base.PostMake();
+        this.allowedNutritionSettings = new StorageSettings((IStoreSettingsParent)this);
+        if (this.def.building.defaultStorageSettings == null)
+            return;
+        this.allowedNutritionSettings.CopyFrom(this.def.building.defaultStorageSettings);
     }
 }

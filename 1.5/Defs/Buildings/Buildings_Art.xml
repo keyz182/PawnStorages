@@ -112,7 +112,12 @@
       </li>
     </comps>
     
+    <inspectorTabs>
+      <li>ITab_BiosculpterNutritionStorage</li>
+    </inspectorTabs>
+    
     <building>
+      <storageGroupTag>Farm</storageGroupTag>
       <spawnedConceptLearnOpportunity>BillsTab</spawnedConceptLearnOpportunity>
       <sowTag>SupportPlantsOnly</sowTag>
       <canPlaceOverImpassablePlant>false</canPlaceOverImpassablePlant>
