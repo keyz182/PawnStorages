@@ -28,4 +28,10 @@
 	<PS_Storage_Use_Desc>Whether this storage should be used by colonists, prisoners or slaves.</PS_Storage_Use_Desc>
 	<PS_TakeToStorageFloatMenu>Try to take {0} to {1_Label}</PS_TakeToStorageFloatMenu>
 	<PS_TakingToStorage>Taking {0} to {1_Label}</PS_TakingToStorage>
+
+	<PS_StoreEntity>Store {0} on {1}</PS_StoreEntity>
+	<PS_NoEntityStore>No valid storage for {0}</PS_NoEntityStore>
+	<PS_CannotStore>Cannot store {0}</PS_CannotStore>
+
+	<PS_Rotate>Rotate</PS_Rotate>
 </LanguageData>

@@ -58,6 +58,9 @@ public class JobDriver_TakeToStorage : JobDriver
         this.FailOnAggroMentalStateAndHostile(TakeeIndex);
         this.FailOn(delegate
         {
+            if ((job.def == PS_DefOf.PS_CaptureEntityInPawnStorage &&
+                PawnStorageAssignmentComp.OwnerType == BedOwnerType.Prisoner) 
+                || job.def == PS_DefOf.PS_CaptureAnimalInPawnStorage) return false;
             if (job.def.makeTargetPrisoner)
             {
                 if (PawnStorageAssignmentComp.OwnerType != BedOwnerType.Prisoner)
@@ -80,6 +83,7 @@ public class JobDriver_TakeToStorage : JobDriver
         Toil checkArrestResistance = ToilMaker.MakeToil();
         checkArrestResistance.initAction = delegate
         {
+            if (job.def == PS_DefOf.PS_CaptureEntityInPawnStorage || job.def == PS_DefOf.PS_CaptureAnimalInPawnStorage) return;
             if (job.def.makeTargetPrisoner)
             {
                 Pawn victim = (Pawn)job.targetA.Thing;
@@ -108,6 +112,7 @@ public class JobDriver_TakeToStorage : JobDriver
         startCarrying.AddPreInitAction(CheckMakeTakeeGuest);
         startCarrying.AddFinishAction(delegate
         {
+            if (job.def == PS_DefOf.PS_CaptureEntityInPawnStorage || job.def == PS_DefOf.PS_CaptureAnimalInPawnStorage) return;
             if (pawn.Faction == Takee.Faction)
             {
                 CheckMakeTakeePrisoner();
@@ -124,7 +129,8 @@ public class JobDriver_TakeToStorage : JobDriver
         setTakeeSettings.debugName = "takeeSettings";
         setTakeeSettings.initAction = delegate
         {
-            CheckMakeTakeePrisoner();
+            if (job.def != PS_DefOf.PS_CaptureEntityInPawnStorage && job.def != PS_DefOf.PS_CaptureAnimalInPawnStorage) 
+                CheckMakeTakeePrisoner();
             Takee.playerSettings ??= new Pawn_PlayerSettings(Takee);
         };
         yield return setTakeeSettings;

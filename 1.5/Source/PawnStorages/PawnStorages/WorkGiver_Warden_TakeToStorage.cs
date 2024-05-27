@@ -34,19 +34,36 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
 		Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorage, prisoner, storage);
 		job.count = 1;
 		return job;
-	}
+    }
 
-	public static ThingWithComps GetStorageForPawn(Pawn prisoner, bool assign = false)
-	{
-		ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage.compAssiblables.FirstOrDefault(c => c.assignedPawns.Contains(prisoner))?.parent;
-		if (existingAssigned != null)
-		{
-			return existingAssigned;
-		}
+    public static ThingWithComps GetStorageForPawn(Pawn prisoner, bool assign = false)
+    {
+        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage.compAssiblables.FirstOrDefault(c => c.assignedPawns.Contains(prisoner))?.parent;
+        if (existingAssigned != null)
+        {
+            return existingAssigned;
+        }
 
-		if (CompAssignableToPawn_PawnStorage.compAssiblables.FirstOrDefault(c => c.HasFreeSlot && c.OwnerType == BedOwnerType.Prisoner) is not { } assignable) return null;
-		if (assign) assignable.TryAssignPawn(prisoner);
-		return assignable.parent;
-	}
+        if (CompAssignableToPawn_PawnStorage.compAssiblables.FirstOrDefault(c => c.HasFreeSlot && c.OwnerType == BedOwnerType.Prisoner) is not { } assignable) return null;
+        if (assign) assignable.TryAssignPawn(prisoner);
+        return assignable.parent;
+    }
+
+    public static ThingWithComps GetStorageEntityOrAnimal(Pawn prisoner, bool assign = false)
+    {
+        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage.compAssiblables.FirstOrDefault(c => c.assignedPawns.Contains(prisoner))?.parent;
+        if (existingAssigned != null)
+        {
+            return existingAssigned;
+        }
+
+        var bedOwnerType = BedOwnerType.Prisoner;
+
+        if (prisoner.Faction == Faction.OfPlayer) bedOwnerType = BedOwnerType.Colonist;
+
+        if (CompAssignableToPawn_PawnStorage.compAssiblables.FirstOrDefault(c => c.HasFreeSlot && c.OwnerType == bedOwnerType) is not { } assignable) return null;
+        if (assign) assignable.TryAssignPawn(prisoner);
+        return assignable.parent;
+    }
 
 }

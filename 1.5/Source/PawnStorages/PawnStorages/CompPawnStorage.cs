@@ -20,6 +20,8 @@ public class CompPawnStorage : ThingComp
     private Dictionary<int, int> pawnStoringTick;
     private string transformLabelCache;
 
+    public Rot4 Rotation = default;
+
     public CompPawnStorage()
     {
         storedPawns = [];
@@ -54,6 +56,7 @@ public class CompPawnStorage : ThingComp
         Scribe_Collections.Look(ref pawnStoringTick, "pawnStoringTick", LookMode.Value, LookMode.Value);
         Scribe_Collections.Look(ref storedPawns, "storedPawns", LookMode.Deep);
         Scribe_Values.Look(ref schedulingEnabled, "schedulingEnabled");
+        Scribe_Values.Look(ref Rotation, "Rotation");
         if (Scribe.mode != LoadSaveMode.PostLoadInit) return;
         storedPawns ??= [];
         pawnStoringTick ??= new Dictionary<int, int>();
@@ -349,6 +352,17 @@ public class CompPawnStorage : ThingComp
                 isActive = () => schedulingEnabled,
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
+
+        yield return new Command_Toggle
+        {
+            defaultLabel = "PS_Rotate".Translate(),
+            toggleAction = () =>
+            {
+                Rotation.Rotate(RotationDirection.Clockwise);
+            },
+            isActive = () => true,
+            icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
+        };
 
         if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
     }
