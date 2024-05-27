@@ -18,7 +18,7 @@ public class Building_PawnStorage : PSBuilding
         // Set the default rotation
         storageComp.Rotation = Rotation;
         if (storageComp == null)
-            Log.Warning($"{this} has null CompPawnStorage even though of type {nameof(Building_PawnStorage)}");
+            Log.Warning($"{this} has null CompPawnStorage even though of type {nameof(Building_Farm)}");
     }
 
     /*

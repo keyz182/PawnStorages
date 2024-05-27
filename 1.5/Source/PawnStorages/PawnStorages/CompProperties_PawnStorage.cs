@@ -16,6 +16,7 @@ public class CompProperties_PawnStorage : CompProperties
     public EffecterDef releaseEffect;
     public bool releaseOption;
     public bool allowNonColonist;
+    public bool farm;
 
     public bool showStoredPawn;
 

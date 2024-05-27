@@ -32,5 +32,8 @@
 	<PS_NoEntityStore>No valid storage for {0}</PS_NoEntityStore>
 	<PS_CannotStore>Cannot store {0}</PS_CannotStore>
 
+	<PS_FarmAnimal>Farm {0} on {1}</PS_FarmAnimal>
+	<PS_NoFarm>No valid farm for {0}</PS_NoFarm>
+
 	<PS_Rotate>Rotate</PS_Rotate>
 </LanguageData>

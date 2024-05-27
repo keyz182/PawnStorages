@@ -51,6 +51,20 @@ public static class OrdersPatch
         };
     }
 
+    public static TargetingParameters ForFarming()
+    {
+        return new TargetingParameters()
+        {
+            canTargetPawns = true,
+            canTargetBuildings = false,
+            canTargetAnimals = true,
+            mapObjectTargetsMustBeAutoAttackable = false,
+            validator = targ =>
+                targ is { HasThing: true, Thing: Pawn thing } &&
+                WorkGiver_Warden_TakeToStorage.GetStorageFarm(thing, assign: false) != null
+        };
+    }
+
     [HarmonyPostfix]
     private static void Postfix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts)
     {
@@ -117,6 +131,43 @@ public static class OrdersPatch
             }
 
             var targets = GenUI.TargetsAt(clickPos, OrdersPatch.ForEntityOrAnimalCapture(), true);
+            // ForColonistAnimalCapture
+            foreach (LocalTargetInfo localTargetInfo in targets)
+            {
+                if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
+                {
+                    opts.Add(new FloatMenuOption(
+                        "PS_CannotStore".Translate((NamedArgument)localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
+                }
+                else
+                {
+                    Pawn pTarg = (Pawn)localTargetInfo.Thing;
+                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageFarm(pTarg, assign: true);
+
+                    if (building != null)
+                    {
+                        opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
+                            "PS_FarmAnimal".Translate((NamedArgument)localTargetInfo.Thing.Label,
+                                (NamedArgument)building.LabelCap),
+                            (Action)(() =>
+                            {
+                                Job job = JobMaker.MakeJob(pTarg.Faction == Faction.OfPlayer ? PS_DefOf.PS_CaptureAnimalInPawnStorage : PS_DefOf.PS_CaptureEntityInPawnStorage,
+                                    (LocalTargetInfo)localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                job.count = 1;
+                                pawn.jobs.TryTakeOrderedJob(job);
+                            })), pawn, (LocalTargetInfo)localTargetInfo));
+                    }
+                    else
+                    {
+                        opts.Add(new FloatMenuOption(
+                            "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
+                            (Action)null));
+
+                    }
+                }
+            }
+
+            var farmTargets = GenUI.TargetsAt(clickPos, OrdersPatch.ForFarming(), true);
             // ForColonistAnimalCapture
             foreach (LocalTargetInfo localTargetInfo in targets)
             {

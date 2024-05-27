@@ -33,6 +33,10 @@ public class CompPawnStorage : ThingComp
     public bool CanStore => storedPawns.Count < Props.maxStoredPawns;
 
     public bool CanAssign(Pawn pawn, bool couldMakePrisoner) =>
+        (Props.farm && compAssignable != null && pawn.Faction == Faction.OfPlayer &&
+         !pawn.RaceProps.Humanlike &&
+         (compAssignable.AssignedPawns.Contains(pawn) || compAssignable.HasFreeSlot))
+        ||
         compAssignable?.OwnerType switch
         {
             BedOwnerType.Colonist => pawn.IsColonist,
