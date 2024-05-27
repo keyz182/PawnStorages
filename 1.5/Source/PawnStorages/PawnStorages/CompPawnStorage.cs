@@ -326,7 +326,7 @@ public class CompPawnStorage : ThingComp
 
         yield return new Command_Toggle
         {
-            defaultLabel = "Rotate",
+            defaultLabel = "PS_Rotate".Translate(),
             toggleAction = () =>
             {
                 Rotation.Rotate(RotationDirection.Clockwise);
