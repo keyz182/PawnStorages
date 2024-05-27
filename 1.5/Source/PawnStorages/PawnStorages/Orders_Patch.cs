@@ -37,6 +37,20 @@ public static class OrdersPatch
         };
     }
 
+    public static TargetingParameters ForEntityOrAnimalCapture()
+    {
+        return new TargetingParameters()
+        {
+            canTargetPawns = true,
+            canTargetBuildings = false,
+            canTargetAnimals = true,
+            mapObjectTargetsMustBeAutoAttackable = false,
+            validator = targ =>
+                targ is { HasThing: true, Thing: Pawn thing } &&
+                WorkGiver_Warden_TakeToStorage.GetStorageEntityOrAnimal(thing, assign: false) != null
+        };
+    }
+
     [HarmonyPostfix]
     private static void Postfix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts)
     {
@@ -78,23 +92,65 @@ public static class OrdersPatch
                 }
             }
 
-            if (pawn.carryTracker?.CarriedThing is not Pawn carriedPawn) return;
-            foreach (LocalTargetInfo localTargetInfo in GenUI.TargetsAt(clickPos, ForStoringIn(carriedPawn, pawn), true))
+            if (pawn.carryTracker?.CarriedThing is Pawn carriedPawn)
             {
-                Thing casket = localTargetInfo.Thing;
-                TaggedString label = "PlaceIn".Translate((NamedArgument)(Thing)carriedPawn, (NamedArgument)casket);
-                Action action = () =>
+                foreach (LocalTargetInfo localTargetInfo in GenUI.TargetsAt(clickPos, ForStoringIn(carriedPawn, pawn),
+                             true))
                 {
-                    localTargetInfo.Thing.TryGetComp<CompPawnStorage>()?.TryAssignPawn(carriedPawn);
-                    Job job = JobMaker.MakeJob(
-                        carriedPawn.IsPrisonerOfColony || carriedPawn.InAggroMentalState || carriedPawn.HostileTo(Faction.OfPlayer)
-                            ? PS_DefOf.PS_CaptureCarriedToPawnStorage
-                            : PS_DefOf.PS_TakeToPawnStorage, carriedPawn, localTargetInfo);
-                    job.count = 1;
-                    job.playerForced = true;
-                    pawn.jobs.TryTakeOrderedJob(job);
-                };
-                opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(label, action), pawn, (LocalTargetInfo)casket));
+                    Thing casket = localTargetInfo.Thing;
+                    TaggedString label = "PlaceIn".Translate((NamedArgument)(Thing)carriedPawn, (NamedArgument)casket);
+                    Action action = () =>
+                    {
+                        localTargetInfo.Thing.TryGetComp<CompPawnStorage>()?.TryAssignPawn(carriedPawn);
+                        Job job = JobMaker.MakeJob(
+                            carriedPawn.IsPrisonerOfColony || carriedPawn.InAggroMentalState ||
+                            carriedPawn.HostileTo(Faction.OfPlayer)
+                                ? PS_DefOf.PS_CaptureCarriedToPawnStorage
+                                : PS_DefOf.PS_TakeToPawnStorage, carriedPawn, localTargetInfo);
+                        job.count = 1;
+                        job.playerForced = true;
+                        pawn.jobs.TryTakeOrderedJob(job);
+                    };
+                    opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(label, action), pawn,
+                        (LocalTargetInfo)casket));
+                }
+            }
+
+            var targets = GenUI.TargetsAt(clickPos, OrdersPatch.ForEntityOrAnimalCapture(), true);
+            // ForColonistAnimalCapture
+            foreach (LocalTargetInfo localTargetInfo in targets)
+            {
+                if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
+                {
+                    opts.Add(new FloatMenuOption(
+                        "PS_CannotStore".Translate((NamedArgument)localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
+                }
+                else
+                {
+                    Pawn pTarg = (Pawn)localTargetInfo.Thing;
+                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageEntityOrAnimal(pTarg, assign: true);
+
+                    if (building != null)
+                    {
+                        opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
+                            "PS_StoreEntity".Translate((NamedArgument)localTargetInfo.Thing.Label,
+                                (NamedArgument)building.LabelCap),
+                            (Action)(() =>
+                            {
+                                Job job = JobMaker.MakeJob(pTarg.Faction == Faction.OfPlayer ? PS_DefOf.PS_CaptureAnimalInPawnStorage : PS_DefOf.PS_CaptureEntityInPawnStorage,
+                                    (LocalTargetInfo)localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                job.count = 1;
+                                pawn.jobs.TryTakeOrderedJob(job);
+                            })), pawn, (LocalTargetInfo)localTargetInfo));
+                    }
+                    else
+                    {
+                        opts.Add(new FloatMenuOption(
+                            "PS_NoEntityStore".Translate((NamedArgument)localTargetInfo.Thing.Label),
+                            (Action)null));
+
+                    }
+                }
             }
         }
     }

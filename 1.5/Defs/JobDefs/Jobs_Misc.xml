@@ -27,6 +27,26 @@
 	</JobDef>
 
 	<JobDef>
+		<defName>PS_CaptureEntityInPawnStorage</defName>
+		<driverClass>PawnStorages.JobDriver_TakeToStorage</driverClass>
+		<reportString>storing TargetA.</reportString>
+		<alwaysShowWeapon>true</alwaysShowWeapon>
+		<makeTargetPrisoner>false</makeTargetPrisoner>
+		<casualInterruptible>false</casualInterruptible>
+		<carryThingAfterJob>true</carryThingAfterJob>
+	</JobDef>
+
+	<JobDef>
+		<defName>PS_CaptureAnimalInPawnStorage</defName>
+		<driverClass>PawnStorages.JobDriver_TakeToStorage</driverClass>
+		<reportString>storing TargetA.</reportString>
+		<alwaysShowWeapon>true</alwaysShowWeapon>
+		<makeTargetPrisoner>false</makeTargetPrisoner>
+		<casualInterruptible>false</casualInterruptible>
+		<carryThingAfterJob>true</carryThingAfterJob>
+	</JobDef>
+
+	<JobDef>
 		<defName>PS_TakeToPawnStorage</defName>
 		<driverClass>PawnStorages.JobDriver_TakeToStorage</driverClass>
 		<reportString>storing TargetA.</reportString>
