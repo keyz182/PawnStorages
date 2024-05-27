@@ -58,9 +58,9 @@ public class JobDriver_TakeToStorage : JobDriver
         this.FailOnAggroMentalStateAndHostile(TakeeIndex);
         this.FailOn(delegate
         {
-            if (job.def == PS_DefOf.PS_CaptureEntityInPawnStorage &&
-                PawnStorageAssignmentComp.OwnerType == BedOwnerType.Prisoner) return false;
-            if (job.def == PS_DefOf.PS_CaptureAnimalInPawnStorage) return false;
+            if ((job.def == PS_DefOf.PS_CaptureEntityInPawnStorage &&
+                PawnStorageAssignmentComp.OwnerType == BedOwnerType.Prisoner) 
+                || job.def == PS_DefOf.PS_CaptureAnimalInPawnStorage) return false;
             if (job.def.makeTargetPrisoner)
             {
                 if (PawnStorageAssignmentComp.OwnerType != BedOwnerType.Prisoner)

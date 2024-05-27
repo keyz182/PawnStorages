@@ -51,13 +51,11 @@ public class JobDriver_Release : JobDriver
             if (ReleasingSpecific)
             {
                 comp.ReleasePawn(TargetC.Pawn, ReleaseCell, actor.Map);
-                compAssignableToPawn.TryUnassignPawn(TargetC.Pawn);
             }
             else
                 for (int num = comp.StoredPawns.Count - 1; num >= 0; num--)
                 {
                     comp.ReleasePawn(comp.StoredPawns[num], ReleaseCell, actor.Map);
-                    compAssignableToPawn.TryUnassignPawn(TargetC.Pawn);
                 }
         };
         release.defaultCompleteMode = ToilCompleteMode.Instant;
