@@ -46,8 +46,6 @@ public class JobDriver_Release : JobDriver
         {
             Pawn actor = release.actor;
             CompPawnStorage comp = TargetA.Thing.TryGetComp<CompPawnStorage>();
-            // Not sure why this is needed for animals and entities, but it shouldn't do any harm
-            CompAssignableToPawn_PawnStorage compAssignableToPawn = TargetA.Thing.TryGetComp<CompAssignableToPawn_PawnStorage>();
             if (ReleasingSpecific)
             {
                 comp.ReleasePawn(TargetC.Pawn, ReleaseCell, actor.Map);
