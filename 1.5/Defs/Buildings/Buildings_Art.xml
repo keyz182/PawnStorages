@@ -5,12 +5,10 @@
     <label>Peculiar Stand</label>
     <description>A seemingly generic base for a statue, there's an odd energy about it.\n\nIt is possible to seal someone away into a statue by putting them on this stand, voluntarily or otherwise.</description>
     <thingClass>PawnStorages.Building_PawnStorage</thingClass>
-
     <graphicData>
       <graphicClass>Graphic_Multi</graphicClass>
       <texPath>Things/Building/Art/PeculiarStatue</texPath>
     </graphicData>
-
     <fillPercent>0.35</fillPercent>
     <rotatable>true</rotatable>
     <drawerType>MapMeshOnly</drawerType>
@@ -33,11 +31,9 @@
         <compClass>PawnStorages.CompAssignableToPawn_PawnStorage</compClass>
       </li>
     </comps>
-
     <placeWorkers>
       <li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
     </placeWorkers>
-
     <modExtensions>
       <li Class="PawnStorages.PSExtension">
         <statueOffset>(0,0,0.5)</statueOffset>

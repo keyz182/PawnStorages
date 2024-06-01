@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 
 	<!-- Wall Door-->
@@ -7,7 +7,6 @@
 		<label>pawn door</label>
 		<description>A door in the wall, where does it lead? We don't know!</description>
 		<thingClass>PawnStorages.Building_PawnStorage</thingClass>
-
 		<altitudeLayer>BuildingOnTop</altitudeLayer>
 		<passability>Standable</passability>
 		<pathCost>0</pathCost>
@@ -15,7 +14,6 @@
 		<clearBuildingArea>false</clearBuildingArea>
 		<fillPercent>0.50</fillPercent>
 		<holdsRoof>false</holdsRoof>
-
 		<building>
 			<isEdifice>false</isEdifice>
 		</building>
@@ -62,13 +60,11 @@
 			</li>
 		</modExtensions>
 	</ThingDef>
-
 	<ThingDef ParentName="DoorBase">
 		<defName>PS_PawnHatch</defName>
 		<label>pawn hatch</label>
 		<description>A hatch down the ground... where does it lead? We don't know!</description>
 		<thingClass>PawnStorages.Building_PawnStorage</thingClass>
-
 		<altitudeLayer>BuildingOnTop</altitudeLayer>
 		<passability>Standable</passability>
 		<pathCost>0</pathCost>
@@ -76,7 +72,6 @@
 		<clearBuildingArea>false</clearBuildingArea>
 		<fillPercent>0.50</fillPercent>
 		<holdsRoof>false</holdsRoof>
-
 		<building>
 			<isEdifice>false</isEdifice>
 		</building>
@@ -120,7 +115,6 @@
 			</li>
 		</modExtensions>
 	</ThingDef>
-
 	<ThingDef ParentName="BuildingBase">
 		<minifiedDef>MinifiedThing</minifiedDef>
 		<defName>PS_BatteryFarm</defName>
@@ -133,13 +127,10 @@
 			<drawSize>(4,4)</drawSize>
 		</graphicData>
 		<size>(4,4)</size>
-		
 		<thingCategories>
 			<li>BuildingsProduction</li>
 		  </thingCategories>
-
 		<tickerType>Normal</tickerType>
-
 		<altitudeLayer>BuildingOnTop</altitudeLayer>
 		<passability>Standable</passability>
 		<pathCost>0</pathCost>
@@ -151,7 +142,6 @@
 		<inspectorTabs>
 			<li>ITab_BiosculpterNutritionStorage</li>
 		</inspectorTabs>
-		
 		<comps>
 			<li Class="PawnStorages.CompProperties_PSAssignableToPawn">
 				<drawAssignmentOverlay>false</drawAssignmentOverlay>
@@ -189,9 +179,7 @@
 				</fuelFilter>
 			</li>
 		</comps>
-		
 		<building>
-			
 			<fixedStorageSettings>
 				<priority>Important</priority>
 				<filter>
@@ -227,12 +215,9 @@
 			<Steel>15</Steel>
 		</costList>
 		<constructEffect>ConstructMetal</constructEffect>
-
-
 		<placeWorkers>
 			<li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
 		  </placeWorkers>
-
 		<uiIconPath>Things/Building/Production/Hopper_MenuIcon</uiIconPath>
 		<uiIconScale>0.85</uiIconScale>
 		<modExtensions>
