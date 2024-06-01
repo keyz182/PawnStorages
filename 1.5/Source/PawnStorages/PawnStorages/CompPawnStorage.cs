@@ -13,30 +13,21 @@ public class CompPawnStorage : ThingComp
     public const int TICKRATE = 60;
     public const int NEEDS_INTERVAL = 150;
 
-    private CompAssignableToPawn_PawnStorage compAssignable;
-    private bool labelDirty = true;
+    protected CompAssignableToPawn_PawnStorage compAssignable;
+    protected bool labelDirty = true;
     public bool schedulingEnabled;
-    private List<Pawn> storedPawns;
-    private Dictionary<int, int> pawnStoringTick;
+    protected List<Pawn> storedPawns = [];
+    private Dictionary<int, int> pawnStoringTick = new();
     private string transformLabelCache;
 
     public Rot4 Rotation = default;
 
-    public CompPawnStorage()
-    {
-        storedPawns = [];
-        pawnStoringTick = new Dictionary<int, int>();
-    }
-
+    public Thing Parent => parent;
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
     public List<Pawn> StoredPawns => storedPawns;
     public bool CanStore => storedPawns.Count < Props.maxStoredPawns;
 
     public bool CanAssign(Pawn pawn, bool couldMakePrisoner) =>
-        (Props.farm && compAssignable != null && pawn.Faction == Faction.OfPlayer &&
-         !pawn.RaceProps.Humanlike &&
-         (compAssignable.AssignedPawns.Contains(pawn) || compAssignable.HasFreeSlot))
-        ||
         compAssignable?.OwnerType switch
         {
             BedOwnerType.Colonist => pawn.IsColonist,
@@ -160,28 +151,7 @@ public class CompPawnStorage : ThingComp
     //Funcs
     public void ReleasePawn(Pawn pawn, IntVec3 cell, Map map)
     {
-        if (!cell.Walkable(map))
-            foreach (IntVec3 t in GenRadial.RadialPattern)
-            {
-                IntVec3 intVec = pawn.Position + t;
-                if (!intVec.Walkable(map)) continue;
-                cell = intVec;
-                break;
-            }
-
-        storedPawns.Remove(pawn);
-        GenSpawn.Spawn(pawn, cell, map);
-
-        //Spawn the release effecter
-        Props.releaseEffect?.Spawn(cell, map);
-
-        if (Props.lightEffect) FleckMaker.ThrowLightningGlow(cell.ToVector3Shifted(), map, 0.5f);
-        if (Props.transformEffect) FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
-        parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
-
-        labelDirty = true;
-        ApplyNeedsForStoredPeriodFor(pawn);
-        pawn.guest?.WaitInsteadOfEscapingFor(1250);
+        Utility.ReleasePawn(this, pawn, cell, map);
     }
 
     public virtual void ApplyNeedsForStoredPeriodFor(Pawn pawn)
@@ -230,26 +200,14 @@ public class CompPawnStorage : ThingComp
 
     public virtual bool CanRelease(Pawn releaser)
     {
-        if (parent.def.EverHaulable && parent.def.category == ThingCategory.Item && Props.storageStation != null)
-            return GenClosest.ClosestThingReachable(releaser.Position, releaser.Map,
-                ThingRequest.ForDef(Props.storageStation), PathEndMode.InteractionCell, TraverseParms.For(releaser),
-                9999f, x => releaser.CanReserve(x)) != null;
-        return true;
+        return Utility.CanRelease(this, releaser);
     }
 
     public virtual Job ReleaseJob(Pawn releaser, Pawn toRelease)
     {
-        if (parent.def.EverHaulable && parent.def.category == ThingCategory.Item && Props.storageStation != null)
-        {
-            Thing station = GenClosest.ClosestThingReachable(releaser.Position, releaser.Map, ThingRequest.ForDef(Props.storageStation), PathEndMode.InteractionCell,
-                TraverseParms.For(releaser), 9999f, x => releaser.CanReserve(x));
-            Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, parent, station, toRelease);
-            job.count = 1;
-            return job;
-        }
-
-        return JobMaker.MakeJob(PS_DefOf.PS_Release, parent, null, toRelease);
+        return Utility.ReleaseJob(this, releaser, toRelease);
     }
+
 
     public virtual Job EnterJob(Pawn enterer)
     {

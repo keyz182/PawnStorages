@@ -83,6 +83,32 @@
 		</requiredCapacities>
 	</WorkGiverDef>
 
+	<JobDef>
+		<defName>PS_CaptureAnimalToFarm</defName>
+		<driverClass>PawnStorages.Farm.JobDriver_TakeToFarm</driverClass>
+		<reportString>storing TargetA.</reportString>
+		<alwaysShowWeapon>true</alwaysShowWeapon>
+		<makeTargetPrisoner>false</makeTargetPrisoner>
+		<casualInterruptible>false</casualInterruptible>
+		<carryThingAfterJob>true</carryThingAfterJob>
+	</JobDef>
+
+	<JobDef>
+		<defName>PS_RefuelFarm</defName>
+		<driverClass>PawnStorages.Farm.JobDriver_RefuelFarm</driverClass>
+		<reportString>refueling TargetA.</reportString>
+		<suspendable>false</suspendable>
+		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+	</JobDef>
+
+	<JobDef>
+		<defName>PS_RefuelFarm_Atomic</defName>
+		<driverClass>PawnStorages.Farm.JobDriver_RefuelFarmAtomic</driverClass>
+		<reportString>refueling TargetA.</reportString>
+		<suspendable>false</suspendable>
+		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+	</JobDef>
+
 	<!--
 	<JobDef>
 		<defName>PS_EnterPawnDisc</defName>

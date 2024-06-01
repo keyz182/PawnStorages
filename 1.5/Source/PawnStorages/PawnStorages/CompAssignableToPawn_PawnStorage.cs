@@ -9,11 +9,17 @@ public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
 {
     public static HashSet<CompAssignableToPawn_PawnStorage> compAssiblables = [];
     public BedOwnerType OwnerType = BedOwnerType.Colonist;
+    public new CompProperties_PSAssignableToPawn Props => props as CompProperties_PSAssignableToPawn;
 
     public override IEnumerable<Pawn> AssigningCandidates
     {
         get
         {
+            if (Props.colonyAnimalsOnly)
+            {
+                return parent.Map.mapPawns.FreeColonists.OrderByDescending(p => p.RaceProps.Animal);
+            }
+
             return !parent.Spawned ? Enumerable.Empty<Pawn>() : OwnerType switch
             {
                 BedOwnerType.Colonist => parent.Map.mapPawns.FreeColonists.OrderByDescending(p => CanAssignTo(p).Accepted),

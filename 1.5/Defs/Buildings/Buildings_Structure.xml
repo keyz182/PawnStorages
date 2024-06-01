@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
 	<!-- Wall Door-->
@@ -7,7 +7,7 @@
 		<label>pawn door</label>
 		<description>A door in the wall, where does it lead? We don't know!</description>
 		<thingClass>PawnStorages.Building_PawnStorage</thingClass>
-		
+
 		<altitudeLayer>BuildingOnTop</altitudeLayer>
 		<passability>Standable</passability>
 		<pathCost>0</pathCost>
@@ -15,7 +15,7 @@
 		<clearBuildingArea>false</clearBuildingArea>
 		<fillPercent>0.50</fillPercent>
 		<holdsRoof>false</holdsRoof>
-		
+
 		<building>
 			<isEdifice>false</isEdifice>
 		</building>
@@ -62,13 +62,13 @@
 			</li>
 		</modExtensions>
 	</ThingDef>
-	
+
 	<ThingDef ParentName="DoorBase">
 		<defName>PS_PawnHatch</defName>
 		<label>pawn hatch</label>
 		<description>A hatch down the ground... where does it lead? We don't know!</description>
 		<thingClass>PawnStorages.Building_PawnStorage</thingClass>
-		
+
 		<altitudeLayer>BuildingOnTop</altitudeLayer>
 		<passability>Standable</passability>
 		<pathCost>0</pathCost>
@@ -76,7 +76,7 @@
 		<clearBuildingArea>false</clearBuildingArea>
 		<fillPercent>0.50</fillPercent>
 		<holdsRoof>false</holdsRoof>
-		
+
 		<building>
 			<isEdifice>false</isEdifice>
 		</building>
@@ -121,4 +121,123 @@
 		</modExtensions>
 	</ThingDef>
 
+	<ThingDef ParentName="BuildingBase">
+		<minifiedDef>MinifiedThing</minifiedDef>
+		<defName>PS_BatteryFarm</defName>
+		<label>batteryfarm</label>
+		<description>PS_BatteryFarm</description>
+		<thingClass>PawnStorages.Farm.Building_PSFarm</thingClass>
+		<graphicData>
+			<texPath>Things/Building/Production/PS_BatteryFarm</texPath>
+			<graphicClass>Graphic_Single</graphicClass>
+			<drawSize>(4,4)</drawSize>
+		</graphicData>
+		<size>(4,4)</size>
+		
+		<thingCategories>
+			<li>BuildingsProduction</li>
+		  </thingCategories>
+
+		<tickerType>Normal</tickerType>
+
+		<altitudeLayer>BuildingOnTop</altitudeLayer>
+		<passability>Standable</passability>
+		<pathCost>0</pathCost>
+		<blockWind>true</blockWind>
+		<rotatable>true</rotatable>
+		<clearBuildingArea>false</clearBuildingArea>
+		<fillPercent>0.50</fillPercent>
+		<holdsRoof>false</holdsRoof>
+		<inspectorTabs>
+			<li>ITab_BiosculpterNutritionStorage</li>
+		</inspectorTabs>
+		
+		<comps>
+			<li Class="PawnStorages.CompProperties_PSAssignableToPawn">
+				<drawAssignmentOverlay>false</drawAssignmentOverlay>
+				<maxAssignedPawnsCount>16</maxAssignedPawnsCount>
+				<colonyAnimalsOnly>true</colonyAnimalsOnly>
+			</li>
+			<li Class="PawnStorages.Farm.CompProperties_FarmStorage">
+				<needsDrop>false</needsDrop>
+				<maxStoredPawns>16</maxStoredPawns>
+				<releaseOption>true</releaseOption>
+				<convertOption>false</convertOption>
+				<appendOfName>true</appendOfName>
+				<lightEffect>true</lightEffect>
+				<storageStation>PS_BatteryFarm</storageStation>
+			</li>
+			<li Class="PawnStorages.Farm.CompProperties_FarmStorageRefuelable">
+				<fuelConsumptionRate>18.0</fuelConsumptionRate>
+				<fuelCapacity>500.0</fuelCapacity>
+				<initialConfigurableTargetFuelLevel>250.0</initialConfigurableTargetFuelLevel>
+				<showFuelGizmo>true</showFuelGizmo>
+				<initialAllowAutoRefuel>true</initialAllowAutoRefuel>
+				<allowRefuelIfNotEmpty>true</allowRefuelIfNotEmpty>
+				<targetFuelLevelConfigurable>true</targetFuelLevelConfigurable>
+				<drawOutOfFuelOverlay>true</drawOutOfFuelOverlay>
+				<fuelFilter>
+					<categories>
+						<li>Foods</li>
+					</categories>
+					<specialFiltersToDisallow>
+						<li>AllowPlantFood</li>
+					</specialFiltersToDisallow>
+					<disallowedThingDefs>
+						<li>Hay</li>
+					</disallowedThingDefs>
+				</fuelFilter>
+			</li>
+		</comps>
+		
+		<building>
+			
+			<fixedStorageSettings>
+				<priority>Important</priority>
+				<filter>
+				  <categories>
+					<li>FoodRaw</li>
+				  </categories>
+				  <specialFiltersToDisallow>
+					<li>AllowPlantFood</li>
+				  </specialFiltersToDisallow>
+				</filter>
+			  </fixedStorageSettings>
+			  <defaultStorageSettings>
+				<priority>Important</priority>
+				<filter>
+				  <categories>
+					<li>FoodRaw</li>
+				  </categories>
+				  <disallowedThingDefs>
+					<li>Meat_Human</li>
+					<li>Meat_Megaspider</li>
+					<li MayRequire="Ludeon.RimWorld.Anomaly">Meat_Twisted</li>
+				  </disallowedThingDefs>
+				</filter>
+			  </defaultStorageSettings>
+		</building>
+		<statBases>
+			<WorkToBuild>300</WorkToBuild>
+			<MaxHitPoints>100</MaxHitPoints>
+			<Flammability>0.5</Flammability>
+			<Mass>30</Mass>
+		</statBases>
+		<costList>
+			<Steel>15</Steel>
+		</costList>
+		<constructEffect>ConstructMetal</constructEffect>
+
+
+		<placeWorkers>
+			<li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
+		  </placeWorkers>
+
+		<uiIconPath>Things/Building/Production/Hopper_MenuIcon</uiIconPath>
+		<uiIconScale>0.85</uiIconScale>
+		<modExtensions>
+			<li Class="PawnStorages.PSExtension">
+			</li>
+		</modExtensions>
+	</ThingDef>
 </Defs>

@@ -1,5 +1,9 @@
-﻿using UnityEngine;
+﻿using Mono.Unix.Native;
+using RimWorld;
+using UnityEngine;
 using Verse;
+using Verse.AI;
+using static HarmonyLib.Code;
 
 namespace PawnStorages;
 
@@ -71,5 +75,55 @@ public static class Utility
         RenderTexture.active = active;
         RenderTexture.ReleaseTemporary(temporary);
         return texture2D;
+    }
+
+    public static void ReleasePawn(CompPawnStorage store, Pawn pawn, IntVec3 cell, Map map)
+    {
+        if (!cell.Walkable(map))
+            foreach (IntVec3 t in GenRadial.RadialPattern)
+            {
+                IntVec3 intVec = pawn.Position + t;
+                if (!intVec.Walkable(map)) continue;
+                cell = intVec;
+                break;
+            }
+
+        store.StoredPawns.Remove(pawn);
+        GenSpawn.Spawn(pawn, cell, map);
+
+        //Spawn the release effecter
+        store.Props.releaseEffect.Spawn(cell, map);
+
+        if (store.Props.lightEffect) FleckMaker.ThrowLightningGlow(cell.ToVector3Shifted(), map, 0.5f);
+        if (store.Props.transformEffect) FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
+        store.Parent.Map.mapDrawer.MapMeshDirty(store.Parent.Position, MapMeshFlagDefOf.Things);
+
+        store.SetLabelDirty();
+        store.ApplyNeedsForStoredPeriodFor(pawn);
+        pawn.guest?.WaitInsteadOfEscapingFor(1250);
+    }
+
+    public static bool CanRelease(CompPawnStorage store, Pawn releaser)
+    {
+        if (store.Parent.def.EverHaulable && store.Parent.def.category == ThingCategory.Item && store.Props.storageStation != null)
+            return GenClosest.ClosestThingReachable(releaser.Position, releaser.Map,
+                ThingRequest.ForDef(store.Props.storageStation), PathEndMode.InteractionCell, TraverseParms.For(releaser),
+                9999f, x => releaser.CanReserve(x)) != null;
+        return true;
+    }
+
+
+    public static Job ReleaseJob(CompPawnStorage store, Pawn releaser, Pawn toRelease)
+    {
+        if (store.Parent.def.EverHaulable && store.Parent.def.category == ThingCategory.Item && store.Props.storageStation != null)
+        {
+            Thing station = GenClosest.ClosestThingReachable(releaser.Position, releaser.Map, ThingRequest.ForDef(store.Props.storageStation), PathEndMode.InteractionCell,
+                TraverseParms.For(releaser), 9999f, x => releaser.CanReserve(x));
+            Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, store.Parent, station, toRelease);
+            job.count = 1;
+            return job;
+        }
+
+        return JobMaker.MakeJob(PS_DefOf.PS_Release, store.Parent, null, toRelease);
     }
 }

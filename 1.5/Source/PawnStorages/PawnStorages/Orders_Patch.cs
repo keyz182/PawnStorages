@@ -174,7 +174,7 @@ public static class OrdersPatch
                 if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
                 {
                     opts.Add(new FloatMenuOption(
-                        "PS_CannotStore".Translate((NamedArgument)localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
+                        "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
                 }
                 else
                 {
@@ -184,12 +184,11 @@ public static class OrdersPatch
                     if (building != null)
                     {
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
-                            "PS_StoreEntity".Translate((NamedArgument)localTargetInfo.Thing.Label,
+                            "PS_FarmAnimal".Translate((NamedArgument)localTargetInfo.Thing.Label,
                                 (NamedArgument)building.LabelCap),
                             (Action)(() =>
                             {
-                                Job job = JobMaker.MakeJob(pTarg.Faction == Faction.OfPlayer ? PS_DefOf.PS_CaptureAnimalInPawnStorage : PS_DefOf.PS_CaptureEntityInPawnStorage,
-                                    (LocalTargetInfo)localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureAnimalToFarm,(LocalTargetInfo)localTargetInfo, (LocalTargetInfo)(Thing)building);
                                 job.count = 1;
                                 pawn.jobs.TryTakeOrderedJob(job);
                             })), pawn, (LocalTargetInfo)localTargetInfo));
@@ -197,13 +196,15 @@ public static class OrdersPatch
                     else
                     {
                         opts.Add(new FloatMenuOption(
-                            "PS_NoEntityStore".Translate((NamedArgument)localTargetInfo.Thing.Label),
+                            "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
                             (Action)null));
 
                     }
                 }
             }
         }
+
+
     }
 }
 

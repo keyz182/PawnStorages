@@ -18,4 +18,18 @@
 		<prioritizeSustains>true</prioritizeSustains>
 	</WorkGiverDef>
 
+	<WorkGiverDef>
+		<defName>PS_WorkGiverRefuelFarm</defName>
+		<label>refueliing farm</label>
+		<giverClass>PawnStorages.WorkGiver_Warden_TakeToStorage</giverClass>
+		<workType>Hauling</workType>
+		<verb>refuel</verb>
+		<gerund>refueliing</gerund>
+		<requiredCapacities>
+			<li>Manipulation</li>
+		</requiredCapacities>
+		<priorityInType>50</priorityInType>
+		<prioritizeSustains>true</prioritizeSustains>
+	</WorkGiverDef>
+
 </Defs>
