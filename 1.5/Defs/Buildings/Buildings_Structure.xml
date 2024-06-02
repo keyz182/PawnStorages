@@ -118,7 +118,7 @@
 	<ThingDef ParentName="BuildingBase">
 		<minifiedDef>MinifiedThing</minifiedDef>
 		<defName>PS_BatteryFarm</defName>
-		<label>batteryfarm</label>
+		<label>Battery Farm</label>
 		<description>A battery farm. For animals. Not batteries. \n\n Squeeze in up to 16 animals that give produce, keep them supplied with nutrition, and reap the rewards without the filth!</description>
 		<thingClass>PawnStorages.Farm.Building_PSFarm</thingClass>
 		<graphicData>
@@ -131,8 +131,8 @@
 			<li>BuildingsProduction</li>
 		  </thingCategories>
 		<tickerType>Normal</tickerType>
-		<altitudeLayer>BuildingOnTop</altitudeLayer>
-		<passability>Standable</passability>
+		<altitudeLayer>Building</altitudeLayer>
+		<passability>Impassable</passability>
 		<pathCost>0</pathCost>
 		<blockWind>true</blockWind>
 		<rotatable>true</rotatable>
@@ -142,6 +142,7 @@
 		<inspectorTabs>
 			<li>ITab_BiosculpterNutritionStorage</li>
 		</inspectorTabs>
+		<designationCategory>Production</designationCategory>
 		<comps>
 			<li Class="PawnStorages.CompProperties_PSAssignableToPawn">
 				<drawAssignmentOverlay>false</drawAssignmentOverlay>
@@ -190,13 +191,15 @@
 			  </defaultStorageSettings>
 		</building>
 		<statBases>
-			<WorkToBuild>300</WorkToBuild>
+			<WorkToBuild>1500</WorkToBuild>
 			<MaxHitPoints>100</MaxHitPoints>
 			<Flammability>0.5</Flammability>
 			<Mass>30</Mass>
 		</statBases>
 		<costList>
-			<Steel>15</Steel>
+			<Steel>150</Steel>
+			<WoodLog>150</WoodLog>
+			<Hay>150</Hay>
 		</costList>
 		<constructEffect>ConstructMetal</constructEffect>
 		<placeWorkers>
