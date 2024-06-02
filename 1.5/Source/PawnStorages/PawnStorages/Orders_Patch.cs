@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HarmonyLib;
+using PawnStorages.Farm;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -58,10 +59,12 @@ public static class OrdersPatch
             canTargetPawns = true,
             canTargetBuildings = false,
             canTargetAnimals = true,
+            onlyTargetFactions =
+            [
+                Faction.OfPlayer
+            ],
             mapObjectTargetsMustBeAutoAttackable = false,
-            validator = targ =>
-                targ is { HasThing: true, Thing: Pawn thing } &&
-                WorkGiver_Warden_TakeToStorage.GetStorageFarm(thing, assign: false) != null
+            validator = (targ) => targ is { HasThing: true, Thing: Pawn thing } && WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(thing, assign: false) != null
         };
     }
 
@@ -131,7 +134,6 @@ public static class OrdersPatch
             }
 
             var targets = GenUI.TargetsAt(clickPos, OrdersPatch.ForEntityOrAnimalCapture(), true);
-            // ForColonistAnimalCapture
             foreach (LocalTargetInfo localTargetInfo in targets)
             {
                 if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
@@ -167,9 +169,9 @@ public static class OrdersPatch
                 }
             }
 
-            var farmTargets = GenUI.TargetsAt(clickPos, OrdersPatch.ForFarming(), true);
-            // ForColonistAnimalCapture
-            foreach (LocalTargetInfo localTargetInfo in targets)
+            //Take to the farm
+            var farmableTargets = GenUI.TargetsAt(clickPos, OrdersPatch.ForFarming(), true);
+            foreach (LocalTargetInfo localTargetInfo in farmableTargets)
             {
                 if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
                 {
@@ -179,7 +181,7 @@ public static class OrdersPatch
                 else
                 {
                     Pawn pTarg = (Pawn)localTargetInfo.Thing;
-                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageEntityOrAnimal(pTarg, assign: true);
+                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(pTarg, assign: true);
 
                     if (building != null)
                     {

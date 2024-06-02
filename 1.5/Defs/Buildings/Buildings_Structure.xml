@@ -119,7 +119,7 @@
 		<minifiedDef>MinifiedThing</minifiedDef>
 		<defName>PS_BatteryFarm</defName>
 		<label>batteryfarm</label>
-		<description>PS_BatteryFarm</description>
+		<description>A battery farm. For animals. Not batteries. \n\n Squeeze in up to 16 animals that give produce, keep them supplied with nutrition, and reap the rewards without the filth!</description>
 		<thingClass>PawnStorages.Farm.Building_PSFarm</thingClass>
 		<graphicData>
 			<texPath>Things/Building/Production/PS_BatteryFarm</texPath>
@@ -127,8 +127,6 @@
 			<drawSize>(3,3)</drawSize>
 		</graphicData>
 		<size>(3,3)</size>
-		<interactionCellOffset>(0,0,-2)</interactionCellOffset>
-		<hasInteractionCell>true</hasInteractionCell>
 		<thingCategories>
 			<li>BuildingsProduction</li>
 		  </thingCategories>
@@ -159,29 +157,13 @@
 				<lightEffect>true</lightEffect>
 				<storageStation>PS_BatteryFarm</storageStation>
 			</li>
-			<li Class="CompProperties_Refuelable">
-				<fuelConsumptionRate>18.0</fuelConsumptionRate>
-				<fuelCapacity>500.0</fuelCapacity>
-				<initialConfigurableTargetFuelLevel>250.0</initialConfigurableTargetFuelLevel>
-				<showFuelGizmo>true</showFuelGizmo>
-				<initialAllowAutoRefuel>true</initialAllowAutoRefuel>
-				<allowRefuelIfNotEmpty>true</allowRefuelIfNotEmpty>
-				<targetFuelLevelConfigurable>true</targetFuelLevelConfigurable>
-				<drawOutOfFuelOverlay>true</drawOutOfFuelOverlay>
-				<fuelFilter>
-					<categories>
-						<li>Foods</li>
-					</categories>
-					<specialFiltersToDisallow>
-						<li>AllowPlantFood</li>
-					</specialFiltersToDisallow>
-					<disallowedThingDefs>
-						<li>Hay</li>
-					</disallowedThingDefs>
-				</fuelFilter>
+			<li Class="PawnStorages.Farm.CompProperties_StoredNutrition">
+				<maxNutrtition>500</maxNutrtition>
 			</li>
 		</comps>
 		<building>
+			<wantsHopperAdjacent>true</wantsHopperAdjacent>
+			<destroySound>BuildingDestroyed_Metal_Big</destroySound>
 			<fixedStorageSettings>
 				<priority>Important</priority>
 				<filter>

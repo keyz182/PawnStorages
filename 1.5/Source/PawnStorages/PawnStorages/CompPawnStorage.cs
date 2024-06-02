@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RimWorld;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Verse;
 using Verse.AI;
+using static UnityEngine.GraphicsBuffer;
 
 namespace PawnStorages;
 
@@ -69,16 +72,21 @@ public class CompPawnStorage : ThingComp
         base.PostDestroy(mode, previousMap);
     }
 
-    public override void CompTick()
-    {
-        base.CompTick();
-    }
-
 
     public override string TransformLabel(string label)
     {
         if (!labelDirty) return transformLabelCache;
-        transformLabelCache = !StoredPawns.NullOrEmpty() ? $"{base.TransformLabel(label)} {"PS_Filled".Translate()}" : $"{base.TransformLabel(label)} {"PS_Empty".Translate()}";
+        if (StoredPawns.NullOrEmpty())
+        {
+            transformLabelCache = $"{base.TransformLabel(label)} {"PS_Empty".Translate()}";
+        }else if (StoredPawns.Count >= Props.maxStoredPawns)
+        {
+            transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
+        }
+        else
+        {
+            transformLabelCache = $"{base.TransformLabel(label)}";
+        }
         labelDirty = false;
 
         return transformLabelCache;
@@ -282,7 +290,7 @@ public class CompPawnStorage : ThingComp
         }
     }
 
-    public void EjectContents(Map map)
+    public void ReleaseContents(Map map)
     {
         if (map == null) map = parent.Map;
 
@@ -294,5 +302,33 @@ public class CompPawnStorage : ThingComp
             FilthMaker.TryMakeFilth(parent.InteractionCell, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
         }
 
+        storedPawns.Clear();
+
+    }
+
+    public void EjectContents(Map map)
+    {
+        if (map == null) map = parent.Map;
+
+        foreach (Pawn pawn in storedPawns)
+        {
+            PawnComponentsUtility.AddComponentsForSpawn(pawn);
+            compAssignable.TryUnassignPawn(pawn);
+            GenDrop.TryDropSpawn(pawn, this.parent.Position, map, ThingPlaceMode.Near, out Thing _, null, null, true);
+
+            var cell = CellFinder.RandomClosewalkCellNear(this.parent.Position, map, 18, null);
+
+            bool flag = Find.Selector.IsSelected((object)pawn);
+            var verbProps = PS_DefOf.PS_Eject.verbProperties;
+            PawnFlyer newThing = PawnFlyer.MakeFlyer(ThingDefOf.PawnFlyer, pawn, cell, verbProps.flightEffecterDef, verbProps.soundLanding, verbProps.flyWithCarriedThing, triggeringAbility: null, target: default(LocalTargetInfo));
+            if (newThing == null)
+                return;
+            FleckMaker.ThrowDustPuff(pawn.Position.ToVector3Shifted() + Gen.RandomHorizontalVector(0.5f), map, 2f);
+            GenSpawn.Spawn((Thing)newThing, cell, map);
+            if (flag)
+                Find.Selector.Select((object)pawn, false, false);
+        }
+
+        storedPawns.Clear();
     }
 }

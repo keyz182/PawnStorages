@@ -4,33 +4,51 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using Verse;
+using Verse.AI;
+using Verse.Sound;
 
 namespace PawnStorages.Farm
 {
-    public class Building_PSFarm : Building, IHaulDestination
+    public class Building_PSFarm : Building
     {
-        public bool StorageTabVisible => true;
+        public CompFarmStorage pawnStorage;
+        public CompStoredNutrition StoredNutrition;
 
-        public StorageSettings allowedNutritionSettings;
-
-        public override void PostMake()
+        public override void SpawnSetup(Map map, bool respawningAfterLoad)
         {
-            base.PostMake();
-            this.allowedNutritionSettings = new StorageSettings((IStoreSettingsParent)this);
-            if (this.def.building.defaultStorageSettings != null)
-                this.allowedNutritionSettings.CopyFrom(this.def.building.defaultStorageSettings);
+            pawnStorage = GetComp<CompFarmStorage>();
+            StoredNutrition = GetComp<CompStoredNutrition>();
+            base.SpawnSetup(map, respawningAfterLoad);
         }
 
-        public bool Accepts(Thing t) => this.GetStoreSettings().AllowedToAccept(t);
-        
-        public StorageSettings GetStoreSettings() => this.GetStoreSettings();
-        
-        public StorageSettings GetParentStoreSettings() => this.def.building.fixedStorageSettings;
-
-        public void Notify_SettingsChanged()
+        public override IEnumerable<Gizmo> GetGizmos()
         {
+            foreach (Gizmo gizmo in base.GetGizmos())
+                yield return gizmo;
+            Designator_Build allowedDesignator = BuildCopyCommandUtility.FindAllowedDesignator((BuildableDef)ThingDefOf.Hopper);
+            if (allowedDesignator != null)
+                yield return (Gizmo)allowedDesignator;
         }
 
+        public override string GetInspectString()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine(base.GetInspectString());
+            stringBuilder.AppendLine("PS_NutritionPerDay".Translate(pawnStorage.NutritionRequiredPerDay()));
+            stringBuilder.AppendLine("PS_NutritionStored".Translate(StoredNutrition.storedNutrition, StoredNutrition.Props.maxNutrtition));
+            return stringBuilder.ToString().Trim();
+        }
+
+        public override void Tick()
+        {
+            base.Tick();
+            if (Map.IsHashIntervalTick(pawnStorage.Props.ticksToProduce) && (pawnStorage.Props.alwaysProduce || StoredNutrition.IsWellFed))
+            {
+                pawnStorage.TryProduce();
+            }
+
+        }
     }
 }

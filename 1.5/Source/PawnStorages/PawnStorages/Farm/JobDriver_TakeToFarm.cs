@@ -2,7 +2,6 @@
 using RimWorld;
 using Verse;
 using Verse.AI;
-using Verse.AI.Group;
 
 namespace PawnStorages.Farm;
 
@@ -17,11 +16,6 @@ public class JobDriver_TakeToFarm : JobDriver
     protected ThingWithComps PawnStorageAssigned => (ThingWithComps)job.GetTarget(StorageIndex).Thing;
     protected CompFarmStorage PawnStorageComp => PawnStorageAssigned.TryGetComp<CompFarmStorage>();
     protected CompAssignableToPawn_PawnStorage PawnStorageAssignmentComp => PawnStorageAssigned.TryGetComp<CompAssignableToPawn_PawnStorage>();
-
-    public override string GetReport()
-    {
-        return base.GetReport();
-    }
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)
     {
