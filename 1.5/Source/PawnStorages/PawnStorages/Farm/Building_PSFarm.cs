@@ -8,11 +8,29 @@ using Verse;
 
 namespace PawnStorages.Farm
 {
-    public class Building_PSFarm : Building
+    public class Building_PSFarm : Building, IHaulDestination
     {
-        public static bool IsAcceptableFeedstock(ThingDef def)
+        public bool StorageTabVisible => true;
+
+        public StorageSettings allowedNutritionSettings;
+
+        public override void PostMake()
         {
-            return def.IsNutritionGivingIngestible && def.ingestible.preferability != FoodPreferability.Undefined && (def.ingestible.foodType & FoodTypeFlags.Plant) != FoodTypeFlags.Plant && (def.ingestible.foodType & FoodTypeFlags.Tree) != FoodTypeFlags.Tree;
+            base.PostMake();
+            this.allowedNutritionSettings = new StorageSettings((IStoreSettingsParent)this);
+            if (this.def.building.defaultStorageSettings != null)
+                this.allowedNutritionSettings.CopyFrom(this.def.building.defaultStorageSettings);
         }
+
+        public bool Accepts(Thing t) => this.GetStoreSettings().AllowedToAccept(t);
+        
+        public StorageSettings GetStoreSettings() => this.GetStoreSettings();
+        
+        public StorageSettings GetParentStoreSettings() => this.def.building.fixedStorageSettings;
+
+        public void Notify_SettingsChanged()
+        {
+        }
+
     }
 }

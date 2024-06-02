@@ -24,16 +24,6 @@ namespace PawnStorages.Farm
         }
 
 
-        public new void ApplyNeedsForStoredPeriodFor(Pawn pawn)
-        {
-            return;
-        }
-
-        public override void CompTick()
-        {
-            base.CompTick();
-        }
-
         public new void StorePawn(Pawn pawn)
         {
             // if (Props.lightEffect) FleckMaker.ThrowLightningGlow(pawn.Position.ToVector3Shifted(), pawn.Map, 0.5f);

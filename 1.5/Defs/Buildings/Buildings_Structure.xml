@@ -159,7 +159,7 @@
 				<lightEffect>true</lightEffect>
 				<storageStation>PS_BatteryFarm</storageStation>
 			</li>
-			<li Class="PawnStorages.Farm.CompProperties_FarmStorageRefuelable">
+			<li Class="CompProperties_Refuelable">
 				<fuelConsumptionRate>18.0</fuelConsumptionRate>
 				<fuelCapacity>500.0</fuelCapacity>
 				<initialConfigurableTargetFuelLevel>250.0</initialConfigurableTargetFuelLevel>

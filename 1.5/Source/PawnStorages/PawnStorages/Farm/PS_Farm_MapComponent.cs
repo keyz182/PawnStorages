@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RimWorld;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace PawnStorages.Farm
 {
     public class PS_Farm_MapComponent : MapComponent
     {
-        public List<CompFarmStorageRefuelable> comps = new List<CompFarmStorageRefuelable>();
+        public List<CompRefuelable> comps = new List<CompRefuelable>();
 
         public PS_Farm_MapComponent(Map map) : base(map)
         {

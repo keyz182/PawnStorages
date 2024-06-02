@@ -42,7 +42,10 @@ namespace PawnStorages.Farm
 
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            var compFarmStorageRefuelable = t.TryGetComp<CompFarmStorageRefuelable>();
+            var farmBuilding = t as Building_PSFarm;
+            if (farmBuilding == null) return false;
+
+            var compFarmStorageRefuelable = t.TryGetComp<CompRefuelable>();
 
             if (compFarmStorageRefuelable == null || compFarmStorageRefuelable.IsFull || t.IsForbidden(pawn) ||
                 !pawn.CanReserve(t, 1, -1, null, forced) || t.Faction != pawn.Faction)
@@ -50,7 +53,7 @@ namespace PawnStorages.Farm
                 return false;
             }
 
-            var filter = compFarmStorageRefuelable.GetStoreSettings().filter;
+            var filter = farmBuilding.GetStoreSettings().filter;
 
             var fuel = GetBestFuel(pawn, filter);
 
@@ -65,8 +68,11 @@ namespace PawnStorages.Farm
 
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            var compFarmStorageRefuelable = t.TryGetComp<CompFarmStorageRefuelable>();
-            var filter = compFarmStorageRefuelable.GetStoreSettings().filter;
+            var farmBuilding = t as Building_PSFarm;
+            if (farmBuilding == null) return null;
+
+            var compFarmStorageRefuelable = t.TryGetComp<CompRefuelable>();
+            var filter = farmBuilding.GetStoreSettings().filter;
 
             if (!compFarmStorageRefuelable.Props.atomicFueling)
             {

@@ -71,39 +71,7 @@ public class CompPawnStorage : ThingComp
 
     public override void CompTick()
     {
-        if (Find.TickManager.TicksGame % TICKRATE != 0) return;
-        if (Props.idleResearch && Find.ResearchManager.currentProj != null)
-            foreach (Pawn pawn in storedPawns)
-                if (pawn.RaceProps.Humanlike)
-                {
-                    float value = pawn.GetStatValue(StatDefOf.ResearchSpeed);
-                    value *= 0.5f;
-                    Find.ResearchManager.ResearchPerformed(value * TICKRATE, pawn);
-                    pawn.skills.Learn(SkillDefOf.Intellectual, 0.1f * TICKRATE);
-
-                    if (Props.pawnRestIncreaseTick != 0) pawn.needs.rest.CurLevel += Props.pawnRestIncreaseTick * TICKRATE;
-                }
-
-        if (!schedulingEnabled || compAssignable == null) return;
-        {
-            foreach (Pawn pawn in compAssignable.AssignedPawns)
-                switch (pawn.Spawned)
-                {
-                    case true when pawn.timetable.CurrentAssignment == PS_DefOf.PS_Home &&
-                                   pawn.CurJobDef != PS_DefOf.PS_Enter &&
-                                   pawn.health.State == PawnHealthState.Mobile &&
-                                   !pawn.CurJob.restUntilHealed &&
-                                   !HealthAIUtility.ShouldSeekMedicalRest(pawn):
-                    {
-                        Job job = EnterJob(pawn);
-                        pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
-                        break;
-                    }
-                    case false when StoredPawns.Contains(pawn) && pawn.timetable.CurrentAssignment != PS_DefOf.PS_Home:
-                        ReleasePawn(pawn, parent.Position, parent.Map);
-                        break;
-                }
-        }
+        base.CompTick();
     }
 
 
@@ -299,5 +267,32 @@ public class CompPawnStorage : ThingComp
         };
 
         if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
+    }
+    
+    public void EjectAndKillContents(Map map)
+    {
+        ThingDef filth_Slime = ThingDefOf.Filth_Slime;
+        foreach (Pawn pawn in storedPawns)
+        {
+            PawnComponentsUtility.AddComponentsForSpawn(pawn);
+            pawn.filth.GainFilth(filth_Slime);
+            pawn.Kill(null);
+            GenDrop.TryDropSpawn(pawn, this.parent.Position, map, ThingPlaceMode.Near, out Thing _, null, null, true);
+            compAssignable.TryUnassignPawn(pawn);
+        }
+    }
+
+    public void EjectContents(Map map)
+    {
+        if (map == null) map = parent.Map;
+
+        foreach (Pawn pawn in storedPawns)
+        {
+            PawnComponentsUtility.AddComponentsForSpawn(pawn);
+            compAssignable.TryUnassignPawn(pawn);
+            GenDrop.TryDropSpawn(pawn, this.parent.Position, map, ThingPlaceMode.Near, out Thing _, null, null, true);
+            FilthMaker.TryMakeFilth(parent.InteractionCell, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
+        }
+
     }
 }

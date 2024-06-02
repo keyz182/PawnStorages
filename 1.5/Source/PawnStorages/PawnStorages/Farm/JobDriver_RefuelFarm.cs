@@ -23,7 +23,7 @@ namespace PawnStorages.Farm
 
         public override IEnumerable<Toil> MakeNewToils()
         {
-            var compFarmStorageRefuelable = job.GetTarget(TargetIndex.A).Thing.TryGetComp<CompFarmStorageRefuelable>();
+            var compFarmStorageRefuelable = job.GetTarget(TargetIndex.A).Thing.TryGetComp<CompRefuelable>();
 
             this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
             AddEndCondition(() => !compFarmStorageRefuelable.IsFull ? JobCondition.Ongoing : JobCondition.Succeeded);

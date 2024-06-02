@@ -11,11 +11,11 @@ namespace PawnStorages.Farm
 {
     public class JobDriver_RefuelFarmAtomic : JobDriver_RefuelAtomic
     {
-        protected new CompFarmStorageRefuelable RefuelableComp => this.Refuelable.TryGetComp<CompFarmStorageRefuelable>();
+        protected new CompRefuelable RefuelableComp => this.Refuelable.TryGetComp<CompRefuelable>();
         
         public override IEnumerable<Toil> MakeNewToils()
         {
-            var compFarmStorageRefuelable = job.GetTarget(TargetIndex.A).Thing.TryGetComp<CompFarmStorageRefuelable>();
+            var compFarmStorageRefuelable = job.GetTarget(TargetIndex.A).Thing.TryGetComp<CompRefuelable>();
 
             this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
             AddEndCondition(() => (!compFarmStorageRefuelable.IsFull) ? JobCondition.Ongoing : JobCondition.Succeeded);
