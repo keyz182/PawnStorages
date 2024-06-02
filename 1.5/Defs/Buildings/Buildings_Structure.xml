@@ -124,9 +124,11 @@
 		<graphicData>
 			<texPath>Things/Building/Production/PS_BatteryFarm</texPath>
 			<graphicClass>Graphic_Single</graphicClass>
-			<drawSize>(4,4)</drawSize>
+			<drawSize>(3,3)</drawSize>
 		</graphicData>
-		<size>(4,4)</size>
+		<size>(3,3)</size>
+		<interactionCellOffset>(0,0,-2)</interactionCellOffset>
+		<hasInteractionCell>true</hasInteractionCell>
 		<thingCategories>
 			<li>BuildingsProduction</li>
 		  </thingCategories>
