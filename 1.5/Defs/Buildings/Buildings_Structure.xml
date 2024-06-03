@@ -205,7 +205,7 @@
 		<placeWorkers>
 			<li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
 		  </placeWorkers>
-		<uiIconPath>Things/Building/Production/Hopper_MenuIcon</uiIconPath>
+		<uiIconPath>Things/Building/Production/PS_BatteryFarm</uiIconPath>
 		<uiIconScale>0.85</uiIconScale>
 		<modExtensions>
 			<li Class="PawnStorages.PSExtension">
