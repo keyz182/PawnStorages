@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RimWorld;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Verse;
 using Verse.AI;
-using static UnityEngine.GraphicsBuffer;
 
 namespace PawnStorages;
 
@@ -292,23 +289,19 @@ public class CompPawnStorage : ThingComp
 
     public void ReleaseContents(Map map)
     {
-        if (map == null) map = parent.Map;
+        map ??= parent.Map;
 
-        foreach (Pawn pawn in storedPawns)
+        foreach (var pawn in storedPawns)
         {
-            PawnComponentsUtility.AddComponentsForSpawn(pawn);
-            compAssignable.TryUnassignPawn(pawn);
-            GenDrop.TryDropSpawn(pawn, this.parent.Position, map, ThingPlaceMode.Near, out Thing _, null, null, true);
-            FilthMaker.TryMakeFilth(parent.InteractionCell, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
+            ReleaseSingle(map, pawn, false);
         }
 
         storedPawns.Clear();
-
     }
 
     public void EjectContents(Map map)
     {
-        if (map == null) map = parent.Map;
+        map ??= parent.Map;
 
         foreach (Pawn pawn in storedPawns)
         {
@@ -330,5 +323,19 @@ public class CompPawnStorage : ThingComp
         }
 
         storedPawns.Clear();
+    }
+
+    public void ReleaseSingle(Map map, Pawn pawn, bool remove = true)
+    {
+        if (!storedPawns.Contains(pawn)) return;
+        map ??= parent.Map;
+
+        PawnComponentsUtility.AddComponentsForSpawn(pawn);
+        compAssignable.TryUnassignPawn(pawn);
+        GenDrop.TryDropSpawn(pawn, this.parent.Position, map, ThingPlaceMode.Near, out Thing _, null, null, true);
+        FilthMaker.TryMakeFilth(parent.InteractionCell, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
+
+        if (remove)
+            storedPawns.Remove(pawn);
     }
 }

@@ -1,19 +1,16 @@
 ﻿using RimWorld;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 using Verse;
-using Verse.AI;
-using static Unity.Burst.Intrinsics.X86.Avx;
 
 namespace PawnStorages.Farm
 {
     [StaticConstructorOnStartup]
     public class CompFarmStorage : CompPawnStorage
     {
-        public CompProperties_FarmStorage Props => props as CompProperties_FarmStorage;
+        public new CompProperties_FarmStorage Props => props as CompProperties_FarmStorage;
         public new bool CanAssign(Pawn pawn, bool couldMakePrisoner=false) =>
             compAssignable != null && pawn.Faction == Faction.OfPlayer &&
              !pawn.RaceProps.Humanlike &&
@@ -81,11 +78,6 @@ namespace PawnStorages.Farm
 
         }
 
-        public bool GetEggLayerProduct(CompEggLayer layer)
-        {
-
-        }
-
         public bool GetProduct(Pawn animal, out ThingDef resource, out int amount)
         {
             resource = null;
@@ -128,6 +120,29 @@ namespace PawnStorages.Farm
 
 
             }
+        }
+
+        public override string CompInspectStringExtra()
+        {
+            StringBuilder sb = new();
+            if (StoredPawns?.Any() == true)
+            {
+                sb.AppendLine();
+                sb.AppendLine("PS_StoredPawns".Translate());
+                foreach (Pawn pawn in StoredPawns)
+                {
+                    if (pawn.needs.food.Starving)
+                    {
+                        sb.AppendLine($"    - {pawn.LabelCap} [Starving!]");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"    - {pawn.LabelCap}");
+                    }
+                }
+            }
+
+            return sb.ToString().TrimStart().TrimEnd();
         }
     }
 }

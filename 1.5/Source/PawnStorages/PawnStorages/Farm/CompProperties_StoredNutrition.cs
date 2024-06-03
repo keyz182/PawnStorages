@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Verse;
+﻿using Verse;
 
 namespace PawnStorages.Farm
 {
     public class CompProperties_StoredNutrition: CompProperties
     {
         public float maxNutrtition = 500f;
-        public int ticksToAbsorbNutrients = 250;
+        public int ticksToAbsorbNutrients = 50;
         public int animalTickInterval = 250; 
         public CompProperties_StoredNutrition()
         {

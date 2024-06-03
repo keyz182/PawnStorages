@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using Verse;
-using Verse.AI;
 
 namespace PawnStorages.Farm
 {
@@ -29,6 +29,8 @@ namespace PawnStorages.Farm
         {
             base.CompTick();
 
+            var pawnsToRemove = new List<Pawn>();
+
             if (this.parent.IsHashIntervalTick(Props.ticksToAbsorbNutrients))
             {
                 if (storedNutrition <= Props.maxNutrtition)
@@ -39,55 +41,75 @@ namespace PawnStorages.Farm
 
             if (this.parent.IsHashIntervalTick(Props.animalTickInterval))
             {
-                if (storedNutrition > 0)
+                foreach (var pawn in compFarmStorage.StoredPawns)
                 {
-                    foreach (var pawn in compFarmStorage.StoredPawns)
+                    //Need fall ticker
+                    var foodNeeds = pawn.needs?.food;
+                    if (foodNeeds != null)
                     {
-                        var feed = true;
+                        foodNeeds.CurLevel -= foodNeeds.FoodFallPerTick * Props.animalTickInterval;
+                        if (!foodNeeds.Starving)
+                            foodNeeds.lastNonStarvingTick = Find.TickManager.TicksGame;
 
-                        if (storedNutrition <= 0)
-                        {
-                            TryAbsorbNutritionFromHopper(Props.maxNutrtition - storedNutrition);
-                            // Still no food available, no point trying to feed
-                            if (storedNutrition <= 0) feed = false;
-                        }
+                        // Need_Food.NeedInterval hardcodes 150 ticks, so adjust
+                        var adjustedMalnutritionSeverityPerInterval =
+                            (foodNeeds.MalnutritionSeverityPerInterval / 150f) * Props.animalTickInterval;
 
-                        if (feed)
-                        {
-                            var foodNeeds = pawn.needs?.food;
-                            if (foodNeeds != null)
-                            {
-                                if (foodNeeds.TicksUntilHungryWhenFed <= 0)
-                                {
-                                    var needed = foodNeeds.NutritionWanted;
-                                    var available = Mathf.Min(needed, storedNutrition);
-                                    storedNutrition -= available;
-
-                                    foodNeeds.CurLevel += available;
-                                    pawn.records.AddTo(RecordDefOf.NutritionEaten, available);
-
-                                }
-                            }
-                        }
+                        if (foodNeeds.Starving)
+                            HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, adjustedMalnutritionSeverityPerInterval);
                         else
-                        {
-                            // todo: starvation
-                        }
-
-                        if (ThingCompUtility.TryGetComp<CompEggLayer>(pawn, out var compLayer))
-                        {
-                            EggLayerTick(compLayer, Props.animalTickInterval);
-                        }
-
-                        if (ThingCompUtility.TryGetComp<CompHasGatherableBodyResource>(pawn, out var compGatherable))
-                        {
-                            GatherableTick(compGatherable, Props.animalTickInterval);
-                        }
-
+                            HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, -adjustedMalnutritionSeverityPerInterval);
                     }
-                    storedNutrition -= compFarmStorage.NutritionRequiredPerDay();
+
+                    if (HealthUtility.TryGetWorstHealthCondition(pawn, out var hediff, out var part))
+                    {
+                        if (hediff.def == HediffDefOf.Malnutrition)
+                        {
+                            if (hediff.Severity >= 1f)
+                            {
+                                // hediff.DoMTBDeath();
+                                compFarmStorage.ReleaseSingle(this.parent.Map, pawn, false);
+                                pawnsToRemove.Add(pawn);
+                                continue;
+                            }
+
+                        }
+                    }
+                    //Hopper absorbtion ticker
+                    if (storedNutrition <= 0)
+                    {
+                        TryAbsorbNutritionFromHopper(Props.maxNutrtition - storedNutrition);
+                        // Still no food available, no point trying to feed
+                        if (storedNutrition <= 0) continue;
+                    }
+
+                    if (foodNeeds != null)
+                    {
+                        if (foodNeeds.TicksUntilHungryWhenFed <= 0)
+                        {
+                            var available = Mathf.Min(foodNeeds.NutritionWanted, storedNutrition);
+                            storedNutrition -= available;
+                             
+                            foodNeeds.CurLevel += available;
+                            pawn.records.AddTo(RecordDefOf.NutritionEaten, available);
+
+                        }
+                    }
+
+                    if (ThingCompUtility.TryGetComp<CompEggLayer>(pawn, out var compLayer))
+                    {
+                        EggLayerTick(compLayer, Props.animalTickInterval);
+                    }
+
+                    if (ThingCompUtility.TryGetComp<CompHasGatherableBodyResource>(pawn, out var compGatherable))
+                    {
+                        GatherableTick(compGatherable, Props.animalTickInterval);
+                    }
+
                 }
             }
+
+            compFarmStorage.StoredPawns.RemoveAll((p) => pawnsToRemove.Contains(p));
         }
 
         public void EggLayerTick(CompEggLayer layer, int tickInterval = 1)
@@ -117,7 +139,7 @@ namespace PawnStorages.Farm
         public void GatherableTick(CompHasGatherableBodyResource gatherable, int tickInterval = 1)
         {
             if(!gatherable.Active) return;
-            var eggReadyIncrement = (float)(1f / ((double)gatherable.GatherResourcesIntervalDays * 60000f));
+            var eggReadyIncrement = (float)(1f / ((double)gatherable.GatherResourcesIntervalDays * 60000f)); 
             eggReadyIncrement *= PawnUtility.BodyResourceGrowthSpeed(gatherable.parent as Pawn);
             // we're not doing this every tick so bump the progress
             eggReadyIncrement *= tickInterval;
@@ -228,14 +250,14 @@ namespace PawnStorages.Farm
                 };
                 yield return new Command_Action
                 {
-                    defaultLabel = "Absorb Nutrition from Hopper",
-                    action = delegate { TryAbsorbNutritionFromHopper(Props.maxNutrtition - storedNutrition); },
+                    defaultLabel = "Empty Nutrition",
+                    action = delegate { storedNutrition = 0; },
                     icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
                 };
                 yield return new Command_Action
                 {
-                    defaultLabel = "Consume Nutrition",
-                    action = delegate { storedNutrition -= compFarmStorage.NutritionRequiredPerDay(); },
+                    defaultLabel = "Absorb Nutrition from Hopper",
+                    action = delegate { TryAbsorbNutritionFromHopper(Props.maxNutrtition - storedNutrition); },
                     icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
                 };
             }

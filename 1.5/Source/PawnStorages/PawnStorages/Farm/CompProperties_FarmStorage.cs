@@ -1,7 +1,4 @@
-﻿using RimWorld;
-using Verse;
-
-namespace PawnStorages.Farm;
+﻿namespace PawnStorages.Farm;
 
 public class CompProperties_FarmStorage : CompProperties_PawnStorage
 {

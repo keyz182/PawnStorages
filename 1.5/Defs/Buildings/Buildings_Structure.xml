@@ -132,8 +132,8 @@
 		  </thingCategories>
 		<tickerType>Normal</tickerType>
 		<altitudeLayer>Building</altitudeLayer>
-		<passability>Impassable</passability>
-		<pathCost>0</pathCost>
+		<passability>PassThroughOnly</passability>
+		<pathCost>100</pathCost>
 		<blockWind>true</blockWind>
 		<rotatable>true</rotatable>
 		<clearBuildingArea>false</clearBuildingArea>
