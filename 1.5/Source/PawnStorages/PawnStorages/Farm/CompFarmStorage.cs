@@ -81,6 +81,11 @@ namespace PawnStorages.Farm
 
         }
 
+        public bool GetEggLayerProduct(CompEggLayer layer)
+        {
+
+        }
+
         public bool GetProduct(Pawn animal, out ThingDef resource, out int amount)
         {
             resource = null;

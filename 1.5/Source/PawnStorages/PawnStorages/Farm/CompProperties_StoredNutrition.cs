@@ -11,7 +11,7 @@ namespace PawnStorages.Farm
     {
         public float maxNutrtition = 500f;
         public int ticksToAbsorbNutrients = 250;
-        public int ticksToFeedAnimals = 60000; //Daily
+        public int animalTickInterval = 250; 
         public CompProperties_StoredNutrition()
         {
             compClass = typeof(CompStoredNutrition);
