@@ -119,6 +119,7 @@ namespace PawnStorages.Farm
             eggReadyIncrement *= PawnUtility.BodyResourceGrowthSpeed(layer.parent as Pawn);
             // we're not doing this every tick so bump the progress
             eggReadyIncrement *= tickInterval;
+            eggReadyIncrement *= Props.produceTimeScale;
             layer.eggProgress += eggReadyIncrement;
             layer.eggProgress = Mathf.Clamp(layer.eggProgress, 0f, 1f);
 
@@ -126,40 +127,37 @@ namespace PawnStorages.Farm
                 return;
             layer.eggProgress = layer.Props.eggProgressUnfertilizedMax;
 
-            if (layer.eggProgress >= 1f)
+            if (!(layer.eggProgress >= 1f)) return;
+            var thing = layer.ProduceEgg();
+            if (thing != null)
             {
-                var thing = layer.ProduceEgg();
-                if (thing != null)
-                {
-                    GenPlace.TryPlaceThing(thing, this.parent.Position, this.parent.Map, ThingPlaceMode.Near);
-                }
+                GenPlace.TryPlaceThing(thing, this.parent.Position, this.parent.Map, ThingPlaceMode.Near);
             }
         }
 
         public void GatherableTick(CompHasGatherableBodyResource gatherable, int tickInterval = 1)
         {
             if(!gatherable.Active) return;
-            var eggReadyIncrement = (float)(1f / ((double)gatherable.GatherResourcesIntervalDays * 60000f)); 
-            eggReadyIncrement *= PawnUtility.BodyResourceGrowthSpeed(gatherable.parent as Pawn);
+            var gatherableReadyIncrement = (float)(1f / ((double)gatherable.GatherResourcesIntervalDays * 60000f)); 
+            gatherableReadyIncrement *= PawnUtility.BodyResourceGrowthSpeed(gatherable.parent as Pawn);
             // we're not doing this every tick so bump the progress
-            eggReadyIncrement *= tickInterval;
-            gatherable.fullness += eggReadyIncrement;
+            gatherableReadyIncrement *= tickInterval;
+            gatherableReadyIncrement *= Props.produceTimeScale;
+            gatherable.fullness += gatherableReadyIncrement;
             gatherable.fullness = Mathf.Clamp(gatherable.fullness, 0f, 1f);
 
-            if (gatherable.ActiveAndFull)
+            if (!gatherable.ActiveAndFull) return;
+            var amountToGenerate = GenMath.RoundRandom((float)gatherable.ResourceAmount * gatherable.fullness);
+            while (amountToGenerate > 0f)
             {
-                var amountToGenerate = GenMath.RoundRandom((float)gatherable.ResourceAmount * gatherable.fullness);
-                while (amountToGenerate > 0f)
-                {
-                    var generateThisLoop = Mathf.Clamp(amountToGenerate, 1, gatherable.ResourceDef.stackLimit);
-                    amountToGenerate -= generateThisLoop;
-                    var thing = ThingMaker.MakeThing(gatherable.ResourceDef);
-                    thing.stackCount = generateThisLoop;
-                    GenPlace.TryPlaceThing(thing, this.parent.Position, this.parent.Map, ThingPlaceMode.Near);
-                }
-
-                gatherable.fullness = 0f;
+                var generateThisLoop = Mathf.Clamp(amountToGenerate, 1, gatherable.ResourceDef.stackLimit);
+                amountToGenerate -= generateThisLoop;
+                var thing = ThingMaker.MakeThing(gatherable.ResourceDef);
+                thing.stackCount = generateThisLoop;
+                GenPlace.TryPlaceThing(thing, this.parent.Position, this.parent.Map, ThingPlaceMode.Near);
             }
+
+            gatherable.fullness = 0f;
         }
 
         public List<IntVec3> AdjCellsCardinalInBounds

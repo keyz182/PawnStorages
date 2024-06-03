@@ -160,6 +160,7 @@
 			</li>
 			<li Class="PawnStorages.Farm.CompProperties_StoredNutrition">
 				<maxNutrtition>500</maxNutrtition>
+				<produceTimeScale>0.5</produceTimeScale>
 			</li>
 		</comps>
 		<building>

@@ -34,15 +34,5 @@ namespace PawnStorages.Farm
             stringBuilder.AppendLine("PS_NutritionStored".Translate(StoredNutrition.storedNutrition, StoredNutrition.Props.maxNutrtition));
             return stringBuilder.ToString().Trim();
         }
-
-        public override void Tick()
-        {
-            base.Tick();
-            if (Map.IsHashIntervalTick(pawnStorage.Props.ticksToProduce) && (pawnStorage.Props.alwaysProduce || StoredNutrition.IsWellFed))
-            {
-                pawnStorage.TryProduce();
-            }
-
-        }
     }
 }

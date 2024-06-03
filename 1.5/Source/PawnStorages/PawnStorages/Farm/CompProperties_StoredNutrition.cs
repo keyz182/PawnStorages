@@ -6,7 +6,8 @@ namespace PawnStorages.Farm
     {
         public float maxNutrtition = 500f;
         public int ticksToAbsorbNutrients = 50;
-        public int animalTickInterval = 250; 
+        public int animalTickInterval = 250;
+        public float produceTimeScale = 0.75f;
         public CompProperties_StoredNutrition()
         {
             compClass = typeof(CompStoredNutrition);
