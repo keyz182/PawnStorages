@@ -7,7 +7,7 @@ namespace PawnStorages;
 
 public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
 {
-    public static HashSet<CompAssignableToPawn_PawnStorage> compAssiblables = [];
+    public static HashSet<CompAssignableToPawn_PawnStorage> compAssignables = [];
     public BedOwnerType OwnerType = BedOwnerType.Colonist;
     public new CompProperties_PSAssignableToPawn Props => props as CompProperties_PSAssignableToPawn;
 
@@ -31,13 +31,13 @@ public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {
         base.PostSpawnSetup(respawningAfterLoad);
-        compAssiblables.Add(this);
+        compAssignables.Add(this);
     }
 
     public override void PostDeSpawn(Map map)
     {
         base.PostDeSpawn(map);
-        compAssiblables.Remove(this);
+        compAssignables.Remove(this);
     }
 
     public override string GetAssignmentGizmoDesc()
@@ -47,7 +47,7 @@ public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
 
     public override bool AssignedAnything(Pawn pawn)
     {
-        return compAssiblables.Any(x => x != this && x.AssignedPawns.Contains(pawn));
+        return compAssignables.Any(x => x != this && x.AssignedPawns.Contains(pawn));
     }
 
     public override bool ShouldShowAssignmentGizmo()
@@ -57,7 +57,7 @@ public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
 
     public override void TryAssignPawn(Pawn pawn)
     {
-        foreach (CompAssignableToPawn_PawnStorage otherStorage in compAssiblables)
+        foreach (CompAssignableToPawn_PawnStorage otherStorage in compAssignables)
         {
             if (otherStorage != this) otherStorage.TryUnassignPawn(pawn);
         }
