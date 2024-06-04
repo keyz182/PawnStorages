@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using PawnStorages.Farm;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -137,11 +138,13 @@ public class CompPawnStorage : ThingComp
         int ticksStored = Mathf.Max(0, Find.TickManager.TicksGame - storedAtTick - NEEDS_INTERVAL);
         if (!Props.needsDrop) return;
 
+        var nutrtitionComp = parent.TryGetComp<CompStoredNutrition>();
         foreach (Need need in pawn.needs.AllNeeds)
         {
             switch (need)
             {
                 case Need_Food foodNeed:
+                    if (nutrtitionComp != null) continue; // this comp has already taken care of food
                     foodNeed.CurLevel -= foodNeed.FoodFallPerTick * ticksStored;
                     continue;
                 case Need_Chemical chemicalNeed:

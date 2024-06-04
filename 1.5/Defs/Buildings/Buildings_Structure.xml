@@ -150,7 +150,7 @@
 				<colonyAnimalsOnly>true</colonyAnimalsOnly>
 			</li>
 			<li Class="PawnStorages.Farm.CompProperties_FarmStorage">
-				<needsDrop>false</needsDrop>
+				<needsDrop>true</needsDrop>
 				<maxStoredPawns>16</maxStoredPawns>
 				<releaseOption>true</releaseOption>
 				<convertOption>false</convertOption>
