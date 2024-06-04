@@ -1,9 +1,7 @@
-﻿using Mono.Unix.Native;
-using RimWorld;
+﻿using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.AI;
-using static HarmonyLib.Code;
 
 namespace PawnStorages;
 
@@ -25,7 +23,7 @@ public static class Utility
 
     public static Mesh SetUVs(this Mesh mesh, bool flipped)
     {
-        var array2 = new Vector2[4];
+        Vector2[] array2 = new Vector2[4];
         if (!flipped)
         {
             array2[0] = new Vector2(0f, 0f);
@@ -48,12 +46,12 @@ public static class Utility
     public static Texture2D GetGreyscale(this RenderTexture source)
     {
         Texture2D texture = MakeReadableTextureInstance(source);
-        var colors = texture.GetPixels();
+        Color[] colors = texture.GetPixels();
 
-        for (var i = 0; i < colors.Length; i++)
+        for (int i = 0; i < colors.Length; i++)
         {
             Color c = colors[i];
-            var gray = c.r * 0.3f + c.g * 0.59f + c.b * 0.11f;
+            float gray = c.r * 0.3f + c.g * 0.59f + c.b * 0.11f;
             colors[i] = new Color(gray, gray, gray, c.a);
         }
 

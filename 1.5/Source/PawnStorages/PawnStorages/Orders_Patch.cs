@@ -151,19 +151,19 @@ public static class OrdersPatch
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
                             "PS_StoreEntity".Translate((NamedArgument)localTargetInfo.Thing.Label,
                                 (NamedArgument)building.LabelCap),
-                            (Action)(() =>
+                            () =>
                             {
                                 Job job = JobMaker.MakeJob(pTarg.Faction == Faction.OfPlayer ? PS_DefOf.PS_CaptureAnimalInPawnStorage : PS_DefOf.PS_CaptureEntityInPawnStorage,
-                                    (LocalTargetInfo)localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                    localTargetInfo, (LocalTargetInfo)(Thing)building);
                                 job.count = 1;
                                 pawn.jobs.TryTakeOrderedJob(job);
-                            })), pawn, (LocalTargetInfo)localTargetInfo));
+                            }), pawn, localTargetInfo));
                     }
                     else
                     {
                         opts.Add(new FloatMenuOption(
                             "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
-                            (Action)null));
+                            null));
                     }
                 }
             }
@@ -187,18 +187,18 @@ public static class OrdersPatch
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
                             "PS_FarmAnimal".Translate((NamedArgument)localTargetInfo.Thing.Label,
                                 (NamedArgument)building.LabelCap),
-                            (Action)(() =>
+                            () =>
                             {
-                                Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureAnimalToFarm, (LocalTargetInfo)localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureAnimalToFarm, localTargetInfo, (LocalTargetInfo)(Thing)building);
                                 job.count = 1;
                                 pawn.jobs.TryTakeOrderedJob(job);
-                            })), pawn, (LocalTargetInfo)localTargetInfo));
+                            }), pawn, localTargetInfo));
                     }
                     else
                     {
                         opts.Add(new FloatMenuOption(
                             "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
-                            (Action)null));
+                            null));
                     }
                 }
             }

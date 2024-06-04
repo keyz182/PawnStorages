@@ -24,7 +24,6 @@ public static class PS_DefOf
     //Misc
     public static RecipeDef PS_MakePawnStorageDisc;
     public static WorkGiverDef PS_DoBillsDigitalBench;
-    public static AbilityDef PS_Eject;
 
     public static TimeAssignmentDef PS_Home;
 }

@@ -47,10 +47,7 @@ public class JobDriver_TakeToFarm : JobDriver
         yield return goToStorage;
         Toil setTakeeSettings = ToilMaker.MakeToil();
         setTakeeSettings.debugName = "takeeSettings";
-        setTakeeSettings.initAction = delegate
-        {
-            Takee.playerSettings ??= new Pawn_PlayerSettings(Takee);
-        };
+        setTakeeSettings.initAction = delegate { Takee.playerSettings ??= new Pawn_PlayerSettings(Takee); };
         yield return setTakeeSettings;
         yield return Toils_Reserve.Release(StorageIndex);
         yield return StoreIntoStorage(PawnStorageAssigned, pawn, Takee);
@@ -62,7 +59,7 @@ public class JobDriver_TakeToFarm : JobDriver
         Toil toil = ToilMaker.MakeToil();
         toil.initAction = delegate
         {
-            var position = storage.Position;
+            IntVec3 position = storage.Position;
             taker.carryTracker.TryDropCarriedThing(position, ThingPlaceMode.Direct, out Thing _);
             takee.Notify_Teleported(false);
             takee.stances.CancelBusyStanceHard();
@@ -72,6 +69,7 @@ public class JobDriver_TakeToFarm : JobDriver
                 if (comp.CanStore)
                     comp.StorePawn(takee);
             }
+
             takee.jobs.StartJob(JobMaker.MakeJob(PS_DefOf.PS_Enter, (LocalTargetInfo)storage), JobCondition.InterruptForced, tag: JobTag.Misc);
         };
         toil.defaultCompleteMode = ToilCompleteMode.Instant;

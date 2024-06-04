@@ -1,7 +1,7 @@
-﻿using RimWorld;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -11,10 +11,11 @@ namespace PawnStorages.Farm
     public class CompFarmStorage : CompPawnStorage
     {
         public new CompProperties_FarmStorage Props => props as CompProperties_FarmStorage;
-        public new bool CanAssign(Pawn pawn, bool couldMakePrisoner=false) =>
+
+        public new bool CanAssign(Pawn pawn, bool couldMakePrisoner = false) =>
             compAssignable != null && pawn.Faction == Faction.OfPlayer &&
-             !pawn.RaceProps.Humanlike &&
-             (compAssignable.AssignedPawns.Contains(pawn) || compAssignable.HasFreeSlot);
+            !pawn.RaceProps.Humanlike &&
+            (compAssignable.AssignedPawns.Contains(pawn) || compAssignable.HasFreeSlot);
 
         public float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(animal =>
             SimplifiedPastureNutritionSimulator.NutritionConsumedPerDay(animal.def, animal.ageTracker.CurLifeStage));
@@ -31,6 +32,7 @@ namespace PawnStorages.Farm
             {
                 compAssignable.TryAssignPawn(pawn);
             }
+
             labelDirty = true;
         }
 
@@ -49,19 +51,13 @@ namespace PawnStorages.Farm
                 yield return new Command_Action
                 {
                     defaultLabel = "PS_ReleaseAnimals".Translate(),
-                    action = delegate
-                    {
-                        ReleaseContents(parent.Map);
-                    },
+                    action = delegate { ReleaseContents(parent.Map); },
                     icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Release")
                 };
                 yield return new Command_Action
                 {
                     defaultLabel = "PS_EjectAnimals".Translate(),
-                    action = delegate
-                    {
-                        EjectContents(parent.Map);
-                    },
+                    action = delegate { EjectContents(parent.Map); },
                     icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Eject")
                 };
             }
@@ -71,20 +67,19 @@ namespace PawnStorages.Farm
                 yield return new Command_Action
                 {
                     defaultLabel = "Produce",
-                    action = delegate { TryProduce(); },
+                    action = TryProduce,
                     icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
                 };
             }
-
         }
 
         public bool GetProduct(Pawn animal, out ThingDef resource, out int amount)
         {
             resource = null;
-            amount = 0; 
+            amount = 0;
 
             //Milkable or shearable
-            var bodyResource = animal.GetComp<CompHasGatherableBodyResource>();
+            CompHasGatherableBodyResource bodyResource = animal.TryGetComp<CompHasGatherableBodyResource>();
             if (bodyResource is { Active: true })
             {
                 resource = bodyResource.ResourceDef;
@@ -93,53 +88,41 @@ namespace PawnStorages.Farm
             }
 
             //EggLayer 
-            var eggLayer = animal.GetComp<CompEggLayer>();
-            if (eggLayer is { Active: true })
-            {
-                resource = eggLayer.Props.eggUnfertilizedDef;
-                amount = eggLayer.Props.eggCountRange.RandomInRange;
-                return true;
-            }
+            CompEggLayer eggLayer = animal.TryGetComp<CompEggLayer>();
+            if (eggLayer is not { Active: true }) return false;
+            resource = eggLayer.Props.eggUnfertilizedDef;
+            amount = eggLayer.Props.eggCountRange.RandomInRange;
+            return true;
 
-            return false;
         }
 
         public void TryProduce()
         {
-            foreach (var pawn in storedPawns)
+            foreach (Pawn pawn in storedPawns)
             {
-                if (!GetProduct(pawn, out var thingDef, out var amount)) continue;
+                if (!GetProduct(pawn, out ThingDef thingDef, out int amount)) continue;
                 while (amount > 0)
                 {
-                    var toSpawn = Mathf.Clamp(amount, 1, thingDef.stackLimit);
+                    int toSpawn = Mathf.Clamp(amount, 1, thingDef.stackLimit);
                     amount -= toSpawn;
-                    var thingStack = ThingMaker.MakeThing(thingDef);
+                    Thing thingStack = ThingMaker.MakeThing(thingDef);
                     thingStack.stackCount = toSpawn;
                     GenPlace.TryPlaceThing(thingStack, parent.Position, parent.Map, ThingPlaceMode.Near);
                 }
-
-
             }
         }
 
         public override string CompInspectStringExtra()
         {
             StringBuilder sb = new();
-            if (StoredPawns?.Any() == true)
+            if (StoredPawns?.Any() != true) return sb.ToString().TrimStart().TrimEnd();
+            sb.AppendLine();
+            sb.AppendLine("PS_StoredPawns".Translate());
+            foreach (Pawn pawn in StoredPawns)
             {
-                sb.AppendLine();
-                sb.AppendLine("PS_StoredPawns".Translate());
-                foreach (Pawn pawn in StoredPawns)
-                {
-                    if (pawn.needs.food.Starving)
-                    {
-                        sb.AppendLine($"    - {pawn.LabelCap} [Starving!]");
-                    }
-                    else
-                    {
-                        sb.AppendLine($"    - {pawn.LabelCap}");
-                    }
-                }
+                sb.AppendLine(pawn.needs.food.Starving
+                    ? $"    - {pawn.LabelCap} [Starving!]"
+                    : $"    - {pawn.LabelCap}");
             }
 
             return sb.ToString().TrimStart().TrimEnd();

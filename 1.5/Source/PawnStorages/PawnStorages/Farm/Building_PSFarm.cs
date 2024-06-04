@@ -1,6 +1,6 @@
-﻿using RimWorld;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
+using RimWorld;
 using Verse;
 
 namespace PawnStorages.Farm
@@ -16,38 +16,38 @@ namespace PawnStorages.Farm
             pawnStorage = GetComp<CompFarmStorage>();
             StoredNutrition = GetComp<CompStoredNutrition>();
             base.SpawnSetup(map, respawningAfterLoad);
-            this.allowedNutritionSettings = new StorageSettings((IStoreSettingsParent)this);
-            if (this.def.building.defaultStorageSettings == null)
+            allowedNutritionSettings = new StorageSettings(this);
+            if (def.building.defaultStorageSettings == null)
                 return;
-            this.allowedNutritionSettings.CopyFrom(this.def.building.defaultStorageSettings);
+            allowedNutritionSettings.CopyFrom(def.building.defaultStorageSettings);
         }
 
         public override IEnumerable<Gizmo> GetGizmos()
         {
             foreach (Gizmo gizmo in base.GetGizmos())
                 yield return gizmo;
-            Designator_Build allowedDesignator = BuildCopyCommandUtility.FindAllowedDesignator((BuildableDef)ThingDefOf.Hopper);
+            Designator_Build allowedDesignator = BuildCopyCommandUtility.FindAllowedDesignator(ThingDefOf.Hopper);
             if (allowedDesignator != null)
-                yield return (Gizmo)allowedDesignator;
+                yield return allowedDesignator;
         }
 
         public override string GetInspectString()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            StringBuilder stringBuilder = new();
             stringBuilder.AppendLine(base.GetInspectString());
             stringBuilder.AppendLine("PS_NutritionPerDay".Translate(pawnStorage.NutritionRequiredPerDay()));
-            stringBuilder.AppendLine("PS_NutritionStored".Translate(StoredNutrition.storedNutrition, StoredNutrition.Props.maxNutrtition));
+            stringBuilder.AppendLine("PS_NutritionStored".Translate(StoredNutrition.storedNutrition, StoredNutrition.Props.maxNutrition));
             return stringBuilder.ToString().Trim();
         }
 
         public StorageSettings GetStoreSettings()
         {
-            return this.allowedNutritionSettings;
+            return allowedNutritionSettings;
         }
 
         public StorageSettings GetParentStoreSettings()
         {
-            return this.def.building.fixedStorageSettings;
+            return def.building.fixedStorageSettings;
         }
 
         public void Notify_SettingsChanged()
