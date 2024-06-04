@@ -11,6 +11,7 @@ namespace PawnStorages.Farm
     public class CompStoredNutrition: ThingComp
     {
         public float storedNutrition = 0f;
+        public bool produceNow = false;
 
         private List<IntVec3> cachedAdjCellsCardinal;
 
@@ -21,6 +22,8 @@ namespace PawnStorages.Farm
         public CompProperties_StoredNutrition Props => props as CompProperties_StoredNutrition;
 
         public CompFarmStorage compFarmStorage => parent.GetComp<CompFarmStorage>();
+
+        public bool NeedsDrop => PawnStoragesMod.settings.AllowNeedsDrop || compFarmStorage.Props.needsDrop;
 
         // returns true if we disable power consumption
         public bool IsPowered => compPowerTrader == null || compPowerTrader.ShouldBeLitNow();
@@ -36,16 +39,7 @@ namespace PawnStorages.Farm
         {
             base.CompTick();
 
-            if(!compFarmStorage.Props.needsDrop) return;
-
-            if (this.parent.IsHashIntervalTick(60000) && daysProduce.Count > 0 && IsPowered)
-            {
-                foreach (var thing in daysProduce)
-                {
-                    GenPlace.TryPlaceThing(thing, this.parent.Position, this.parent.Map, ThingPlaceMode.Near);
-                }
-                daysProduce.Clear();
-            }
+            if(!NeedsDrop) return;
 
             var pawnsToRemove = new List<Pawn>();
 
@@ -120,12 +114,12 @@ namespace PawnStorages.Farm
                         }
                     }
 
-                    if (ThingCompUtility.TryGetComp<CompEggLayer>(pawn, out var compLayer))
+                    if (ThingCompUtility.TryGetComp<CompEggLayer>(pawn, out var compLayer) && pawn.gender != Gender.Male)
                     {
                         EggLayerTick(compLayer, Props.animalTickInterval);
                     }
 
-                    if (ThingCompUtility.TryGetComp<CompHasGatherableBodyResource>(pawn, out var compGatherable))
+                    if (ThingCompUtility.TryGetComp<CompHasGatherableBodyResource>(pawn, out var compGatherable) && pawn.gender != Gender.Male)
                     {
                         GatherableTick(compGatherable, Props.animalTickInterval);
                     }
@@ -134,6 +128,15 @@ namespace PawnStorages.Farm
             }
 
             compFarmStorage.StoredPawns.RemoveAll((p) => pawnsToRemove.Contains(p));
+
+            if (produceNow || (this.parent.IsHashIntervalTick(60000) && daysProduce.Count > 0 && IsPowered))
+            {
+                foreach (var thing in daysProduce)
+                {
+                    GenPlace.TryPlaceThing(thing, this.parent.Position, this.parent.Map, ThingPlaceMode.Near);
+                }
+                daysProduce.Clear();
+            }
         }
 
         public void SendStavingLetter(Pawn pawn)
@@ -161,11 +164,7 @@ namespace PawnStorages.Farm
             eggReadyIncrement *= Props.produceTimeScale;
             layer.eggProgress += eggReadyIncrement;
             layer.eggProgress = Mathf.Clamp(layer.eggProgress, 0f, 1f);
-
-            if(!layer.ProgressStoppedBecauseUnfertilized)
-                return;
-            layer.eggProgress = layer.Props.eggProgressUnfertilizedMax;
-
+            
             if (!(layer.eggProgress >= 1f)) return;
             var thing = layer.ProduceEgg();
             if (thing != null)
@@ -297,6 +296,38 @@ namespace PawnStorages.Farm
                 {
                     defaultLabel = "Absorb Nutrition from Hopper",
                     action = delegate { TryAbsorbNutritionFromHopper(Props.maxNutrtition - storedNutrition); },
+                    icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
+                };
+                yield return new Command_Action
+                {
+                    defaultLabel = "Make all animals ready to produce",
+                    action = delegate
+                    {
+                        foreach (var storedPawn in compFarmStorage.StoredPawns)
+                        {
+                            storedPawn.needs.food.CurLevel = storedPawn.needs.food.MaxLevel;
+
+                            if (ThingCompUtility.TryGetComp<CompEggLayer>(storedPawn, out var compLayer))
+                            {
+                                compLayer.eggProgress = 1f;
+                            }
+
+                            if (ThingCompUtility.TryGetComp<CompHasGatherableBodyResource>(storedPawn, out var compGatherable))
+                            {
+                                compGatherable.fullness = 1f;
+                            }
+
+                        }
+                    },
+                    icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
+                };
+                yield return new Command_Action
+                {
+                    defaultLabel = "Produce on next tick",
+                    action = delegate
+                    {
+                        produceNow = true;
+                    },
                     icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
                 };
             }

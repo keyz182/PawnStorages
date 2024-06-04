@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Verse;
 using Verse.Noise;
+using static HarmonyLib.Code;
 using static RimWorld.ITab_Pawn_Log_Utility;
 using static UnityEngine.Random;
 using Color = UnityEngine.Color;
@@ -24,11 +25,27 @@ namespace PawnStorages.Farm
         private bool alternate = false;
 
         public CompFarmStorage compFarmStorage => this.SelThing.TryGetComp<CompFarmStorage>();
+        public bool NeedsDrop => PawnStoragesMod.settings.AllowNeedsDrop || compFarmStorage.Props.needsDrop;
 
         public ITab_Farm()
         {
             this.size = ITab_PenAnimals.WinSize;
             this.labelKey = "TabPenAnimals";
+        }
+
+        public float PawnFullness(Pawn pawn)
+        {
+            if (ThingCompUtility.TryGetComp<CompEggLayer>(pawn, out var compLayer))
+            {
+                return compLayer.eggProgress;
+            }
+
+            if (ThingCompUtility.TryGetComp<CompHasGatherableBodyResource>(pawn, out var compGatherable))
+            {
+                return compGatherable.Fullness;
+            }
+
+            return 0;
         }
 
         public bool DrawLine(float position, float width, Pawn pawn)
@@ -47,15 +64,22 @@ namespace PawnStorages.Farm
 
             var label = new StringBuilder(pawn.LabelShort);
 
-            if (pawn.needs.food.Starving)
+            if (NeedsDrop)
             {
-                label.Append(" (Starving!)");
+                if (pawn.needs.food.Starving)
+                {
+                    label.Append(" (Starving!)");
+                }
+
+                Widgets.Label(new Rect(55f, position, width - 90f, 20f), label.ToString());
+                Widgets.Label(new Rect(55f, position + 20f, width - 90f, 20f),
+                    $"Nutrition: {Mathf.CeilToInt(pawn.needs.food.CurLevelPercentage)}%");
+                if (pawn.gender != Gender.Male)
+                    Widgets.Label(new Rect(55f, position + 40f, width - 90f, 20f),
+                        $"Progress: {Mathf.CeilToInt(PawnFullness(pawn) * 100)}%");
             }
 
-            Widgets.Label(new Rect(55f, position, width - 90f, lineHeight), label.ToString());
-            Widgets.Label(new Rect(55f, position + 30f, width - 90f, lineHeight), $"Nutrition: {Mathf.CeilToInt(pawn.needs.food.CurLevelPercentage)}%");
-
-            var btn = new Rect(new Vector2(width - 95f, position + 15f), new Vector2(30f, 30f));
+            var btn = new Rect(new Vector2(width - 50f, position + 15f), new Vector2(30f, 30f));
 
             if (Widgets.ButtonImage(btn, TexButton.Drop, Color.white, GenUI.MouseoverColor, true))
             {
