@@ -51,6 +51,22 @@ public static class OrdersPatch
         };
     }
 
+    public static TargetingParameters ForFarming()
+    {
+        return new TargetingParameters()
+        {
+            canTargetPawns = true,
+            canTargetBuildings = false,
+            canTargetAnimals = true,
+            onlyTargetFactions =
+            [
+                Faction.OfPlayer
+            ],
+            mapObjectTargetsMustBeAutoAttackable = false,
+            validator = (targ) => targ is { HasThing: true, Thing: Pawn thing } && WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(thing, assign: false) != null
+        };
+    }
+
     [HarmonyPostfix]
     private static void Postfix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts)
     {
@@ -116,8 +132,8 @@ public static class OrdersPatch
                 }
             }
 
-            IEnumerable<LocalTargetInfo> targets = GenUI.TargetsAt(clickPos, ForEntityOrAnimalCapture(), true);
             // ForColonistAnimalCapture
+            IEnumerable<LocalTargetInfo> targets = GenUI.TargetsAt(clickPos, ForEntityOrAnimalCapture(), true);
             foreach (LocalTargetInfo localTargetInfo in targets)
             {
                 if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
@@ -135,19 +151,54 @@ public static class OrdersPatch
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
                             "PS_StoreEntity".Translate((NamedArgument)localTargetInfo.Thing.Label,
                                 (NamedArgument)building.LabelCap),
-                            (Action)(() =>
+                            () =>
                             {
                                 Job job = JobMaker.MakeJob(pTarg.Faction == Faction.OfPlayer ? PS_DefOf.PS_CaptureAnimalInPawnStorage : PS_DefOf.PS_CaptureEntityInPawnStorage,
-                                    (LocalTargetInfo)localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                    localTargetInfo, (LocalTargetInfo)(Thing)building);
                                 job.count = 1;
                                 pawn.jobs.TryTakeOrderedJob(job);
-                            })), pawn, (LocalTargetInfo)localTargetInfo));
+                            }), pawn, localTargetInfo));
                     }
                     else
                     {
                         opts.Add(new FloatMenuOption(
-                            "PS_NoEntityStore".Translate((NamedArgument)localTargetInfo.Thing.Label),
-                            (Action)null));
+                            "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
+                            null));
+                    }
+                }
+            }
+
+            //Take to the farm
+            IEnumerable<LocalTargetInfo> farmableTargets = GenUI.TargetsAt(clickPos, ForFarming(), true);
+            foreach (LocalTargetInfo localTargetInfo in farmableTargets)
+            {
+                if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
+                {
+                    opts.Add(new FloatMenuOption(
+                        "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
+                }
+                else
+                {
+                    Pawn pTarg = (Pawn)localTargetInfo.Thing;
+                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(pTarg, assign: false);
+
+                    if (building != null)
+                    {
+                        opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
+                            "PS_FarmAnimal".Translate((NamedArgument)localTargetInfo.Thing.Label,
+                                (NamedArgument)building.LabelCap),
+                            () =>
+                            {
+                                Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureAnimalToFarm, localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                job.count = 1;
+                                pawn.jobs.TryTakeOrderedJob(job);
+                            }), pawn, localTargetInfo));
+                    }
+                    else
+                    {
+                        opts.Add(new FloatMenuOption(
+                            "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
+                            null));
                     }
                 }
             }

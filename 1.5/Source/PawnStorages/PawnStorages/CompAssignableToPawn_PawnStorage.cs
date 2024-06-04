@@ -9,11 +9,15 @@ public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
 {
     public static HashSet<CompAssignableToPawn_PawnStorage> compAssiblables = [];
     public BedOwnerType OwnerType = BedOwnerType.Colonist;
+    public new CompProperties_PSAssignableToPawn Props => props as CompProperties_PSAssignableToPawn;
 
     public override IEnumerable<Pawn> AssigningCandidates
     {
         get
         {
+            if(Props.colonyAnimalsOnly) return !parent.Spawned
+                ? Enumerable.Empty<Pawn>()
+                : parent.Map.mapPawns.SpawnedColonyAnimals.OrderByDescending(p => CanAssignTo(p).Accepted);
             return !parent.Spawned ? Enumerable.Empty<Pawn>() : OwnerType switch
             {
                 BedOwnerType.Colonist => parent.Map.mapPawns.FreeColonists.OrderByDescending(p => CanAssignTo(p).Accepted),
@@ -48,7 +52,7 @@ public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
 
     public override bool ShouldShowAssignmentGizmo()
     {
-        return parent.Faction == Faction.OfPlayer;
+        return Props.showGizmo && parent.Faction == Faction.OfPlayer;
     }
 
     public override void TryAssignPawn(Pawn pawn)

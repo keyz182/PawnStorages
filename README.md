@@ -40,6 +40,7 @@ Create issues with your feedback and ideas!
 * Taranchuk
 * Feldoh
 * Maxim
+* keyz182
 
 ## Building and Releasing
 You do not need to build the project to use it however building the release configuration will create a zip file for nice distribution.

@@ -36,5 +36,16 @@
 	<PS_NoEntityStore>No valid storage for {0}</PS_NoEntityStore>
 	<PS_CannotStore>Cannot store {0}</PS_CannotStore>
 
+	<PS_FarmAnimal>Farm {0} on {1}</PS_FarmAnimal>
+	<PS_NoFarm>No valid farm for {0}</PS_NoFarm>
+	<PS_ReleaseAnimals>Release animals</PS_ReleaseAnimals>
+	<PS_EjectAnimals>Eject animals</PS_EjectAnimals>
+
+	<PS_NutritionPerDay>Nutrition required per day: {0}</PS_NutritionPerDay>
+	<PS_NutritionStored>Nutrition stored: {0}/{1}</PS_NutritionStored>
+
+	<PS_PawnEjectedStarvationTitle>{0} starving!</PS_PawnEjectedStarvationTitle>
+	<PS_PawnEjectedStarvation>{0} ejected from {1} due to starvation!</PS_PawnEjectedStarvation>
+
 	<PS_Rotate>Rotate</PS_Rotate>
 </LanguageData>

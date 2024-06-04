@@ -12,12 +12,14 @@ public static class PS_DefOf
     public static JobDef PS_CaptureInPawnStorage;
     public static JobDef PS_CaptureEntityInPawnStorage;
     public static JobDef PS_CaptureAnimalInPawnStorage;
+    public static JobDef PS_CaptureAnimalToFarm;
     public static JobDef PS_TakeToPawnStorage;
     public static JobDef PS_CaptureCarriedToPawnStorage;
 
     //Things
     public static ThingDef PS_DigitizerFabricator;
     public static ThingDef PS_PawnStatue;
+    public static ThingDef PS_BatteryFarm;
 
     //Misc
     public static RecipeDef PS_MakePawnStorageDisc;

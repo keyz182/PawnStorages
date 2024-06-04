@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using HarmonyLib;
+using PawnStorages.Farm;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -14,21 +15,16 @@ public class CompPawnStorage : ThingComp
     public const int TICKRATE = 60;
     public const int NEEDS_INTERVAL = 150;
 
-    private CompAssignableToPawn_PawnStorage compAssignable;
-    private bool labelDirty = true;
+    protected CompAssignableToPawn_PawnStorage compAssignable;
+    protected bool labelDirty = true;
     public bool schedulingEnabled;
-    private List<Pawn> storedPawns;
-    private Dictionary<int, int> pawnStoringTick;
+    protected List<Pawn> storedPawns = [];
+    private Dictionary<int, int> pawnStoringTick = new();
     private string transformLabelCache;
 
-    public Rot4 Rotation = default;
+    public Rot4 Rotation;
 
-    public CompPawnStorage()
-    {
-        storedPawns = [];
-        pawnStoringTick = new Dictionary<int, int>();
-    }
-
+    public Thing Parent => parent;
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
     public List<Pawn> StoredPawns => storedPawns;
     public bool CanStore => storedPawns.Count < Props.maxStoredPawns;
@@ -75,48 +71,23 @@ public class CompPawnStorage : ThingComp
         base.PostDestroy(mode, previousMap);
     }
 
-    public override void CompTick()
-    {
-        if (Find.TickManager.TicksGame % TICKRATE != 0) return;
-        if (Props.idleResearch && Find.ResearchManager.currentProj != null)
-            foreach (Pawn pawn in storedPawns)
-                if (pawn.RaceProps.Humanlike)
-                {
-                    float value = pawn.GetStatValue(StatDefOf.ResearchSpeed);
-                    value *= 0.5f;
-                    Find.ResearchManager.ResearchPerformed(value * TICKRATE, pawn);
-                    pawn.skills.Learn(SkillDefOf.Intellectual, 0.1f * TICKRATE);
-
-                    if (Props.pawnRestIncreaseTick != 0) pawn.needs.rest.CurLevel += Props.pawnRestIncreaseTick * TICKRATE;
-                }
-
-        if (!schedulingEnabled || compAssignable == null) return;
-        {
-            foreach (Pawn pawn in compAssignable.AssignedPawns)
-                switch (pawn.Spawned)
-                {
-                    case true when pawn.timetable.CurrentAssignment == PS_DefOf.PS_Home &&
-                                   pawn.CurJobDef != PS_DefOf.PS_Enter &&
-                                   pawn.health.State == PawnHealthState.Mobile &&
-                                   !pawn.CurJob.restUntilHealed &&
-                                   !HealthAIUtility.ShouldSeekMedicalRest(pawn):
-                    {
-                        Job job = EnterJob(pawn);
-                        pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
-                        break;
-                    }
-                    case false when StoredPawns.Contains(pawn) && pawn.timetable.CurrentAssignment != PS_DefOf.PS_Home:
-                        ReleasePawn(pawn, parent.Position, parent.Map);
-                        break;
-                }
-        }
-    }
-
 
     public override string TransformLabel(string label)
     {
         if (!labelDirty) return transformLabelCache;
-        transformLabelCache = !StoredPawns.NullOrEmpty() ? $"{base.TransformLabel(label)} {"PS_Filled".Translate()}" : $"{base.TransformLabel(label)} {"PS_Empty".Translate()}";
+        if (StoredPawns.NullOrEmpty())
+        {
+            transformLabelCache = $"{base.TransformLabel(label)} {"PS_Empty".Translate()}";
+        }
+        else if (StoredPawns.Count >= Props.maxStoredPawns)
+        {
+            transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
+        }
+        else
+        {
+            transformLabelCache = $"{base.TransformLabel(label)}";
+        }
+
         labelDirty = false;
 
         return transformLabelCache;
@@ -157,28 +128,7 @@ public class CompPawnStorage : ThingComp
     //Funcs
     public void ReleasePawn(Pawn pawn, IntVec3 cell, Map map)
     {
-        if (!cell.Walkable(map))
-            foreach (IntVec3 t in GenRadial.RadialPattern)
-            {
-                IntVec3 intVec = pawn.Position + t;
-                if (!intVec.Walkable(map)) continue;
-                cell = intVec;
-                break;
-            }
-
-        storedPawns.Remove(pawn);
-        GenSpawn.Spawn(pawn, cell, map);
-
-        //Spawn the release effecter
-        Props.releaseEffect?.Spawn(cell, map);
-
-        if (Props.lightEffect) FleckMaker.ThrowLightningGlow(cell.ToVector3Shifted(), map, 0.5f);
-        if (Props.transformEffect) FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
-        parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
-
-        labelDirty = true;
-        ApplyNeedsForStoredPeriodFor(pawn);
-        pawn.guest?.WaitInsteadOfEscapingFor(1250);
+        Utility.ReleasePawn(this, pawn, cell, map);
     }
 
     public virtual void ApplyNeedsForStoredPeriodFor(Pawn pawn)
@@ -191,11 +141,14 @@ public class CompPawnStorage : ThingComp
         int ticksStored = Mathf.Max(0, Find.TickManager.TicksGame - storedAtTick - NEEDS_INTERVAL);
         if (!Props.needsDrop) return;
 
+        CompStoredNutrition nutritionComp;
+        nutritionComp = parent.TryGetComp<CompStoredNutrition>();
         foreach (Need need in pawn.needs.AllNeeds)
         {
             switch (need)
             {
                 case Need_Food foodNeed:
+                    if (nutritionComp != null) continue; // this comp has already taken care of food
                     foodNeed.CurLevel -= foodNeed.FoodFallPerTick * ticksStored;
                     continue;
                 case Need_Chemical chemicalNeed:
@@ -227,26 +180,14 @@ public class CompPawnStorage : ThingComp
 
     public virtual bool CanRelease(Pawn releaser)
     {
-        if (parent.def.EverHaulable && parent.def.category == ThingCategory.Item && Props.storageStation != null)
-            return GenClosest.ClosestThingReachable(releaser.Position, releaser.Map,
-                ThingRequest.ForDef(Props.storageStation), PathEndMode.InteractionCell, TraverseParms.For(releaser),
-                9999f, x => releaser.CanReserve(x)) != null;
-        return true;
+        return Utility.CanRelease(this, releaser);
     }
 
     public virtual Job ReleaseJob(Pawn releaser, Pawn toRelease)
     {
-        if (parent.def.EverHaulable && parent.def.category == ThingCategory.Item && Props.storageStation != null)
-        {
-            Thing station = GenClosest.ClosestThingReachable(releaser.Position, releaser.Map, ThingRequest.ForDef(Props.storageStation), PathEndMode.InteractionCell,
-                TraverseParms.For(releaser), 9999f, x => releaser.CanReserve(x));
-            Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, parent, station, toRelease);
-            job.count = 1;
-            return job;
-        }
-
-        return JobMaker.MakeJob(PS_DefOf.PS_Release, parent, null, toRelease);
+        return Utility.ReleaseJob(this, releaser, toRelease);
     }
+
 
     public virtual Job EnterJob(Pawn enterer)
     {
@@ -397,5 +338,59 @@ public class CompPawnStorage : ThingComp
         };
 
         if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
+    }
+
+    public void ReleaseContents(Map map)
+    {
+        map ??= parent.Map;
+
+        foreach (Pawn pawn in storedPawns)
+        {
+            ReleaseSingle(map, pawn, false);
+        }
+
+        storedPawns.Clear();
+    }
+
+    public void EjectContents(Map map)
+    {
+        map ??= parent.Map;
+        EffecterDef flightEffecterDef = DefDatabase<EffecterDef>.GetNamed("JumpFlightEffect", false);
+        SoundDef landingSound = DefDatabase<SoundDef>.GetNamed("Longjump_Land", false);
+
+        foreach (Pawn pawn in storedPawns)
+        {
+            PawnComponentsUtility.AddComponentsForSpawn(pawn);
+            compAssignable.TryUnassignPawn(pawn);
+            GenDrop.TryDropSpawn(pawn, parent.Position, map, ThingPlaceMode.Near, out Thing _);
+
+            IntVec3 cell = CellFinder.RandomClosewalkCellNear(parent.Position, map, 18);
+
+            bool pawnIsSelected = Find.Selector.IsSelected(pawn);
+            PawnFlyer pawnFlyer = PawnFlyer.MakeFlyer(ThingDefOf.PawnFlyer, pawn, cell, flightEffecterDef,
+                landingSound);
+            if (pawnFlyer == null)
+                return;
+            FleckMaker.ThrowDustPuff(pawn.Position.ToVector3Shifted() + Gen.RandomHorizontalVector(0.5f), map, 2f);
+            GenSpawn.Spawn(pawnFlyer, cell, map);
+            if (pawnIsSelected)
+                Find.Selector.Select(pawn, false, false);
+        }
+
+        storedPawns.Clear();
+    }
+
+    public void ReleaseSingle(Map map, Pawn pawn, bool remove = true, bool makeFilth = false)
+    {
+        if (!storedPawns.Contains(pawn)) return;
+        map ??= parent.Map;
+
+        PawnComponentsUtility.AddComponentsForSpawn(pawn);
+        compAssignable.TryUnassignPawn(pawn);
+        GenDrop.TryDropSpawn(pawn, parent.Position, map, ThingPlaceMode.Near, out Thing _);
+        FilthMaker.TryMakeFilth(parent.InteractionCell, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
+
+        if (remove)
+            storedPawns.Remove(pawn);
     }
 }
