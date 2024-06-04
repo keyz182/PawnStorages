@@ -180,7 +180,7 @@ public static class OrdersPatch
                 else
                 {
                     Pawn pTarg = (Pawn)localTargetInfo.Thing;
-                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(pTarg, assign: true);
+                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(pTarg, assign: false);
 
                     if (building != null)
                     {

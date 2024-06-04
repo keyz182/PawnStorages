@@ -150,6 +150,7 @@
                 <drawAssignmentOverlay>false</drawAssignmentOverlay>
                 <maxAssignedPawnsCount>16</maxAssignedPawnsCount>
                 <colonyAnimalsOnly>true</colonyAnimalsOnly>
+                <showGizmo>false</showGizmo>
             </li>
             <li Class="PawnStorages.Farm.CompProperties_FarmStorage">
                 <needsDrop>true</needsDrop>

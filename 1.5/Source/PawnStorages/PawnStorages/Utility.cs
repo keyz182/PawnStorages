@@ -90,7 +90,7 @@ public static class Utility
         GenSpawn.Spawn(pawn, cell, map);
 
         //Spawn the release effecter
-        store.Props.releaseEffect.Spawn(cell, map);
+        store.Props.releaseEffect?.Spawn(cell, map);
 
         if (store.Props.lightEffect) FleckMaker.ThrowLightningGlow(cell.ToVector3Shifted(), map, 0.5f);
         if (store.Props.transformEffect) FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
