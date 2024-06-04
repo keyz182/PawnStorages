@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using HarmonyLib;
 using PawnStorages.Farm;
 using RimWorld;
 using UnityEngine;
@@ -21,7 +22,7 @@ public class CompPawnStorage : ThingComp
     private Dictionary<int, int> pawnStoringTick = new();
     private string transformLabelCache;
 
-    public Rot4 Rotation = default;
+    public Rot4 Rotation;
 
     public Thing Parent => parent;
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
@@ -77,7 +78,8 @@ public class CompPawnStorage : ThingComp
         if (StoredPawns.NullOrEmpty())
         {
             transformLabelCache = $"{base.TransformLabel(label)} {"PS_Empty".Translate()}";
-        }else if (StoredPawns.Count >= Props.maxStoredPawns)
+        }
+        else if (StoredPawns.Count >= Props.maxStoredPawns)
         {
             transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
         }
@@ -85,6 +87,7 @@ public class CompPawnStorage : ThingComp
         {
             transformLabelCache = $"{base.TransformLabel(label)}";
         }
+
         labelDirty = false;
 
         return transformLabelCache;
@@ -222,12 +225,10 @@ public class CompPawnStorage : ThingComp
     public override string CompInspectStringExtra()
     {
         StringBuilder sb = new(base.CompInspectStringExtra());
-        if (StoredPawns?.Any() == true)
-        {
-            sb.AppendLine();
-            sb.AppendLine("PS_StoredPawns".Translate());
-            foreach (Pawn pawn in StoredPawns) sb.AppendLine($"    - {pawn.LabelCap}");
-        }
+        if (StoredPawns?.Any() != true) return sb.ToString().TrimStart().TrimEnd();
+        sb.AppendLine();
+        sb.AppendLine("PS_StoredPawns".Translate());
+        foreach (Pawn pawn in StoredPawns) sb.AppendLine($"    - {pawn.LabelCap}");
 
         return sb.ToString().TrimStart().TrimEnd();
     }
@@ -236,6 +237,7 @@ public class CompPawnStorage : ThingComp
     {
         foreach (Gizmo g in base.CompGetGizmosExtra()) yield return g;
         if (Props.releaseAllOption && storedPawns.Any())
+        {
             yield return new Command_Action
             {
                 defaultLabel = storedPawns.Count == 1
@@ -254,6 +256,69 @@ public class CompPawnStorage : ThingComp
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
 
+            if (Find.Selector.SelectedObjectsListForReading
+                    .Select(o => (o as ThingWithComps)?.TryGetComp<CompPawnStorage>())
+                    .Where(o => o?.storedPawns?.Any() == true)
+                    .ToList() is { Count: > 1 } comps
+                && this == comps.First())
+            {
+                yield return new Command_Action
+                {
+                    defaultLabel = "PS_ReleaseAllSelected".Translate(),
+                    action = delegate
+                    {
+                        foreach (CompPawnStorage compPawnStorage in comps)
+                        {
+                            for (int num = compPawnStorage.storedPawns.Count - 1; num >= 0; num--)
+                            {
+                                Pawn pawn = compPawnStorage.storedPawns[num];
+                                compPawnStorage.storedPawns.Remove(pawn);
+                                GenSpawn.Spawn(pawn, compPawnStorage.parent.Position, compPawnStorage.parent.Map);
+                                compPawnStorage.parent.Map.mapDrawer.MapMeshDirty(compPawnStorage.parent.Position, MapMeshFlagDefOf.Things);
+                            }
+                        }
+                    },
+                    icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
+                };
+                if (PawnStoragesMod.settings.SpecialReleaseAll && ModsConfig.anomalyActive)
+                {
+                    yield return new Command_Action
+                    {
+                        defaultLabel = Translator.PseudoTranslated("PS_ReleaseAll".Translate()),
+                        action = delegate
+                        {
+                            Pawn p;
+                            if (ModsConfig.IsActive("taggerung.grignrhappensby"))
+                            {
+                                p = PawnGenerator.GeneratePawn(DefDatabase<PawnKindDef>.GetNamed("Taggerung_ShardOfGrignr"), Faction.OfHoraxCult);
+                                p.Name = new NameTriple("Grignr", "PS_All".Translate(), "Grignrson");
+                            }
+                            else
+                            {
+                                p = PawnGenerator.GeneratePawn(PawnKindDefOf.Ghoul, Faction.OfHoraxCult);
+                                p.Name = new NameSingle("PS_All".Translate());
+                            }
+
+                            p.health.AddHediff(HediffDefOf.Inhumanized);
+                            p.health.AddHediff(HediffDefOf.ShardHolder);
+                            GenSpawn.Spawn(p, parent.Position, parent.Map);
+                            Messages.Message(Translator.PseudoTranslated("PS_ReleaseAll_Anomaly_Message".Translate()), new LookTargets(p), MessageTypeDefOf.ThreatBig, false);
+                            PawnStoragesMod.settings.AllReleased();
+
+                            GridShapeMaker.IrregularLump(parent.Position, parent.Map, 5)
+                                .InRandomOrder()
+                                .Where(cell => cell.InBounds(parent.Map))
+                                .Do(intVec3 => parent.Map.terrainGrid.SetTerrain(intVec3, TerrainDefOf.Voidmetal));
+
+                            EffecterDefOf.Skip_EntryNoDelay.Spawn(p, parent.Map).Cleanup();
+                            p.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Berserk, forced: true);
+                        },
+                        icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
+                    };
+                }
+            }
+        }
+
         if (Props.canBeScheduled)
             yield return new Command_Toggle
             {
@@ -266,17 +331,14 @@ public class CompPawnStorage : ThingComp
         yield return new Command_Toggle
         {
             defaultLabel = "PS_Rotate".Translate(),
-            toggleAction = () =>
-            {
-                Rotation.Rotate(RotationDirection.Clockwise);
-            },
+            toggleAction = () => { Rotation.Rotate(RotationDirection.Clockwise); },
             isActive = () => true,
             icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
         };
 
         if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
     }
-    
+
     public void EjectAndKillContents(Map map)
     {
         ThingDef filth_Slime = ThingDefOf.Filth_Slime;
@@ -285,7 +347,7 @@ public class CompPawnStorage : ThingComp
             PawnComponentsUtility.AddComponentsForSpawn(pawn);
             pawn.filth.GainFilth(filth_Slime);
             pawn.Kill(null);
-            GenDrop.TryDropSpawn(pawn, this.parent.Position, map, ThingPlaceMode.Near, out Thing _, null, null, true);
+            GenDrop.TryDropSpawn(pawn, parent.Position, map, ThingPlaceMode.Near, out Thing _);
             compAssignable.TryUnassignPawn(pawn);
         }
     }
@@ -310,19 +372,20 @@ public class CompPawnStorage : ThingComp
         {
             PawnComponentsUtility.AddComponentsForSpawn(pawn);
             compAssignable.TryUnassignPawn(pawn);
-            GenDrop.TryDropSpawn(pawn, this.parent.Position, map, ThingPlaceMode.Near, out Thing _, null, null, true);
+            GenDrop.TryDropSpawn(pawn, parent.Position, map, ThingPlaceMode.Near, out Thing _);
 
-            var cell = CellFinder.RandomClosewalkCellNear(this.parent.Position, map, 18, null);
+            var cell = CellFinder.RandomClosewalkCellNear(parent.Position, map, 18);
 
-            bool flag = Find.Selector.IsSelected((object)pawn);
+            bool flag = Find.Selector.IsSelected(pawn);
             var verbProps = PS_DefOf.PS_Eject.verbProperties;
-            PawnFlyer newThing = PawnFlyer.MakeFlyer(ThingDefOf.PawnFlyer, pawn, cell, verbProps.flightEffecterDef, verbProps.soundLanding, verbProps.flyWithCarriedThing, triggeringAbility: null, target: default(LocalTargetInfo));
+            PawnFlyer newThing = PawnFlyer.MakeFlyer(ThingDefOf.PawnFlyer, pawn, cell, verbProps.flightEffecterDef, verbProps.soundLanding, verbProps.flyWithCarriedThing,
+                triggeringAbility: null, target: default);
             if (newThing == null)
                 return;
             FleckMaker.ThrowDustPuff(pawn.Position.ToVector3Shifted() + Gen.RandomHorizontalVector(0.5f), map, 2f);
-            GenSpawn.Spawn((Thing)newThing, cell, map);
+            GenSpawn.Spawn(newThing, cell, map);
             if (flag)
-                Find.Selector.Select((object)pawn, false, false);
+                Find.Selector.Select(pawn, false, false);
         }
 
         storedPawns.Clear();
@@ -335,7 +398,7 @@ public class CompPawnStorage : ThingComp
 
         PawnComponentsUtility.AddComponentsForSpawn(pawn);
         compAssignable.TryUnassignPawn(pawn);
-        GenDrop.TryDropSpawn(pawn, this.parent.Position, map, ThingPlaceMode.Near, out Thing _, null, null, true);
+        GenDrop.TryDropSpawn(pawn, parent.Position, map, ThingPlaceMode.Near, out Thing _);
         FilthMaker.TryMakeFilth(parent.InteractionCell, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
 
         if (remove)

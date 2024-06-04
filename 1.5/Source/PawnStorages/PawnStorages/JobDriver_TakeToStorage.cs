@@ -59,7 +59,7 @@ public class JobDriver_TakeToStorage : JobDriver
         this.FailOn(delegate
         {
             if ((job.def == PS_DefOf.PS_CaptureEntityInPawnStorage &&
-                PawnStorageAssignmentComp.OwnerType == BedOwnerType.Prisoner) 
+                 PawnStorageAssignmentComp.OwnerType == BedOwnerType.Prisoner)
                 || job.def == PS_DefOf.PS_CaptureAnimalInPawnStorage) return false;
             if (job.def.makeTargetPrisoner)
             {
@@ -129,7 +129,7 @@ public class JobDriver_TakeToStorage : JobDriver
         setTakeeSettings.debugName = "takeeSettings";
         setTakeeSettings.initAction = delegate
         {
-            if (job.def != PS_DefOf.PS_CaptureEntityInPawnStorage && job.def != PS_DefOf.PS_CaptureAnimalInPawnStorage) 
+            if (job.def != PS_DefOf.PS_CaptureEntityInPawnStorage && job.def != PS_DefOf.PS_CaptureAnimalInPawnStorage)
                 CheckMakeTakeePrisoner();
             Takee.playerSettings ??= new Pawn_PlayerSettings(Takee);
         };
@@ -169,6 +169,7 @@ public class JobDriver_TakeToStorage : JobDriver
                 if (comp.CanStore)
                     comp.StorePawn(takee);
             }
+
             takee.jobs.StartJob(JobMaker.MakeJob(PS_DefOf.PS_Enter, (LocalTargetInfo)(Thing)storage), JobCondition.InterruptForced, tag: JobTag.Misc);
             if (rescued)
                 takee.relations.Notify_RescuedBy(taker);

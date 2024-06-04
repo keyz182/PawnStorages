@@ -132,7 +132,8 @@ public static class OrdersPatch
                 }
             }
 
-            var targets = GenUI.TargetsAt(clickPos, OrdersPatch.ForEntityOrAnimalCapture(), true);
+            // ForColonistAnimalCapture
+            IEnumerable<LocalTargetInfo> targets = GenUI.TargetsAt(clickPos, ForEntityOrAnimalCapture(), true);
             foreach (LocalTargetInfo localTargetInfo in targets)
             {
                 if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
@@ -163,13 +164,12 @@ public static class OrdersPatch
                         opts.Add(new FloatMenuOption(
                             "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
                             (Action)null));
-
                     }
                 }
             }
 
             //Take to the farm
-            var farmableTargets = GenUI.TargetsAt(clickPos, OrdersPatch.ForFarming(), true);
+            IEnumerable<LocalTargetInfo> farmableTargets = GenUI.TargetsAt(clickPos, ForFarming(), true);
             foreach (LocalTargetInfo localTargetInfo in farmableTargets)
             {
                 if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
@@ -189,7 +189,7 @@ public static class OrdersPatch
                                 (NamedArgument)building.LabelCap),
                             (Action)(() =>
                             {
-                                Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureAnimalToFarm,(LocalTargetInfo)localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureAnimalToFarm, (LocalTargetInfo)localTargetInfo, (LocalTargetInfo)(Thing)building);
                                 job.count = 1;
                                 pawn.jobs.TryTakeOrderedJob(job);
                             })), pawn, (LocalTargetInfo)localTargetInfo));
@@ -199,13 +199,10 @@ public static class OrdersPatch
                         opts.Add(new FloatMenuOption(
                             "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
                             (Action)null));
-
                     }
                 }
             }
         }
-
-
     }
 }
 
