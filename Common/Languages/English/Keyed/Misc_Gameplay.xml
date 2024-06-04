@@ -40,5 +40,8 @@
 	<PS_NutritionPerDay>Nutrition required per day: {0}</PS_NutritionPerDay>
 	<PS_NutritionStored>Nutrition stored: {0}/{1}</PS_NutritionStored>
 
+	<PS_PawnEjectedStarvationTitle>{0} starving!</PS_PawnEjectedStarvationTitle>
+	<PS_PawnEjectedStarvation>{0} ejected from {1} due to starvation!</PS_PawnEjectedStarvation>
+
 	<PS_Rotate>Rotate</PS_Rotate>
 </LanguageData>

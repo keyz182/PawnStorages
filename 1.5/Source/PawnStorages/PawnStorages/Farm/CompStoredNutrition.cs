@@ -14,6 +14,8 @@ namespace PawnStorages.Farm
 
         private List<IntVec3> cachedAdjCellsCardinal;
 
+        protected List<Thing> daysProduce = new List<Thing>();
+
         public CompProperties_StoredNutrition Props => props as CompProperties_StoredNutrition;
 
         public CompFarmStorage compFarmStorage => parent.GetComp<CompFarmStorage>();
@@ -28,6 +30,17 @@ namespace PawnStorages.Farm
         public override void CompTick()
         {
             base.CompTick();
+
+            if(!compFarmStorage.Props.needsDrop) return;
+
+            if (this.parent.IsHashIntervalTick(60000) && daysProduce.Count > 0)
+            {
+                foreach (var thing in daysProduce)
+                {
+                    GenPlace.TryPlaceThing(thing, this.parent.Position, this.parent.Map, ThingPlaceMode.Near);
+                }
+                daysProduce.Clear();
+            }
 
             var pawnsToRemove = new List<Pawn>();
 
@@ -65,11 +78,12 @@ namespace PawnStorages.Farm
                     {
                         if (hediff.def == HediffDefOf.Malnutrition)
                         {
-                            if (hediff.Severity >= 1f)
+                            if (hediff.Severity >= 0.75f)
                             {
                                 // hediff.DoMTBDeath();
                                 compFarmStorage.ReleaseSingle(this.parent.Map, pawn, false);
                                 pawnsToRemove.Add(pawn);
+                                SendStavingLetter(pawn);
                                 continue;
                             }
 
@@ -112,6 +126,21 @@ namespace PawnStorages.Farm
             compFarmStorage.StoredPawns.RemoveAll((p) => pawnsToRemove.Contains(p));
         }
 
+        public void SendStavingLetter(Pawn pawn)
+        {
+            LookTargets targets = new LookTargets(pawn);
+            ChoiceLetter letter = LetterMaker.MakeLetter(
+                "PS_PawnEjectedStarvationTitle".Translate(pawn.LabelShort),
+                "PS_PawnEjectedStarvation".Translate(pawn.LabelShort, this.parent.LabelShort),
+                LetterDefOf.NegativeEvent,
+                targets,
+                null,
+                null,
+                null
+                );
+            Find.LetterStack.ReceiveLetter(letter, null);
+        }
+
         public void EggLayerTick(CompEggLayer layer, int tickInterval = 1)
         {
             if(!layer.Active) return;
@@ -131,7 +160,8 @@ namespace PawnStorages.Farm
             var thing = layer.ProduceEgg();
             if (thing != null)
             {
-                GenPlace.TryPlaceThing(thing, this.parent.Position, this.parent.Map, ThingPlaceMode.Near);
+                daysProduce.Add(thing);
+                // GenPlace.TryPlaceThing(thing, this.parent.Position, this.parent.Map, ThingPlaceMode.Near);
             }
         }
 
@@ -154,7 +184,8 @@ namespace PawnStorages.Farm
                 amountToGenerate -= generateThisLoop;
                 var thing = ThingMaker.MakeThing(gatherable.ResourceDef);
                 thing.stackCount = generateThisLoop;
-                GenPlace.TryPlaceThing(thing, this.parent.Position, this.parent.Map, ThingPlaceMode.Near);
+                daysProduce.Add(thing);
+                // GenPlace.TryPlaceThing(thing, this.parent.Position, this.parent.Map, ThingPlaceMode.Near);
             }
 
             gatherable.fullness = 0f;
