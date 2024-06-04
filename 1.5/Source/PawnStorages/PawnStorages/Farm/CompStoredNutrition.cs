@@ -16,9 +16,14 @@ namespace PawnStorages.Farm
 
         protected List<Thing> daysProduce = new List<Thing>();
 
+        public CompPowerTrader compPowerTrader => parent.TryGetComp<CompPowerTrader>();
+
         public CompProperties_StoredNutrition Props => props as CompProperties_StoredNutrition;
 
         public CompFarmStorage compFarmStorage => parent.GetComp<CompFarmStorage>();
+
+        // returns true if we disable power consumption
+        public bool IsPowered => compPowerTrader == null || compPowerTrader.ShouldBeLitNow();
 
         public bool IsWellFed => storedNutrition > 0f;
 
@@ -33,7 +38,7 @@ namespace PawnStorages.Farm
 
             if(!compFarmStorage.Props.needsDrop) return;
 
-            if (this.parent.IsHashIntervalTick(60000) && daysProduce.Count > 0)
+            if (this.parent.IsHashIntervalTick(60000) && daysProduce.Count > 0 && IsPowered)
             {
                 foreach (var thing in daysProduce)
                 {
@@ -44,7 +49,7 @@ namespace PawnStorages.Farm
 
             var pawnsToRemove = new List<Pawn>();
 
-            if (this.parent.IsHashIntervalTick(Props.ticksToAbsorbNutrients))
+            if (this.parent.IsHashIntervalTick(Props.ticksToAbsorbNutrients) && IsPowered)
             {
                 if (storedNutrition <= Props.maxNutrtition)
                 {
@@ -74,7 +79,7 @@ namespace PawnStorages.Farm
                             HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, -adjustedMalnutritionSeverityPerInterval);
                     }
 
-                    if (HealthUtility.TryGetWorstHealthCondition(pawn, out var hediff, out var part))
+                    foreach (var hediff in pawn.health.hediffSet.hediffs)
                     {
                         if (hediff.def == HediffDefOf.Malnutrition)
                         {
@@ -86,9 +91,14 @@ namespace PawnStorages.Farm
                                 SendStavingLetter(pawn);
                                 continue;
                             }
+                            break;
 
                         }
                     }
+
+                    // if not powered
+                    if (!IsPowered) continue;
+                    
                     //Hopper absorbtion ticker
                     if (storedNutrition <= 0)
                     {

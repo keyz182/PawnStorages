@@ -140,10 +140,16 @@
 		<fillPercent>0.50</fillPercent>
 		<holdsRoof>false</holdsRoof>
 		<inspectorTabs>
+			<li>PawnStorages.Farm.ITab_Farm</li>
 			<li>ITab_BiosculpterNutritionStorage</li>
 		</inspectorTabs>
 		<designationCategory>Production</designationCategory>
 		<comps>
+			<!-- <li Class="CompProperties_Power">
+				<compClass>CompPowerTrader</compClass>
+				<shortCircuitInRain>false</shortCircuitInRain>
+				<basePowerConsumption>1000</basePowerConsumption>
+			  </li> -->
 			<li Class="PawnStorages.CompProperties_PSAssignableToPawn">
 				<drawAssignmentOverlay>false</drawAssignmentOverlay>
 				<maxAssignedPawnsCount>16</maxAssignedPawnsCount>

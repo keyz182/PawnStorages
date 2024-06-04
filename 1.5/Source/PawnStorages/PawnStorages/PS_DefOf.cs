@@ -26,7 +26,5 @@ public static class PS_DefOf
     public static WorkGiverDef PS_DoBillsDigitalBench;
     public static AbilityDef PS_Eject;
 
-    public static IncidentDef PS_Pawn_Starving;
-
     public static TimeAssignmentDef PS_Home;
 }

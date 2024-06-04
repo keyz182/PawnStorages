@@ -143,12 +143,12 @@ public static class OrdersPatch
                 else
                 {
                     Pawn pTarg = (Pawn)localTargetInfo.Thing;
-                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageFarm(pTarg, assign: true);
+                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageEntityOrAnimal(pTarg, assign: true);
 
                     if (building != null)
                     {
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
-                            "PS_FarmAnimal".Translate((NamedArgument)localTargetInfo.Thing.Label,
+                            "PS_StoreEntity".Translate((NamedArgument)localTargetInfo.Thing.Label,
                                 (NamedArgument)building.LabelCap),
                             (Action)(() =>
                             {
