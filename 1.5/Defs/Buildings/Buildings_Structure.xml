@@ -161,9 +161,11 @@
                 <lightEffect>true</lightEffect>
                 <storageStation>PS_BatteryFarm</storageStation>
             </li>
-            <li Class="PawnStorages.Farm.CompProperties_StoredNutrition">
+            <li Class="PawnStorages.Farm.CompProperties_FarmNutrition">
                 <maxNutrition>500</maxNutrition>
                 <produceTimeScale>0.5</produceTimeScale>
+                <doesProduction>true</doesProduction>
+                <doesBreeding>false</doesBreeding>
             </li>
         </comps>
         <building>
@@ -205,6 +207,104 @@
             <li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
         </placeWorkers>
         <uiIconPath>Things/Building/Production/PS_BatteryFarm</uiIconPath>
+        <uiIconScale>0.85</uiIconScale>
+        <modExtensions>
+            <li Class="PawnStorages.PSExtension" />
+        </modExtensions>
+    </ThingDef>
+    <ThingDef ParentName="BuildingBase">
+        <minifiedDef>MinifiedThing</minifiedDef>
+        <defName>PS_BreedingFarm</defName>
+        <label>Breeding Farm</label>
+        <description>A breeding farm. \n\n Squeeze in up to 16 animals that mate, keep them supplied with nutrition, and reap the rewards without the filth!</description>
+        <thingClass>PawnStorages.Farm.Building_PSFarm</thingClass>
+        <graphicData>
+            <texPath>Things/Building/Production/PS_BreedingDomes</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawSize>(3,3)</drawSize>
+        </graphicData>
+        <size>(3,3)</size>
+        <thingCategories>
+            <li>BuildingsProduction</li>
+        </thingCategories>
+        <tickerType>Normal</tickerType>
+        <altitudeLayer>Building</altitudeLayer>
+        <passability>PassThroughOnly</passability>
+        <pathCost>100</pathCost>
+        <blockWind>true</blockWind>
+        <rotatable>true</rotatable>
+        <clearBuildingArea>false</clearBuildingArea>
+        <fillPercent>0.50</fillPercent>
+        <holdsRoof>false</holdsRoof>
+        <inspectorTabs>
+            <li>PawnStorages.Farm.ITab_Farm</li>
+            <li>ITab_BiosculpterNutritionStorage</li>
+            <li>PawnStorages.Farm.ITab_Breeding</li>
+        </inspectorTabs>
+        <designationCategory>Production</designationCategory>
+        <comps>
+            <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
+                <drawAssignmentOverlay>false</drawAssignmentOverlay>
+                <maxAssignedPawnsCount>16</maxAssignedPawnsCount>
+                <colonyAnimalsOnly>true</colonyAnimalsOnly>
+                <showGizmo>true</showGizmo>
+            </li>
+            <li Class="PawnStorages.Farm.CompProperties_FarmStorage">
+                <needsDrop>true</needsDrop>
+                <maxStoredPawns>16</maxStoredPawns>
+                <releaseOption>true</releaseOption>
+                <convertOption>false</convertOption>
+                <appendOfName>true</appendOfName>
+                <lightEffect>true</lightEffect>
+                <storageStation>PS_BatteryFarm</storageStation>
+            </li>
+            <li Class="PawnStorages.Farm.CompProperties_FarmNutrition">
+                <maxNutrition>500</maxNutrition>
+                <produceTimeScale>0.5</produceTimeScale>
+                <doesProduction>false</doesProduction>
+                <doesBreeding>true</doesBreeding>
+                <breedingScaler>2</breedingScaler>
+            </li>
+        </comps>
+        <building>
+            <wantsHopperAdjacent>true</wantsHopperAdjacent>
+            <destroySound>BuildingDestroyed_Metal_Big</destroySound>
+            <fixedStorageSettings>
+                <priority>Important</priority>
+                <filter>
+                    <categories>
+                        <li>Foods</li>
+                    </categories>
+                    <specialFiltersToDisallow>
+                        <li>AllowPlantFood</li>
+                    </specialFiltersToDisallow>
+                </filter>
+            </fixedStorageSettings>
+            <defaultStorageSettings>
+                <priority>Important</priority>
+                <filter>
+                    <categories>
+                        <li>Foods</li>
+                    </categories>
+                </filter>
+            </defaultStorageSettings>
+        </building>
+        <statBases>
+            <WorkToBuild>1500</WorkToBuild>
+            <MaxHitPoints>100</MaxHitPoints>
+            <Flammability>0.5</Flammability>
+            <Mass>30</Mass>
+        </statBases>
+        <costList>
+            <Steel>150</Steel>
+            <WoodLog>150</WoodLog>
+            <Hay>150</Hay>
+        </costList>
+        <constructEffect>ConstructMetal</constructEffect>
+        <placeWorkers>
+            <li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
+        </placeWorkers>
+        <uiIconPath>Things/Building/Production/PS_BreedingDomes</uiIconPath>
         <uiIconScale>0.85</uiIconScale>
         <modExtensions>
             <li Class="PawnStorages.PSExtension" />

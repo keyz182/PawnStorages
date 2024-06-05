@@ -8,13 +8,13 @@ namespace PawnStorages.Farm
     public class Building_PSFarm : Building, IStoreSettingsParent
     {
         public CompFarmStorage pawnStorage;
-        public CompStoredNutrition StoredNutrition;
+        public CompFarmNutrition FarmNutrition;
         private StorageSettings allowedNutritionSettings;
 
         public override void SpawnSetup(Map map, bool respawningAfterLoad)
         {
             pawnStorage = GetComp<CompFarmStorage>();
-            StoredNutrition = GetComp<CompStoredNutrition>();
+            FarmNutrition = GetComp<CompFarmNutrition>();
             base.SpawnSetup(map, respawningAfterLoad);
             allowedNutritionSettings = new StorageSettings(this);
             if (def.building.defaultStorageSettings == null)
@@ -36,7 +36,7 @@ namespace PawnStorages.Farm
             StringBuilder stringBuilder = new();
             stringBuilder.AppendLine(base.GetInspectString());
             stringBuilder.AppendLine("PS_NutritionPerDay".Translate(pawnStorage.NutritionRequiredPerDay()));
-            stringBuilder.AppendLine("PS_NutritionStored".Translate(StoredNutrition.storedNutrition, StoredNutrition.Props.maxNutrition));
+            stringBuilder.AppendLine("PS_NutritionStored".Translate(FarmNutrition.storedNutrition, FarmNutrition.Props.maxNutrition));
             return stringBuilder.ToString().Trim();
         }
 

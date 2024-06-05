@@ -8,7 +8,7 @@ using Verse;
 
 namespace PawnStorages.Farm
 {
-    public class CompStoredNutrition: ThingComp
+    public class CompFarmNutrition: ThingComp
     {
         public float storedNutrition = 0f;
         public bool produceNow = false;
@@ -19,9 +19,11 @@ namespace PawnStorages.Farm
 
         public CompPowerTrader compPowerTrader => parent.TryGetComp<CompPowerTrader>();
 
-        public CompProperties_StoredNutrition Props => props as CompProperties_StoredNutrition;
+        public CompProperties_FarmNutrition Props => props as CompProperties_FarmNutrition;
 
         public CompFarmStorage compFarmStorage => parent.GetComp<CompFarmStorage>();
+
+        public Dictionary<PawnKindDef, float> breedingProgress = new Dictionary<PawnKindDef, float>();
 
         public bool NeedsDrop => PawnStoragesMod.settings.AllowNeedsDrop || compFarmStorage.Props.needsDrop;
 
@@ -53,6 +55,8 @@ namespace PawnStorages.Farm
 
             if (parent.IsHashIntervalTick(Props.animalTickInterval))
             {
+                var healthyPawns = new List<Pawn>();
+
                 foreach (Pawn pawn in compFarmStorage.StoredPawns)
                 {
                     //Need fall ticker
@@ -101,15 +105,67 @@ namespace PawnStorages.Farm
                         pawn.records.AddTo(RecordDefOf.NutritionEaten, available);
                     }
 
-                    if (pawn.TryGetComp(out CompEggLayer compLayer) && pawn.gender != Gender.Male)
+                    healthyPawns.Add(pawn);
+
+                    if (Props.doesProduction)
                     {
-                        EggLayerTick(compLayer, Props.animalTickInterval);
+                        if (pawn.TryGetComp(out CompEggLayer compLayer) && pawn.gender != Gender.Male)
+                        {
+                            EggLayerTick(compLayer, Props.animalTickInterval);
+                        }
+
+                        if (pawn.TryGetComp(out CompHasGatherableBodyResource compGatherable) &&
+                            pawn.gender != Gender.Male)
+                        {
+                            GatherableTick(compGatherable, Props.animalTickInterval);
+                        }
+                    }
+                }
+
+                if (Props.doesBreeding)
+                {
+                    var types = from p in healthyPawns
+                        group p by p.kindDef
+                        into def
+                        select def;
+
+                    foreach (var type in types)
+                    {
+                        var males = type.Where(p => p.gender == Gender.Male).ToList();
+                        var females = type.Where(p => p.gender != Gender.Male).ToList();
+
+                        if (!females.Any())
+                        {
+                            // no more females, reset
+                            breedingProgress[type.Key] = 0f;
+                        }
+
+                        // no males, stop progress
+                        if(!males.Any()) { continue; }
+
+                        var gestationTicks = AnimalProductionUtility.GestationDaysEach(type.Key.race) * 60000 * Props.breedingScaler;
+
+                        var progressPerCycle = Props.animalTickInterval/ gestationTicks;
+
+
+                        breedingProgress.TryAdd(type.Key, 0.0f);
+                        
+                        breedingProgress[type.Key] = Mathf.Clamp(breedingProgress[type.Key] + progressPerCycle * females.Count, 0f, 1f);
+
+                        if (!(breedingProgress[type.Key] >= 1f)) continue;
+                        breedingProgress[type.Key] = 0f;
+                        var newPawn = PawnGenerator.GeneratePawn(
+                            new PawnGenerationRequest(
+                                type.Key,
+                                Faction.OfPlayer,
+                                allowDowned: true,
+                                forceNoIdeo: true, 
+                                developmentalStages: DevelopmentalStage.Newborn
+                            ));
+
+                        daysProduce.Add(newPawn);
                     }
 
-                    if (pawn.TryGetComp(out CompHasGatherableBodyResource compGatherable) && pawn.gender != Gender.Male)
-                    {
-                        GatherableTick(compGatherable, Props.animalTickInterval);
-                    }
 
                 }
             }
@@ -273,20 +329,31 @@ namespace PawnStorages.Farm
                 defaultLabel = "Make all animals ready to produce",
                 action = delegate
                 {
-                    foreach (Pawn storedPawn in compFarmStorage.StoredPawns)
+                    if (Props.doesProduction)
                     {
-                        storedPawn.needs.food.CurLevel = storedPawn.needs.food.MaxLevel;
-
-                        if (storedPawn.TryGetComp(out CompEggLayer compLayer))
+                        foreach (Pawn storedPawn in compFarmStorage.StoredPawns)
                         {
-                            compLayer.eggProgress = 1f;
-                        }
+                            storedPawn.needs.food.CurLevel = storedPawn.needs.food.MaxLevel;
 
-                        if (storedPawn.TryGetComp(out CompHasGatherableBodyResource compGatherable))
+                            if (storedPawn.TryGetComp(out CompEggLayer compLayer))
+                            {
+                                compLayer.eggProgress = 1f;
+                            }
+
+                            if (storedPawn.TryGetComp(out CompHasGatherableBodyResource compGatherable))
+                            {
+                                compGatherable.fullness = 1f;
+                            }
+
+                        }
+                    }
+
+                    if (Props.doesBreeding)
+                    {
+                        foreach (var thing in breedingProgress.Keys)
                         {
-                            compGatherable.fullness = 1f;
+                            breedingProgress[thing] = 1f;
                         }
-
                     }
                 },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")

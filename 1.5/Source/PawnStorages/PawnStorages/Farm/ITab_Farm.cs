@@ -15,6 +15,7 @@ namespace PawnStorages.Farm
         private bool alternate;
 
         public CompFarmStorage compFarmStorage => SelThing.TryGetComp<CompFarmStorage>();
+        public CompFarmNutrition compFarmNutrition => SelThing.TryGetComp<CompFarmNutrition>();
         public bool NeedsDrop => PawnStoragesMod.settings.AllowNeedsDrop || compFarmStorage.Props.needsDrop;
 
         public ITab_Farm()
@@ -61,11 +62,15 @@ namespace PawnStorages.Farm
                 }
 
                 Widgets.Label(new Rect(55f, position, width - 90f, 20f), label.ToString());
-                Widgets.Label(new Rect(55f, position + 20f, width - 90f, 20f),
-                    $"Nutrition: {Mathf.CeilToInt(pawn.needs.food.CurLevelPercentage)}%");
-                if (pawn.gender != Gender.Male)
-                    Widgets.Label(new Rect(55f, position + 40f, width - 90f, 20f),
-                        $"Progress: {Mathf.CeilToInt(PawnFullness(pawn) * 100)}%");
+
+                if (compFarmNutrition.Props.doesProduction)
+                {
+                    Widgets.Label(new Rect(55f, position + 20f, width - 90f, 20f),
+                        $"Nutrition: {Mathf.CeilToInt(pawn.needs.food.CurLevelPercentage)}%");
+                    if (pawn.gender != Gender.Male)
+                        Widgets.Label(new Rect(55f, position + 40f, width - 90f, 20f),
+                            $"Progress: {Mathf.CeilToInt(PawnFullness(pawn) * 100)}%");
+                }
             }
 
             Rect btn = new Rect(new Vector2(width - 50f, position + 15f), new Vector2(30f, 30f));

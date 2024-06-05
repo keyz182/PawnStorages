@@ -141,8 +141,8 @@ public class CompPawnStorage : ThingComp
         int ticksStored = Mathf.Max(0, Find.TickManager.TicksGame - storedAtTick - NEEDS_INTERVAL);
         if (!Props.needsDrop) return;
 
-        CompStoredNutrition nutritionComp;
-        nutritionComp = parent.TryGetComp<CompStoredNutrition>();
+        CompFarmNutrition nutritionComp;
+        nutritionComp = parent.TryGetComp<CompFarmNutrition>();
         foreach (Need need in pawn.needs.AllNeeds)
         {
             switch (need)

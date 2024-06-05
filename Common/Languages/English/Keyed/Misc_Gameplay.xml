@@ -48,4 +48,6 @@
 	<PS_PawnEjectedStarvation>{0} ejected from {1} due to starvation!</PS_PawnEjectedStarvation>
 
 	<PS_Rotate>Rotate</PS_Rotate>
+
+	<PS_BreedingTab>Breeding</PS_BreedingTab>
 </LanguageData>
