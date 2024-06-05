@@ -1,17 +1,18 @@
-﻿using RimWorld;
-using System;
+﻿using System;
+using RimWorld;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using Verse;
+using Object = System.Object;
 
 namespace PawnStorages.Farm
 {
-    public class CompStoredNutrition: ThingComp
+    public class CompFarmNutrition: ThingComp
     {
         public float storedNutrition = 0f;
         public bool produceNow = false;
+        private int layer = 0;
 
         private List<IntVec3> cachedAdjCellsCardinal;
 
@@ -19,9 +20,11 @@ namespace PawnStorages.Farm
 
         public CompPowerTrader compPowerTrader => parent.TryGetComp<CompPowerTrader>();
 
-        public CompProperties_StoredNutrition Props => props as CompProperties_StoredNutrition;
+        public CompProperties_FarmNutrition Props => props as CompProperties_FarmNutrition;
 
         public CompFarmStorage compFarmStorage => parent.GetComp<CompFarmStorage>();
+
+        public Dictionary<PawnKindDef, float> breedingProgress = new Dictionary<PawnKindDef, float>();
 
         public bool NeedsDrop => PawnStoragesMod.settings.AllowNeedsDrop || compFarmStorage.Props.needsDrop;
 
@@ -53,8 +56,11 @@ namespace PawnStorages.Farm
 
             if (parent.IsHashIntervalTick(Props.animalTickInterval))
             {
+                var healthyPawns = new List<Pawn>();
+
                 foreach (Pawn pawn in compFarmStorage.StoredPawns)
                 {
+                    EmulateScaledPawnAgeTick(pawn);;
                     //Need fall ticker
                     Need_Food foodNeeds = pawn.needs?.food;
                     if (foodNeeds != null)
@@ -101,15 +107,70 @@ namespace PawnStorages.Farm
                         pawn.records.AddTo(RecordDefOf.NutritionEaten, available);
                     }
 
-                    if (pawn.TryGetComp(out CompEggLayer compLayer) && pawn.gender != Gender.Male)
+                    healthyPawns.Add(pawn);
+
+                    if (Props.doesProduction)
                     {
-                        EggLayerTick(compLayer, Props.animalTickInterval);
+                        if (pawn.TryGetComp(out CompEggLayer compLayer) && pawn.gender != Gender.Male)
+                        {
+                            EggLayerTick(compLayer, Props.animalTickInterval);
+                        }
+
+                        if (pawn.TryGetComp(out CompHasGatherableBodyResource compGatherable) &&
+                            pawn.gender != Gender.Male)
+                        {
+                            GatherableTick(compGatherable, Props.animalTickInterval);
+                        }
+                    }
+                }
+
+                if (Props.doesBreeding && compFarmStorage.StoredPawns.Count < PawnStoragesMod.settings.MaxPawnsInFarm)
+                {
+                    var types = from p in healthyPawns
+                        group p by p.kindDef
+                        into def
+                        select def;
+
+                    foreach (var type in types)
+                    {
+                        var males = type.Any(p => p.gender == Gender.Male);
+                        var females = type.Where(p => p.gender != Gender.Male).ToList();
+
+                        if (!females.Any())
+                        {
+                            // no more females, reset
+                            breedingProgress[type.Key] = 0f;
+                        }
+
+                        // no males, stop progress
+                        if(!males) { continue; }
+
+                        var gestationTicks = AnimalProductionUtility.GestationDaysEach(type.Key.race) * 60000 * PawnStoragesMod.settings.BreedingScale;
+
+                        var progressPerCycle = Props.animalTickInterval/ gestationTicks;
+
+
+                        breedingProgress.TryAdd(type.Key, 0.0f);
+                        
+                        breedingProgress[type.Key] = Mathf.Clamp(breedingProgress[type.Key] + progressPerCycle * females.Count, 0f, 1f);
+
+                        if (!(breedingProgress[type.Key] >= 1f)) continue;
+
+                        if (compFarmStorage.StoredPawns.Count >= PawnStoragesMod.settings.MaxPawnsInFarm) break;
+
+                        breedingProgress[type.Key] = 0f;
+                        var newPawn = PawnGenerator.GeneratePawn(
+                            new PawnGenerationRequest(
+                                type.Key,
+                                Faction.OfPlayer,
+                                allowDowned: true,
+                                forceNoIdeo: true, 
+                                developmentalStages: DevelopmentalStage.Newborn
+                            ));
+
+                        compFarmStorage.StorePawn(newPawn);
                     }
 
-                    if (pawn.TryGetComp(out CompHasGatherableBodyResource compGatherable) && pawn.gender != Gender.Male)
-                    {
-                        GatherableTick(compGatherable, Props.animalTickInterval);
-                    }
 
                 }
             }
@@ -132,8 +193,30 @@ namespace PawnStorages.Farm
                 "PS_PawnEjectedStarvation".Translate(pawn.LabelShort, parent.LabelShort),
                 LetterDefOf.NegativeEvent,
                 targets
-                );
+            );
             Find.LetterStack.ReceiveLetter(letter);
+        }
+
+        public void EmulateScaledPawnAgeTick(Pawn pawn)
+        {
+            var interval = Props.animalTickInterval;
+
+            var ageBioYears = pawn.ageTracker.AgeBiologicalYears;
+
+            if (pawn.ageTracker.lifeStageChange)
+                pawn.ageTracker.PostResolveLifeStageChange();
+
+            pawn.ageTracker.TickBiologicalAge(interval);
+
+            if (pawn.ageTracker.lockedLifeStageIndex >- 0)
+                return;
+
+            if(Find.TickManager.TicksGame >= pawn.ageTracker.nextGrowthCheckTick)
+                pawn.ageTracker.CalculateGrowth(interval);
+
+            if (ageBioYears < pawn.ageTracker.AgeBiologicalYears)
+                pawn.ageTracker.BirthdayBiological(pawn.ageTracker.AgeBiologicalYears);
+            
         }
 
         public void EggLayerTick(CompEggLayer layer, int tickInterval = 1)
@@ -143,7 +226,7 @@ namespace PawnStorages.Farm
             eggReadyIncrement *= PawnUtility.BodyResourceGrowthSpeed(layer.parent as Pawn);
             // we're not doing this every tick so bump the progress
             eggReadyIncrement *= tickInterval;
-            eggReadyIncrement *= Props.produceTimeScale;
+            eggReadyIncrement *= PawnStoragesMod.settings.ProductionScale;
             layer.eggProgress += eggReadyIncrement;
             layer.eggProgress = Mathf.Clamp(layer.eggProgress, 0f, 1f);
             
@@ -162,7 +245,7 @@ namespace PawnStorages.Farm
             gatherableReadyIncrement *= PawnUtility.BodyResourceGrowthSpeed(gatherable.parent as Pawn);
             // we're not doing this every tick so bump the progress
             gatherableReadyIncrement *= tickInterval;
-            gatherableReadyIncrement *= Props.produceTimeScale;
+            gatherableReadyIncrement *= PawnStoragesMod.settings.ProductionScale;
             gatherable.fullness += gatherableReadyIncrement;
             gatherable.fullness = Mathf.Clamp(gatherable.fullness, 0f, 1f);
 
@@ -258,6 +341,12 @@ namespace PawnStorages.Farm
             };
             yield return new Command_Action
             {
+                defaultLabel = "+10 Nutrition",
+                action = delegate { storedNutrition = Mathf.Clamp(storedNutrition + 10f, 0f, 500f); },
+                icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
+            };
+            yield return new Command_Action
+            {
                 defaultLabel = "Empty Nutrition",
                 action = delegate { storedNutrition = 0; },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
@@ -273,20 +362,31 @@ namespace PawnStorages.Farm
                 defaultLabel = "Make all animals ready to produce",
                 action = delegate
                 {
-                    foreach (Pawn storedPawn in compFarmStorage.StoredPawns)
+                    if (Props.doesProduction)
                     {
-                        storedPawn.needs.food.CurLevel = storedPawn.needs.food.MaxLevel;
-
-                        if (storedPawn.TryGetComp(out CompEggLayer compLayer))
+                        foreach (Pawn storedPawn in compFarmStorage.StoredPawns)
                         {
-                            compLayer.eggProgress = 1f;
-                        }
+                            storedPawn.needs.food.CurLevel = storedPawn.needs.food.MaxLevel;
 
-                        if (storedPawn.TryGetComp(out CompHasGatherableBodyResource compGatherable))
+                            if (storedPawn.TryGetComp(out CompEggLayer compLayer))
+                            {
+                                compLayer.eggProgress = 1f;
+                            }
+
+                            if (storedPawn.TryGetComp(out CompHasGatherableBodyResource compGatherable))
+                            {
+                                compGatherable.fullness = 1f;
+                            }
+
+                        }
+                    }
+
+                    if (Props.doesBreeding)
+                    {
+                        foreach (var thing in breedingProgress.Keys)
                         {
-                            compGatherable.fullness = 1f;
+                            breedingProgress[thing] = 1f;
                         }
-
                     }
                 },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
@@ -300,6 +400,28 @@ namespace PawnStorages.Farm
                 },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
+        }
+        
+        private static Material material;
+        private float scale = 3f;
+        private float startOffset = 0.5f;
+
+        public override void PostDraw()
+        {
+            base.PostDraw();
+            if (!Props.doesBreeding || !PawnStoragesMod.settings.SuggestiveSilo) return;
+            if (material == null)
+                material = MaterialPool.MatFrom("Things/Building/Production/PS_JustTheTip", ShaderDatabase.Transparent, Color.white);
+
+            var filled = this.storedNutrition / this.Props.maxNutrition;
+
+            var pos = parent.DrawPos;
+            pos.z += startOffset;
+            pos.z += filled;
+            pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
+
+            Matrix4x4 matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0.0f, 0f, 0.0f), new Vector3(scale, 1f, scale));
+            Graphics.DrawMesh(MeshPool.plane10, matrix, material, layer);
         }
     }
 }

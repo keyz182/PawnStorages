@@ -20,14 +20,18 @@ public class CompPawnStorage : ThingComp
     public bool schedulingEnabled;
     protected List<Pawn> storedPawns = [];
     private Dictionary<int, int> pawnStoringTick = new();
-    private string transformLabelCache;
+    protected string transformLabelCache;
 
     public Rot4 Rotation;
 
     public Thing Parent => parent;
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
     public List<Pawn> StoredPawns => storedPawns;
-    public bool CanStore => storedPawns.Count < Props.maxStoredPawns;
+    public virtual int MaxStoredPawns()
+    {
+        return Props.maxStoredPawns;
+    }
+    public bool CanStore => storedPawns.Count < MaxStoredPawns();
 
     public bool CanAssign(Pawn pawn, bool couldMakePrisoner) =>
         compAssignable?.OwnerType switch
@@ -79,7 +83,7 @@ public class CompPawnStorage : ThingComp
         {
             transformLabelCache = $"{base.TransformLabel(label)} {"PS_Empty".Translate()}";
         }
-        else if (StoredPawns.Count >= Props.maxStoredPawns)
+        else if (StoredPawns.Count >= MaxStoredPawns())
         {
             transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
         }
@@ -141,8 +145,8 @@ public class CompPawnStorage : ThingComp
         int ticksStored = Mathf.Max(0, Find.TickManager.TicksGame - storedAtTick - NEEDS_INTERVAL);
         if (!Props.needsDrop) return;
 
-        CompStoredNutrition nutritionComp;
-        nutritionComp = parent.TryGetComp<CompStoredNutrition>();
+        CompFarmNutrition nutritionComp;
+        nutritionComp = parent.TryGetComp<CompFarmNutrition>();
         foreach (Need need in pawn.needs.AllNeeds)
         {
             switch (need)
@@ -208,10 +212,10 @@ public class CompPawnStorage : ThingComp
     public override IEnumerable<FloatMenuOption> CompMultiSelectFloatMenuOptions(List<Pawn> selPawns)
     {
         var selPawnsCopy = selPawns.ListFullCopy();
-        if (Props.convertOption && Props.maxStoredPawns > storedPawns.Count)
+        if (Props.convertOption && MaxStoredPawns() > storedPawns.Count)
             yield return new FloatMenuOption("PS_Enter".Translate(), delegate
             {
-                var diff = Props.maxStoredPawns - storedPawns.Count;
+                var diff = MaxStoredPawns() - storedPawns.Count;
                 for (var i = 0; i < diff; i++)
                     if (i < selPawnsCopy.Count)
                     {
@@ -340,13 +344,13 @@ public class CompPawnStorage : ThingComp
         if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
     }
 
-    public void ReleaseContents(Map map)
+    public void ReleaseContents(Map map, bool remove = false)
     {
         map ??= parent.Map;
 
         foreach (Pawn pawn in storedPawns)
         {
-            ReleaseSingle(map, pawn, false);
+            ReleaseSingle(map, pawn, remove);
         }
 
         storedPawns.Clear();
