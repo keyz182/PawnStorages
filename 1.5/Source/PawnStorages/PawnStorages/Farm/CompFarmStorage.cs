@@ -12,6 +12,11 @@ namespace PawnStorages.Farm
     {
         public new CompProperties_FarmStorage Props => props as CompProperties_FarmStorage;
 
+        public override int MaxStoredPawns()
+        {
+            return PawnStoragesMod.settings.MaxPawnsInFarm;
+        } 
+
         public new bool CanAssign(Pawn pawn, bool couldMakePrisoner = false) =>
             compAssignable != null && pawn.Faction == Faction.OfPlayer &&
             !pawn.RaceProps.Humanlike &&
@@ -19,8 +24,7 @@ namespace PawnStorages.Farm
 
         public float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(animal =>
             SimplifiedPastureNutritionSimulator.NutritionConsumedPerDay(animal.def, animal.ageTracker.CurLifeStage));
-
-
+        
         public new void StorePawn(Pawn pawn)
         {
             pawn.DeSpawn();
@@ -51,7 +55,7 @@ namespace PawnStorages.Farm
                 yield return new Command_Action
                 {
                     defaultLabel = "PS_ReleaseAnimals".Translate(),
-                    action = delegate { ReleaseContents(parent.Map); },
+                    action = delegate { ReleaseContents(parent.Map, true); },
                     icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Release")
                 };
                 yield return new Command_Action

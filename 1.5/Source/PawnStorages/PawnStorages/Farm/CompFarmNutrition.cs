@@ -60,6 +60,7 @@ namespace PawnStorages.Farm
 
                 foreach (Pawn pawn in compFarmStorage.StoredPawns)
                 {
+                    EmulateScaledPawnAgeTick(pawn);;
                     //Need fall ticker
                     Need_Food foodNeeds = pawn.needs?.food;
                     if (foodNeeds != null)
@@ -123,7 +124,7 @@ namespace PawnStorages.Farm
                     }
                 }
 
-                if (Props.doesBreeding)
+                if (Props.doesBreeding && compFarmStorage.StoredPawns.Count < PawnStoragesMod.settings.MaxPawnsInFarm)
                 {
                     var types = from p in healthyPawns
                         group p by p.kindDef
@@ -132,7 +133,7 @@ namespace PawnStorages.Farm
 
                     foreach (var type in types)
                     {
-                        var males = type.Where(p => p.gender == Gender.Male).ToList();
+                        var males = type.Any(p => p.gender == Gender.Male);
                         var females = type.Where(p => p.gender != Gender.Male).ToList();
 
                         if (!females.Any())
@@ -142,7 +143,7 @@ namespace PawnStorages.Farm
                         }
 
                         // no males, stop progress
-                        if(!males.Any()) { continue; }
+                        if(!males) { continue; }
 
                         var gestationTicks = AnimalProductionUtility.GestationDaysEach(type.Key.race) * 60000 * PawnStoragesMod.settings.BreedingScale;
 
@@ -154,6 +155,9 @@ namespace PawnStorages.Farm
                         breedingProgress[type.Key] = Mathf.Clamp(breedingProgress[type.Key] + progressPerCycle * females.Count, 0f, 1f);
 
                         if (!(breedingProgress[type.Key] >= 1f)) continue;
+
+                        if (compFarmStorage.StoredPawns.Count >= PawnStoragesMod.settings.MaxPawnsInFarm) break;
+
                         breedingProgress[type.Key] = 0f;
                         var newPawn = PawnGenerator.GeneratePawn(
                             new PawnGenerationRequest(
@@ -164,7 +168,7 @@ namespace PawnStorages.Farm
                                 developmentalStages: DevelopmentalStage.Newborn
                             ));
 
-                        daysProduce.Add(newPawn);
+                        compFarmStorage.StorePawn(newPawn);
                     }
 
 
@@ -189,8 +193,30 @@ namespace PawnStorages.Farm
                 "PS_PawnEjectedStarvation".Translate(pawn.LabelShort, parent.LabelShort),
                 LetterDefOf.NegativeEvent,
                 targets
-                );
+            );
             Find.LetterStack.ReceiveLetter(letter);
+        }
+
+        public void EmulateScaledPawnAgeTick(Pawn pawn)
+        {
+            var interval = Props.animalTickInterval;
+
+            var ageBioYears = pawn.ageTracker.AgeBiologicalYears;
+
+            if (pawn.ageTracker.lifeStageChange)
+                pawn.ageTracker.PostResolveLifeStageChange();
+
+            pawn.ageTracker.TickBiologicalAge(interval);
+
+            if (pawn.ageTracker.lockedLifeStageIndex >- 0)
+                return;
+
+            if(Find.TickManager.TicksGame >= pawn.ageTracker.nextGrowthCheckTick)
+                pawn.ageTracker.CalculateGrowth(interval);
+
+            if (ageBioYears < pawn.ageTracker.AgeBiologicalYears)
+                pawn.ageTracker.BirthdayBiological(pawn.ageTracker.AgeBiologicalYears);
+            
         }
 
         public void EggLayerTick(CompEggLayer layer, int tickInterval = 1)
@@ -378,7 +404,7 @@ namespace PawnStorages.Farm
         
         private static Material material;
         private float scale = 3f;
-        private float startOffset = 0.25f;
+        private float startOffset = 0.5f;
 
         public override void PostDraw()
         {
@@ -391,7 +417,7 @@ namespace PawnStorages.Farm
 
             var pos = parent.DrawPos;
             pos.z += startOffset;
-            pos.z += filled*2;
+            pos.z += filled;
             pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
 
             Matrix4x4 matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0.0f, 0f, 0.0f), new Vector3(scale, 1f, scale));

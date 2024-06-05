@@ -250,7 +250,7 @@
                 <showGizmo>true</showGizmo>
             </li>
             <li Class="PawnStorages.Farm.CompProperties_FarmStorage">
-                <needsDrop>true</needsDrop>Z
+                <needsDrop>true</needsDrop>
                 <releaseOption>true</releaseOption>
                 <convertOption>false</convertOption>
                 <appendOfName>true</appendOfName>
@@ -259,8 +259,8 @@
             </li>
             <li Class="PawnStorages.Farm.CompProperties_FarmNutrition">
                 <maxNutrition>500</maxNutrition>
-                <produceTimeScale>0.5</produceTimeScale>
                 <doesProduction>false</doesProduction>
+                <doesBreeding>true</doesBreeding>
             </li>
         </comps>
         <building>
