@@ -23,6 +23,7 @@ public class CompProperties_PawnStorage : CompProperties
 
     public EffecterDef storeEffect;
     public bool transformEffect;
+    
 
     public CompProperties_PawnStorage()
     {

@@ -154,7 +154,6 @@
             </li>
             <li Class="PawnStorages.Farm.CompProperties_FarmStorage">
                 <needsDrop>true</needsDrop>
-                <maxStoredPawns>16</maxStoredPawns>
                 <releaseOption>true</releaseOption>
                 <convertOption>false</convertOption>
                 <appendOfName>true</appendOfName>
@@ -163,7 +162,6 @@
             </li>
             <li Class="PawnStorages.Farm.CompProperties_FarmNutrition">
                 <maxNutrition>500</maxNutrition>
-                <produceTimeScale>0.5</produceTimeScale>
                 <doesProduction>true</doesProduction>
                 <doesBreeding>false</doesBreeding>
             </li>
@@ -217,6 +215,8 @@
         <defName>PS_BreedingFarm</defName>
         <label>Breeding Farm</label>
         <description>A breeding farm. \n\n Squeeze in up to 16 animals that mate, keep them supplied with nutrition, and reap the rewards without the filth!</description>
+        <drawerType>MapMeshAndRealTime</drawerType>
+        <!-- <drawerType>MapMeshOnly</drawerType> -->
         <thingClass>PawnStorages.Farm.Building_PSFarm</thingClass>
         <graphicData>
             <texPath>Things/Building/Production/PS_BreedingDomes</texPath>
@@ -250,8 +250,7 @@
                 <showGizmo>true</showGizmo>
             </li>
             <li Class="PawnStorages.Farm.CompProperties_FarmStorage">
-                <needsDrop>true</needsDrop>
-                <maxStoredPawns>16</maxStoredPawns>
+                <needsDrop>true</needsDrop>Z
                 <releaseOption>true</releaseOption>
                 <convertOption>false</convertOption>
                 <appendOfName>true</appendOfName>
@@ -262,8 +261,6 @@
                 <maxNutrition>500</maxNutrition>
                 <produceTimeScale>0.5</produceTimeScale>
                 <doesProduction>false</doesProduction>
-                <doesBreeding>true</doesBreeding>
-                <breedingScaler>2</breedingScaler>
             </li>
         </comps>
         <building>

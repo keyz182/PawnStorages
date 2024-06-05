@@ -11,10 +11,6 @@ namespace PawnStorages.Farm
         public float maxNutrition = 500f;
         public int ticksToAbsorbNutrients = 50;
         public int animalTickInterval = 250;
-        public float produceTimeScale = 0.75f;
-
-        //breeding
-        public float breedingScaler = 1.25f;
 
         public CompProperties_FarmNutrition()
         {

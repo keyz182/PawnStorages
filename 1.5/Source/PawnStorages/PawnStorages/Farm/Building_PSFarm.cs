@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace PawnStorages.Farm
@@ -54,6 +55,7 @@ namespace PawnStorages.Farm
         {
         }
 
-        public bool StorageTabVisible => true;
+        public bool StorageTabVisible => true; 
+
     }
 }

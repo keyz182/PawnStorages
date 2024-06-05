@@ -1,10 +1,10 @@
-﻿using RimWorld;
-using System;
+﻿using System;
+using RimWorld;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using Verse;
+using Object = System.Object;
 
 namespace PawnStorages.Farm
 {
@@ -12,6 +12,7 @@ namespace PawnStorages.Farm
     {
         public float storedNutrition = 0f;
         public bool produceNow = false;
+        private int layer = 0;
 
         private List<IntVec3> cachedAdjCellsCardinal;
 
@@ -143,7 +144,7 @@ namespace PawnStorages.Farm
                         // no males, stop progress
                         if(!males.Any()) { continue; }
 
-                        var gestationTicks = AnimalProductionUtility.GestationDaysEach(type.Key.race) * 60000 * Props.breedingScaler;
+                        var gestationTicks = AnimalProductionUtility.GestationDaysEach(type.Key.race) * 60000 * PawnStoragesMod.settings.BreedingScale;
 
                         var progressPerCycle = Props.animalTickInterval/ gestationTicks;
 
@@ -199,7 +200,7 @@ namespace PawnStorages.Farm
             eggReadyIncrement *= PawnUtility.BodyResourceGrowthSpeed(layer.parent as Pawn);
             // we're not doing this every tick so bump the progress
             eggReadyIncrement *= tickInterval;
-            eggReadyIncrement *= Props.produceTimeScale;
+            eggReadyIncrement *= PawnStoragesMod.settings.ProductionScale;
             layer.eggProgress += eggReadyIncrement;
             layer.eggProgress = Mathf.Clamp(layer.eggProgress, 0f, 1f);
             
@@ -218,7 +219,7 @@ namespace PawnStorages.Farm
             gatherableReadyIncrement *= PawnUtility.BodyResourceGrowthSpeed(gatherable.parent as Pawn);
             // we're not doing this every tick so bump the progress
             gatherableReadyIncrement *= tickInterval;
-            gatherableReadyIncrement *= Props.produceTimeScale;
+            gatherableReadyIncrement *= PawnStoragesMod.settings.ProductionScale;
             gatherable.fullness += gatherableReadyIncrement;
             gatherable.fullness = Mathf.Clamp(gatherable.fullness, 0f, 1f);
 
@@ -314,6 +315,12 @@ namespace PawnStorages.Farm
             };
             yield return new Command_Action
             {
+                defaultLabel = "+10 Nutrition",
+                action = delegate { storedNutrition = Mathf.Clamp(storedNutrition + 10f, 0f, 500f); },
+                icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
+            };
+            yield return new Command_Action
+            {
                 defaultLabel = "Empty Nutrition",
                 action = delegate { storedNutrition = 0; },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
@@ -367,6 +374,28 @@ namespace PawnStorages.Farm
                 },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
+        }
+        
+        private static Material material;
+        private float scale = 3f;
+        private float startOffset = 0.25f;
+
+        public override void PostDraw()
+        {
+            base.PostDraw();
+            if (!Props.doesBreeding || !PawnStoragesMod.settings.SuggestiveSilo) return;
+            if (material == null)
+                material = MaterialPool.MatFrom("Things/Building/Production/PS_JustTheTip", ShaderDatabase.Transparent, Color.white);
+
+            var filled = this.storedNutrition / this.Props.maxNutrition;
+
+            var pos = parent.DrawPos;
+            pos.z += startOffset;
+            pos.z += filled*2;
+            pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
+
+            Matrix4x4 matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0.0f, 0f, 0.0f), new Vector3(scale, 1f, scale));
+            Graphics.DrawMesh(MeshPool.plane10, matrix, material, layer);
         }
     }
 }
