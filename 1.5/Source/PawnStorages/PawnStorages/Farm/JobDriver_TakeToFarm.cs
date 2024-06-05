@@ -19,7 +19,7 @@ public class JobDriver_TakeToFarm : JobDriver
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)
     {
-        return pawn.Reserve(Takee, job, 1, -1, null, errorOnFailed) && pawn.Reserve(PawnStorageAssigned, job, PawnStorageComp.Props.maxStoredPawns, 0, null, errorOnFailed);
+        return pawn.Reserve(Takee, job, 1, -1, null, errorOnFailed) && pawn.Reserve(PawnStorageAssigned, job, PawnStorageComp.Props.MaxStoredPawns, 0, null, errorOnFailed);
     }
 
     public override IEnumerable<Toil> MakeNewToils()

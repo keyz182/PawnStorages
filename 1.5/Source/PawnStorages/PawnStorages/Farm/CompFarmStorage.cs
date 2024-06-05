@@ -12,10 +12,7 @@ namespace PawnStorages.Farm
     {
         public new CompProperties_FarmStorage Props => props as CompProperties_FarmStorage;
 
-        public override int MaxStoredPawns()
-        {
-            return PawnStoragesMod.settings.MaxPawnsInFarm;
-        } 
+        public override int MaxStoredPawns() => PawnStoragesMod.settings.MaxPawnsInFarm;
 
         public new bool CanAssign(Pawn pawn, bool couldMakePrisoner = false) =>
             compAssignable != null && pawn.Faction == Faction.OfPlayer &&

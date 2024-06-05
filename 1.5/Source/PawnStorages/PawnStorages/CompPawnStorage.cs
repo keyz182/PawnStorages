@@ -27,10 +27,7 @@ public class CompPawnStorage : ThingComp
     public Thing Parent => parent;
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
     public List<Pawn> StoredPawns => storedPawns;
-    public virtual int MaxStoredPawns()
-    {
-        return Props.maxStoredPawns;
-    }
+    public virtual int MaxStoredPawns() => Props.MaxStoredPawns;
     public bool CanStore => storedPawns.Count < MaxStoredPawns();
 
     public bool CanAssign(Pawn pawn, bool couldMakePrisoner) =>
