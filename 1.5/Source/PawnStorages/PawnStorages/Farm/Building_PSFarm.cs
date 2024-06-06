@@ -34,6 +34,20 @@ namespace PawnStorages.Farm
             base.ExposeData();
         }
 
+        public void AllowAll()
+        {
+            foreach (var allowedThingsKey in AllowedThings.Keys)
+            {
+                AllowedThings[allowedThingsKey] = true;
+            }
+        }
+        public void DenyAll()
+        {
+            foreach (var allowedThingsKey in AllowedThings.Keys)
+            {
+                AllowedThings[allowedThingsKey] = false;
+            }
+        }
 
         public bool NutritionAvailable = true;
 
