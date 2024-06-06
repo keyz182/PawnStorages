@@ -5,16 +5,31 @@ using PawnStorages.Farm.Comps;
 using PawnStorages.Farm.Interfaces;
 using RimWorld;
 using Verse;
+using Verse.Noise;
 
 namespace PawnStorages.Farm
 {
-    public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorageParent, IBreederParent, IProductionParent
+    public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorageParent, IBreederParent, IProductionParent, IFarmTabParent
     {
         public CompFarmStorage pawnStorage;
         public CompFarmNutrition FarmNutrition;
         private StorageSettings allowedNutritionSettings;
 
+        protected Dictionary<ThingDef, bool> allowedThings;
+
+        public Dictionary<ThingDef, bool> AllowedThings => allowedThings;
+
+
+        public override void ExposeData()
+        {
+            Scribe_Collections.Look(ref allowedThings, "allowedThings");
+            base.ExposeData();
+        }
+
+
         public bool NutritionAvailable = true;
+
+        public List<ThingDef> AllowableThing => Utility.Animals(this.TryGetComp<CompFarmProducer>() != null);
 
         public override void SpawnSetup(Map map, bool respawningAfterLoad)
         {
@@ -25,6 +40,14 @@ namespace PawnStorages.Farm
             if (def.building.defaultStorageSettings == null)
                 return;
             allowedNutritionSettings.CopyFrom(def.building.defaultStorageSettings);
+
+            if (allowedThings == null)
+                allowedThings = new();
+
+            foreach (var thingDef in AllowableThing.Where(t => !allowedThings.Keys.Contains(t)))
+            {
+                AllowedThings[thingDef] = false;
+            }
         }
 
         public override IEnumerable<Gizmo> GetGizmos()

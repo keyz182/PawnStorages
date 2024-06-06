@@ -1,7 +1,12 @@
-﻿using RimWorld;
+﻿using System;
+using PawnStorages.Farm;
+using RimWorld;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using PawnStorages.Farm.Comps;
 
 namespace PawnStorages;
 
@@ -62,7 +67,8 @@ public static class Utility
 
     public static Texture2D MakeReadableTextureInstance(this RenderTexture source)
     {
-        RenderTexture temporary = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+        RenderTexture temporary = RenderTexture.GetTemporary(source.width, source.height, 0,
+            RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
         temporary.name = "MakeReadableTexture_Temp";
         Graphics.Blit(source, temporary);
         RenderTexture active = RenderTexture.active;
@@ -93,7 +99,8 @@ public static class Utility
         store.Props.releaseEffect?.Spawn(cell, map);
 
         if (store.Props.lightEffect) FleckMaker.ThrowLightningGlow(cell.ToVector3Shifted(), map, 0.5f);
-        if (store.Props.transformEffect) FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
+        if (store.Props.transformEffect)
+            FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
         store.Parent.Map.mapDrawer.MapMeshDirty(store.Parent.Position, MapMeshFlagDefOf.Things);
 
         store.SetLabelDirty();
@@ -103,9 +110,11 @@ public static class Utility
 
     public static bool CanRelease(CompPawnStorage store, Pawn releaser)
     {
-        if (store.Parent.def.EverHaulable && store.Parent.def.category == ThingCategory.Item && store.Props.storageStation != null)
+        if (store.Parent.def.EverHaulable && store.Parent.def.category == ThingCategory.Item &&
+            store.Props.storageStation != null)
             return GenClosest.ClosestThingReachable(releaser.Position, releaser.Map,
-                ThingRequest.ForDef(store.Props.storageStation), PathEndMode.InteractionCell, TraverseParms.For(releaser),
+                ThingRequest.ForDef(store.Props.storageStation), PathEndMode.InteractionCell,
+                TraverseParms.For(releaser),
                 9999f, x => releaser.CanReserve(x)) != null;
         return true;
     }
@@ -113,9 +122,11 @@ public static class Utility
 
     public static Job ReleaseJob(CompPawnStorage store, Pawn releaser, Pawn toRelease)
     {
-        if (store.Parent.def.EverHaulable && store.Parent.def.category == ThingCategory.Item && store.Props.storageStation != null)
+        if (store.Parent.def.EverHaulable && store.Parent.def.category == ThingCategory.Item &&
+            store.Props.storageStation != null)
         {
-            Thing station = GenClosest.ClosestThingReachable(releaser.Position, releaser.Map, ThingRequest.ForDef(store.Props.storageStation), PathEndMode.InteractionCell,
+            Thing station = GenClosest.ClosestThingReachable(releaser.Position, releaser.Map,
+                ThingRequest.ForDef(store.Props.storageStation), PathEndMode.InteractionCell,
                 TraverseParms.For(releaser), 9999f, x => releaser.CanReserve(x));
             Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, store.Parent, station, toRelease);
             job.count = 1;
@@ -123,5 +134,36 @@ public static class Utility
         }
 
         return JobMaker.MakeJob(PS_DefOf.PS_Release, store.Parent, null, toRelease);
+    }
+
+    public static List<ThingDef> animals;
+
+    public static bool CompPropertiesIsProducer(CompProperties c)
+    {
+        return c.compClass == typeof(CompEggLayer) || c.compClass.IsSubclassOf(typeof(CompEggLayer)) ||
+               c.compClass == typeof(CompHasGatherableBodyResource) ||
+               c.compClass.IsSubclassOf(typeof(CompHasGatherableBodyResource));
+    }
+
+    public static bool ValidateThingDef(ThingDef td, bool IsProducer)
+    {
+        return td.category == ThingCategory.Pawn && td.thingCategories != null &&
+               td.thingCategories.Contains(ThingCategoryDefOf.Animals) &&
+               (
+                   (IsProducer &&
+                    td.comps != null &&
+                    td.comps.Any((Predicate<CompProperties>)(CompPropertiesIsProducer))
+                    ||
+                    (!IsProducer)
+                   ));
+    }
+
+    public static List<ThingDef> Animals(bool IsProducer)
+    {
+        if (Utility.animals == null)
+        {
+            Utility.animals = DefDatabase<ThingDef>.AllDefs.Where<ThingDef>(td => ValidateThingDef(td, IsProducer)).ToList();
+        }
+        return Utility.animals;
     }
 }

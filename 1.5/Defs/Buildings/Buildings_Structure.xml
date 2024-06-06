@@ -141,6 +141,7 @@
         <fillPercent>0.50</fillPercent>
         <holdsRoof>false</holdsRoof>
         <inspectorTabs>
+            <li>PawnStorages.Farm.ITab_Production</li>
             <li>PawnStorages.Farm.ITab_Farm</li>
             <li>ITab_BiosculpterNutritionStorage</li>
         </inspectorTabs>

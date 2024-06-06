@@ -8,6 +8,7 @@ using Verse;
 
 namespace PawnStorages.Farm.Comps
 {
+    [StaticConstructorOnStartup]
     public class CompFarmNutrition: ThingComp
     {
         public INutritionStorageParent Parent => parent as INutritionStorageParent;
@@ -18,8 +19,13 @@ namespace PawnStorages.Farm.Comps
 
         public CompProperties_FarmNutrition Props => props as CompProperties_FarmNutrition;
 
+        static CompFarmNutrition()
+        {
+            _material = MaterialPool.MatFrom("Things/Building/Production/PS_JustTheTip", ShaderDatabase.Transparent, Color.white);
+        }
         public override void PostExposeData()
         {
+            base.PostExposeData();
             Scribe_Values.Look(ref storedNutrition, "storedNutrition");
         }
 
@@ -239,10 +245,7 @@ namespace PawnStorages.Farm.Comps
         {
             base.PostDraw();
             if (!Parent.HasSuggestiveSilos || !PawnStoragesMod.settings.SuggestiveSilo) return;
-
-            if (_material == null)
-                _material = MaterialPool.MatFrom("Things/Building/Production/PS_JustTheTip", ShaderDatabase.Transparent, Color.white);
-
+            
             var filled = this.storedNutrition / this.Props.maxNutrition;
 
             var pos = parent.DrawPos;

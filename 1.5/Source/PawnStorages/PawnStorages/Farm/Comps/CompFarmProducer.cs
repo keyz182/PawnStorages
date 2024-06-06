@@ -15,7 +15,8 @@ namespace PawnStorages.Farm.Comps
         public bool ProduceNow = false;
         public override void PostExposeData()
         {
-            Scribe_Values.Look(ref DaysProduce, "daysProduce");
+            base.PostExposeData();
+            Scribe_Collections.Look(ref DaysProduce, "daysProduce");
         }
 
         public override void CompTick()

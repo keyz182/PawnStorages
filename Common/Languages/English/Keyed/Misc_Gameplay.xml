@@ -56,6 +56,8 @@
 
 	<PS_Rotate>Rotate</PS_Rotate>
 
+	<PS_FarmTab>Farming</PS_FarmTab>
+	<PS_ProductionTab>Production</PS_ProductionTab>
 	<PS_BreedingTab>Breeding</PS_BreedingTab>
 
 	<PS_Reset>Reset</PS_Reset>
