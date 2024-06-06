@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using PawnStorages.Farm;
+using PawnStorages.Farm.Comps;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -75,7 +76,7 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
         return assignable.parent;
     }
 
-    public static ThingWithComps GetStorageForFarmAnimal(Pawn prisoner, bool assign = false)
+    public static ThingWithComps GetStorageForFarmAnimal(Pawn prisoner, bool assign = false, bool breeding = false)
     {
         ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c => c.parent is Building_PSFarm && c.assignedPawns.Contains(prisoner))
             ?.parent;
@@ -84,7 +85,13 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
             return existingAssigned;
         }
 
-        if (CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c => c.parent is Building_PSFarm && c.HasFreeSlot && prisoner.RaceProps.hasGenders && prisoner.RaceProps.lifeStageAges.Count > 0) is not { } assignable) return null;
+        var assignable = CompAssignableToPawn_PawnStorage.compAssignables
+            .Where(c=> 
+                c.parent is Building_PSFarm && breeding ? c.parent.TryGetComp<CompFarmBreeder>() != null : c.parent.TryGetComp<CompFarmProducer>() != null)
+            .FirstOrDefault(c =>
+                c.HasFreeSlot && prisoner.RaceProps.hasGenders &&
+                prisoner.RaceProps.lifeStageAges.Count > 0);
+        if (assignable == null) return null;
         if (assign) assignable.TryAssignPawn(prisoner);
         return assignable.parent;
     }
