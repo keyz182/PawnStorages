@@ -11,6 +11,7 @@ namespace PawnStorages.Farm.Comps
     [StaticConstructorOnStartup]
     public class CompFarmStorage : CompPawnStorage
     {
+        public override string PawnTypeLabel => "PS_StoredAnimals".Translate();
         public new CompProperties_FarmStorage Props => props as CompProperties_FarmStorage;
 
         public override int MaxStoredPawns() => PawnStoragesMod.settings.MaxPawnsInFarm;

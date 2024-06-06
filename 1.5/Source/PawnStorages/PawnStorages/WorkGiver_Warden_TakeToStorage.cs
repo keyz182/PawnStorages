@@ -86,11 +86,7 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
         }
 
         var assignable = CompAssignableToPawn_PawnStorage.compAssignables
-            .Where(c=> 
-                c.parent is Building_PSFarm && breeding ? c.parent.TryGetComp<CompFarmBreeder>() != null : c.parent.TryGetComp<CompFarmProducer>() != null)
-            .FirstOrDefault(c =>
-                c.HasFreeSlot && prisoner.RaceProps.hasGenders &&
-                prisoner.RaceProps.lifeStageAges.Count > 0);
+            .FirstOrDefault(c => c.parent is Building_PSFarm farm && farm.Allowed(prisoner.def) && (farm.IsBreeder == breeding));
         if (assignable == null) return null;
         if (assign) assignable.TryAssignPawn(prisoner);
         return assignable.parent;

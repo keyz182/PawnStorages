@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Security.Cryptography;
 using PawnStorages.Farm.Comps;
 using PawnStorages.Farm.Interfaces;
 using RimWorld;
@@ -9,6 +10,9 @@ using TMPro;
 using UnityEngine;
 using Verse;
 using Verse.Noise;
+using Verse.Sound;
+using static HarmonyLib.Code;
+using static UnityEngine.Random;
 
 namespace PawnStorages.Farm
 {
@@ -26,72 +30,66 @@ namespace PawnStorages.Farm
 
         protected const float LineHeight = 20f;
         protected Vector2 ScrollPosition = Vector2.zero;
+        protected QuickSearchWidget QuickSearchWidget = new QuickSearchWidget();
 
         public override void FillTab()
         {
 
-            Rect rect1 = new Rect(0.0f, 0.0f, ITab_Storage.WinSize.x, ITab_Storage.WinSize.y).ContractedBy(10f);
-            Widgets.BeginGroup(rect1);
-            // if (this.IsPrioritySettingVisible)
-            // {
-            //     Text.Font = GameFont.Small;
-            //     Rect rect2 = new Rect(0.0f, 0.0f, 160f, this.TopAreaHeight - 6f);
-            //     if (Widgets.ButtonText(rect2, (string)("Priority".Translate() + ": " + settings.Priority.Label().CapitalizeFirst())))
-            //     {
-            //         List<FloatMenuOption> options = new List<FloatMenuOption>();
-            //         foreach (StoragePriority storagePriority in Enum.GetValues(typeof(StoragePriority)))
-            //         {
-            //             if (storagePriority != StoragePriority.Unstored)
-            //             {
-            //                 StoragePriority localPr = storagePriority;
-            //                 options.Add(new FloatMenuOption(localPr.Label().CapitalizeFirst(), (Action)(() => settings.Priority = localPr)));
-            //             }
-            //         }
-            //         Find.WindowStack.Add((Window)new FloatMenu(options));
-            //     }
-            //     UIHighlighter.HighlightOpportunity(rect2, "StoragePriority");
-            // }
+            Rect tabRect = new Rect(0.0f, 0.0f, ITab_Storage.WinSize.x, ITab_Storage.WinSize.y).ContractedBy(10f);
+            Widgets.BeginGroup(tabRect);
 
-            // Rect rect3 = new Rect(0.0f, this.TopAreaHeight, rect1.width, rect1.height - this.TopAreaHeight);
-            // Bill[] array1 = BillUtility.GlobalBills().Where<Bill>((Func<Bill, bool>)(b => b is Bill_Production && b.GetSlotGroup() == storeSettingsParent && b.recipe.WorkerCounter.CanPossiblyStore((Bill_Production)b, b.GetSlotGroup()))).ToArray<Bill>();
+            Rect menuRect = new Rect(0.0f, 20f, tabRect.width, tabRect.height - 20f);
+            Widgets.DrawMenuSection(menuRect);
+            float num1 = menuRect.width - 2f;
+            Rect buttonRect = new Rect(menuRect.x + 3f, menuRect.y + 3f, (float)((double)num1 / 2.0 - 3.0 - 1.5), 24f);
+            if (Widgets.ButtonText(buttonRect, (string)"ClearAll".Translate()))
+            {
+                // filter.SetDisallowAll(forceHiddenDefs, forceHiddenFilters);
+                SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
+            }
+            if (Widgets.ButtonText(new Rect(buttonRect.xMax + 3f, buttonRect.y, buttonRect.width, 24f), (string)"AllowAll".Translate()))
+            {
+                // filter.SetAllowAll(parentFilter);
+                SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
+            }
 
-            // ThingFilter filter = settings.filter;
-
-            // IEnumerable<SpecialThingFilterDef> forceHiddenFilters = this.HiddenSpecialThingFilters();
-            // ThingFilterUI.DoThingFilterConfigWindow(rect3, Parent.ThingFilterState, Parent.ThingFilter, Parent.ThingFilter, 8);
-            // Bill[] array2 = BillUtility.GlobalBills().Where<Bill>((Func<Bill, bool>)(b => b is Bill_Production && b.GetSlotGroup() == storeSettingsParent && b.recipe.WorkerCounter.CanPossiblyStore((Bill_Production)b, b.GetSlotGroup()))).ToArray<Bill>();
-            // foreach (Bill bill in ((IEnumerable<Bill>)array1).Except<Bill>((IEnumerable<Bill>)array2))
-            // Messages.Message((string)"MessageBillValidationStoreZoneInsufficient".Translate((NamedArgument)bill.LabelCap, (NamedArgument)bill.billStack.billGiver.LabelShort.CapitalizeFirst(), (NamedArgument)SlotGroup.GetGroupLabel(bill.GetSlotGroup())), (LookTargets)(bill.billStack.billGiver as Thing), MessageTypeDefOf.RejectInput, false);
-            // PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.StorageTab, KnowledgeAmount.FrameDisplayed);
-
-            Widgets.Label(new Rect(5.0f, 0.0f, rect1.width, 30f), "Farm Management");
-
-            Rect tabRect = new Rect(0.0f, 30.0f, rect1.width, rect1.height - 30f).ContractedBy(10f);
-            Rect scrollViewRect = new Rect(tabRect);
+            // tabRect.yMin = menuRect.yMax;
+            Rect searchWidgetRect = new Rect(menuRect.x + 3f, menuRect.yMin + 26f, (float)((double)tabRect.width - 16.0 - 6.0), 24f);
+            QuickSearchWidget.OnGUI(searchWidgetRect);
+            // tabRect.yMin = searchWidgetRect.yMax + 3f;
+            // tabRect.xMax -= 4f;
+            // tabRect.yMax -= 6f;
 
             float totalHeight = Parent.AllowableThing.Count * (LineHeight + 2f);
 
-            Rect viewRect = new Rect(0.0f, 0.0f, scrollViewRect.width, totalHeight);
+            Rect viewRect = new Rect(0.0f, 0.0f, menuRect.width - 16f, totalHeight);
 
-            Widgets.AdjustRectsForScrollView(tabRect, ref scrollViewRect, ref viewRect);
-            Widgets.BeginScrollView(scrollViewRect, ref ScrollPosition, viewRect);
+            menuRect.yMin += 50f;
+            menuRect.yMax -= 4f;
+
+            Widgets.BeginScrollView(menuRect, ref ScrollPosition, viewRect);
 
             // alternate = false;
             float num = 0.0f;
 
-            foreach (var tDef in Parent.AllowableThing)
+            List<ThingDef> allowable;
+            if (QuickSearchWidget.filter.Active)
             {
-                Color? nullable = new Color?();
-                // if (this.searchFilter.Matches(tDef))
-                    // ++this.matchCount;
-                // else
-                nullable = new Color?(Listing_TreeThingFilter.NoMatchColor);
+                allowable = Parent.AllowableThing.Where(tDef =>
+                    tDef.LabelCap.ToString().ToLower().Contains(QuickSearchWidget.filter.Text.ToLower())).ToList();
+            }
+            else
+            {
+                allowable = Parent.AllowableThing;
+            }
 
+            foreach (var tDef in allowable)
+            {
                 var iconWidth = 20f;
-                Widgets.DefIcon(new Rect(5f, num, iconWidth, LineHeight), (Def)tDef, drawPlaceholder: true, color: nullable);
+                Widgets.DefIcon(new Rect(5f, num, iconWidth, LineHeight), (Def)tDef, drawPlaceholder: true);
                 
                 var labelX = iconWidth + 2f + 5f;
-                Rect labelLeft = new Rect(labelX, num, scrollViewRect.width - 26f - labelX - 5f, LineHeight);
+                Rect labelLeft = new Rect(labelX, num, viewRect.width - 26f - labelX - 5f, LineHeight);
 
 
                 Widgets.DrawHighlightIfMouseover(labelLeft);
@@ -104,10 +102,8 @@ namespace PawnStorages.Farm
 
                 var label = (string)tDef.LabelCap;
                 Text.Anchor = TextAnchor.MiddleLeft;
-                GUI.color = nullable ?? Color.white;
-                // labelLeft.width = scrollViewRect.width - 26f - labelLeft.xMin + widthOffset;
-                // labelLeft.yMax += 5f;
-                // labelLeft.yMin -= 5f;
+                GUI.color = Color.white;
+
                 Widgets.Label(labelLeft, label.Truncate(labelLeft.width));
                 Text.Anchor = TextAnchor.UpperLeft;
                 GUI.color = Color.white;

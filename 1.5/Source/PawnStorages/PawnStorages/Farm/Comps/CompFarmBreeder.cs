@@ -26,7 +26,7 @@ namespace PawnStorages.Farm.Comps
         public override void PostExposeData()
         {
             base.PostExposeData();
-            Scribe_Collections.Look(ref breedingProgress, "breedingProgress");
+            Scribe_Collections.Look(ref breedingProgress, "breedingProgress", LookMode.Def);
         }
 
         public override void CompTick()

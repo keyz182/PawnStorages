@@ -81,13 +81,13 @@ public class CompPawnStorage : ThingComp
         {
             transformLabelCache = $"{base.TransformLabel(label)} {"PS_Empty".Translate()}";
         }
-        else if (StoredPawns.Count >= MaxStoredPawns())
+        else if (CanStore)
         {
-            transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
+            transformLabelCache = $"{base.TransformLabel(label)}";
         }
         else
         {
-            transformLabelCache = $"{base.TransformLabel(label)}";
+            transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
         }
 
         labelDirty = false;
@@ -225,12 +225,13 @@ public class CompPawnStorage : ThingComp
         foreach (FloatMenuOption f in base.CompMultiSelectFloatMenuOptions(selPawns)) yield return f;
     }
 
+    public virtual string PawnTypeLabel => "PS_StoredPawns".Translate();
     public override string CompInspectStringExtra()
     {
         StringBuilder sb = new(base.CompInspectStringExtra());
         if (StoredPawns?.Any() != true) return sb.ToString().TrimStart().TrimEnd();
         sb.AppendLine();
-        sb.AppendLine("PS_StoredPawns".Translate());
+        sb.AppendLine(PawnTypeLabel);
         foreach (Pawn pawn in StoredPawns) sb.AppendLine($"    - {pawn.LabelCap}");
 
         return sb.ToString().TrimStart().TrimEnd();

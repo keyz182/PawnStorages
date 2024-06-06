@@ -13,40 +13,49 @@ namespace PawnStorages.Farm
     {
         public CompFarmStorage pawnStorage;
         public CompFarmNutrition FarmNutrition;
+        public CompFarmBreeder FarmBreeder;
+        public CompFarmProducer FarmProducer;
         private StorageSettings allowedNutritionSettings;
 
         protected Dictionary<ThingDef, bool> allowedThings;
 
         public Dictionary<ThingDef, bool> AllowedThings => allowedThings;
 
+        public bool Allowed(ThingDef def)
+        {
+            return allowedThings.GetValueOrDefault(def, false);
+        }
 
+        public bool IsBreeder => FarmBreeder != null;
+        public bool IsProducer => FarmProducer != null;
         public override void ExposeData()
         {
-            Scribe_Collections.Look(ref allowedThings, "allowedThings");
+            Scribe_Collections.Look(ref allowedThings, "allowedThings", LookMode.Def);
             base.ExposeData();
         }
 
 
         public bool NutritionAvailable = true;
 
-        public List<ThingDef> AllowableThing => Utility.Animals(this.TryGetComp<CompFarmProducer>() != null);
+        public List<ThingDef> AllowableThing => Utility.Animals(IsProducer);
 
         public override void SpawnSetup(Map map, bool respawningAfterLoad)
         {
             pawnStorage = GetComp<CompFarmStorage>();
             FarmNutrition = GetComp<CompFarmNutrition>();
+            FarmBreeder = GetComp<CompFarmBreeder>();
+            FarmProducer = GetComp<CompFarmProducer>();
             base.SpawnSetup(map, respawningAfterLoad);
             allowedNutritionSettings = new StorageSettings(this);
             if (def.building.defaultStorageSettings == null)
                 return;
             allowedNutritionSettings.CopyFrom(def.building.defaultStorageSettings);
 
-            if (allowedThings == null)
-                allowedThings = new();
+            allowedThings ??= new();
 
             foreach (var thingDef in AllowableThing.Where(t => !allowedThings.Keys.Contains(t)))
             {
-                AllowedThings[thingDef] = false;
+                AllowedThings[thingDef] = true;
             }
         }
 
