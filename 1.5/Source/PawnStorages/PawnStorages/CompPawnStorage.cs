@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using HarmonyLib;
 using PawnStorages.Farm;
+using PawnStorages.Farm.Comps;
 using RimWorld;
 using UnityEngine;
 using Verse;

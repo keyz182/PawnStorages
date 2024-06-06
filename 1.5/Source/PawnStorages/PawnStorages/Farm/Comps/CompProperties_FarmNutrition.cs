@@ -1,12 +1,9 @@
 ﻿using Verse;
 
-namespace PawnStorages.Farm
+namespace PawnStorages.Farm.Comps
 {
     public class CompProperties_FarmNutrition : CompProperties
     {
-        public bool doesProduction = true;
-        public bool doesBreeding = false;
-
         // production
         public float maxNutrition = 500f;
         public int ticksToAbsorbNutrients = 50;

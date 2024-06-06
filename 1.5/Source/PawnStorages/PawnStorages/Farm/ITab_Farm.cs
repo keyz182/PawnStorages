@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using PawnStorages.Farm.Comps;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -11,11 +12,12 @@ namespace PawnStorages.Farm
     {
         private static readonly Vector2 WinSize = new(300f, 480f);
         public readonly ThingFilterUI.UIState ThingFilterState = new();
-        public const float lineHeight = 60f;
+        public const float LineHeight = 60f;
         private bool alternate;
 
         public CompFarmStorage compFarmStorage => SelThing.TryGetComp<CompFarmStorage>();
         public CompFarmNutrition compFarmNutrition => SelThing.TryGetComp<CompFarmNutrition>();
+        public CompFarmProducer compFarmProducer => SelThing.TryGetComp<CompFarmProducer>();
         public bool NeedsDrop => PawnStoragesMod.settings.AllowNeedsDrop || compFarmStorage.Props.needsDrop;
 
         public ITab_Farm()
@@ -41,7 +43,7 @@ namespace PawnStorages.Farm
 
         public bool DrawLine(float position, float width, Pawn pawn)
         {
-            Rect rect = new Rect(0.0f, position, width, lineHeight);
+            Rect rect = new Rect(0.0f, position, width, LineHeight);
 
             if (alternate)
             {
@@ -63,7 +65,7 @@ namespace PawnStorages.Farm
 
                 Widgets.Label(new Rect(55f, position, width - 90f, 20f), label.ToString());
 
-                if (compFarmNutrition.Props.doesProduction)
+                if (compFarmProducer != null)
                 {
                     Widgets.Label(new Rect(55f, position + 20f, width - 90f, 20f),
                         $"Nutrition: {Mathf.CeilToInt(pawn.needs.food.CurLevelPercentage)}%");
@@ -88,7 +90,7 @@ namespace PawnStorages.Farm
             Rect tabRect = new Rect(0.0f, 30.0f, WinSize.x, WinSize.y - 30f).ContractedBy(10f);
             Rect scrollViewRect = new Rect(tabRect);
 
-            float totalHeight = compFarmStorage.StoredPawns.Count * lineHeight;
+            float totalHeight = compFarmStorage.StoredPawns.Count * LineHeight;
 
             Rect viewRect = new Rect(0.0f, 0.0f, scrollViewRect.width, totalHeight);
 
@@ -105,7 +107,7 @@ namespace PawnStorages.Farm
                     removed.Add(pawn);
                 }
 
-                num += lineHeight;
+                num += LineHeight;
             }
 
             foreach (Pawn pawn in removed)

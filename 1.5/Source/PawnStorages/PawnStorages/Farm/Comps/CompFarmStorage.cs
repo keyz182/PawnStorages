@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using PawnStorages.Farm.Comps;
 using RimWorld;
 using UnityEngine;
 using Verse;
 
-namespace PawnStorages.Farm
+namespace PawnStorages.Farm.Comps
 {
     [StaticConstructorOnStartup]
     public class CompFarmStorage : CompPawnStorage

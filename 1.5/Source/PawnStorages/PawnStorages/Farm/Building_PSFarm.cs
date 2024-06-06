@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using PawnStorages.Farm.Comps;
+using PawnStorages.Farm.Interfaces;
 using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace PawnStorages.Farm
 {
-    public class Building_PSFarm : Building, IStoreSettingsParent
+    public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorageParent, IBreederParent, IProductionParent
     {
         public CompFarmStorage pawnStorage;
         public CompFarmNutrition FarmNutrition;
@@ -55,7 +57,26 @@ namespace PawnStorages.Farm
         {
         }
 
-        public bool StorageTabVisible => true; 
+        public bool StorageTabVisible => true;
 
+        public bool IsActive => true;
+        public void ReleasePawn(Pawn pawn)
+        {
+            pawnStorage.ReleaseSingle(this.Map, pawn, true, true);
+        }
+
+        public bool HasSuggestiveSilos => true;
+        public bool HasStoredPawns => true;
+        public List<Pawn> StoredPawns => pawnStorage.StoredPawns;
+
+        public List<Pawn> BreedablePawns => pawnStorage.StoredPawns.Where(p => p.ageTracker.Adult && !p.health.Dead && !p.health.Downed).ToList();
+        public List<Pawn> ProducingPawns => pawnStorage.StoredPawns
+            .Where(p => p.ageTracker.Adult && !p.health.Dead && !p.health.Downed).ToList();
+
+        public int TickInterval => 250;
+        public void StoreNewPawn(Pawn newPawn)
+        {
+            pawnStorage.StorePawn(newPawn);
+        }
     }
 }

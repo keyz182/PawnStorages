@@ -1,4 +1,4 @@
-﻿namespace PawnStorages.Farm;
+﻿namespace PawnStorages.Farm.Comps;
 
 public class CompProperties_FarmStorage : CompProperties_PawnStorage
 {

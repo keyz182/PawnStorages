@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using PawnStorages.Farm.Comps;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -12,11 +13,11 @@ namespace PawnStorages.Farm
     {
         private static readonly Vector2 WinSize = new(300f, 480f);
         public readonly ThingFilterUI.UIState ThingFilterState = new();
-        public const float lineHeight = 40f;
+        public const float LineHeight = 40f;
         private bool alternate;
 
         public CompFarmStorage compFarmStorage => SelThing.TryGetComp<CompFarmStorage>();
-        public CompFarmNutrition compFarmNutrition => SelThing.TryGetComp<CompFarmNutrition>();
+        public CompFarmBreeder compFarmBreeder => SelThing.TryGetComp<CompFarmBreeder>();
 
         public ITab_Breeding()
         {
@@ -26,7 +27,7 @@ namespace PawnStorages.Farm
 
         public void DrawLine(float position, float width, PawnKindDef pawn, float progress)
         {
-            Rect rect = new Rect(0.0f, position, width, lineHeight);
+            Rect rect = new Rect(0.0f, position, width, LineHeight);
 
             if (alternate)
             {
@@ -41,7 +42,7 @@ namespace PawnStorages.Farm
 
             Widgets.Label(new Rect(45f, position, width - 90f, 20f), label.ToString());
 
-            if (compFarmNutrition.Props.doesBreeding)
+            if (compFarmBreeder != null)
             {
                 Widgets.Label(new Rect(45f, position + 20f, width - 90f, 20f),
                     $"Progress: {Mathf.CeilToInt(progress * 100)}%");
@@ -50,15 +51,15 @@ namespace PawnStorages.Farm
 
         public override void FillTab()
         {
-            if (compFarmNutrition == null) return;
-            if (!compFarmNutrition.breedingProgress.Any()) return;
+            if (compFarmBreeder == null) return;
+            if (!compFarmBreeder.BreedingProgress.Any()) return;
 
             Widgets.Label(new Rect(5.0f, 0.0f, WinSize.x, 30f), "Breeding Animals");
 
             Rect tabRect = new Rect(0.0f, 30.0f, WinSize.x, WinSize.y - 30f).ContractedBy(10f);
             Rect scrollViewRect = new Rect(tabRect);
 
-            float totalHeight = compFarmNutrition.breedingProgress.Count * lineHeight;
+            float totalHeight = compFarmBreeder.BreedingProgress.Count * LineHeight;
 
             Rect viewRect = new Rect(0.0f, 0.0f, scrollViewRect.width, totalHeight);
 
@@ -68,11 +69,11 @@ namespace PawnStorages.Farm
             alternate = false;
             float num = 0.0f;
 
-            foreach (var f in compFarmNutrition.breedingProgress)
+            foreach (var f in compFarmBreeder.BreedingProgress)
             {
                 DrawLine(num, scrollViewRect.width, f.Key, f.Value);
 
-                num += lineHeight;
+                num += LineHeight;
             }
 
 
