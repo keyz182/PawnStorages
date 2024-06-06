@@ -62,10 +62,11 @@ namespace PawnStorages.Farm
 
             float totalHeight = Parent.AllowableThing.Count * (LineHeight + 2f);
 
-            Rect viewRect = new Rect(0.0f, 0.0f, menuRect.width - 16f, totalHeight);
+            Rect viewRect = new Rect(0.0f, 0.0f, menuRect.width - 20f, totalHeight);
 
-            menuRect.yMin += 50f;
-            menuRect.yMax -= 4f;
+            menuRect.yMin += 52f;
+            menuRect.yMax -= 6f;
+            menuRect.xMax -= 4f;
 
             Widgets.BeginScrollView(menuRect, ref ScrollPosition, viewRect);
 
