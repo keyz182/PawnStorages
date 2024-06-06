@@ -13,6 +13,6 @@ namespace PawnStorages.Farm.Interfaces
         public List<Pawn> BreedablePawns { get; }
         public int TickInterval { get; }
 
-        public void StoreNewPawn(Pawn newPawn);
+        public void Notify_PawnBorn(Pawn newPawn);
     }
 }

@@ -16,7 +16,6 @@ namespace PawnStorages.Farm
         private bool alternate;
 
         public CompFarmStorage compFarmStorage => SelThing.TryGetComp<CompFarmStorage>();
-        public CompFarmNutrition compFarmNutrition => SelThing.TryGetComp<CompFarmNutrition>();
         public CompFarmProducer compFarmProducer => SelThing.TryGetComp<CompFarmProducer>();
         public bool NeedsDrop => PawnStoragesMod.settings.AllowNeedsDrop || compFarmStorage.Props.needsDrop;
 

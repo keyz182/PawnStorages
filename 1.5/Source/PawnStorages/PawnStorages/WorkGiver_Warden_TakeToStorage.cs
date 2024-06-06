@@ -84,7 +84,7 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
             return existingAssigned;
         }
 
-        if (CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c => c.parent is Building_PSFarm && c.HasFreeSlot) is not { } assignable) return null;
+        if (CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c => c.parent is Building_PSFarm && c.HasFreeSlot && prisoner.RaceProps.hasGenders && prisoner.RaceProps.lifeStageAges.Count > 0) is not { } assignable) return null;
         if (assign) assignable.TryAssignPawn(prisoner);
         return assignable.parent;
     }

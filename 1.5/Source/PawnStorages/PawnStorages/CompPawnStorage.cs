@@ -342,13 +342,13 @@ public class CompPawnStorage : ThingComp
         if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
     }
 
-    public void ReleaseContents(Map map, bool remove = false)
+    public void ReleaseContents(Map map)
     {
         map ??= parent.Map;
 
         foreach (Pawn pawn in storedPawns)
         {
-            ReleaseSingle(map, pawn, remove);
+            ReleaseSingle(map, pawn, false);
         }
 
         storedPawns.Clear();

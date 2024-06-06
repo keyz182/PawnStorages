@@ -14,6 +14,8 @@ namespace PawnStorages.Farm
         public CompFarmNutrition FarmNutrition;
         private StorageSettings allowedNutritionSettings;
 
+        public bool NutritionAvailable = true;
+
         public override void SpawnSetup(Map map, bool respawningAfterLoad)
         {
             pawnStorage = GetComp<CompFarmStorage>();
@@ -59,7 +61,7 @@ namespace PawnStorages.Farm
 
         public bool StorageTabVisible => true;
 
-        public bool IsActive => true;
+        public bool IsActive => NutritionAvailable;
         public void ReleasePawn(Pawn pawn)
         {
             pawnStorage.ReleaseSingle(this.Map, pawn, true, true);
@@ -68,13 +70,16 @@ namespace PawnStorages.Farm
         public bool HasSuggestiveSilos => true;
         public bool HasStoredPawns => true;
         public List<Pawn> StoredPawns => pawnStorage.StoredPawns;
+        public void Notify_NutrtitionEmpty() => NutritionAvailable = false;
+
+        public void Notify_NutrtitionNotEmpty() => NutritionAvailable = true;
 
         public List<Pawn> BreedablePawns => pawnStorage.StoredPawns.Where(p => p.ageTracker.Adult && !p.health.Dead && !p.health.Downed).ToList();
         public List<Pawn> ProducingPawns => pawnStorage.StoredPawns
             .Where(p => p.ageTracker.Adult && !p.health.Dead && !p.health.Downed).ToList();
 
         public int TickInterval => 250;
-        public void StoreNewPawn(Pawn newPawn)
+        public void Notify_PawnBorn(Pawn newPawn)
         {
             pawnStorage.StorePawn(newPawn);
         }

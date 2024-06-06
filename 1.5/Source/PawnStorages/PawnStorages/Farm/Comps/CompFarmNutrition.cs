@@ -39,13 +39,12 @@ namespace PawnStorages.Farm.Comps
 
             if (parent.IsHashIntervalTick(Props.animalTickInterval) && Parent.HasStoredPawns)
             {
-                var healthyPawns = new List<Pawn>();
-
-                foreach (Pawn pawn in Parent.StoredPawns)
+                foreach (var pawn in Parent.StoredPawns)
                 {
                     EmulateScaledPawnAgeTick(pawn);
+
                     //Need fall ticker
-                    Need_Food foodNeeds = pawn.needs?.food;
+                    var foodNeeds = pawn.needs?.food;
                     if (foodNeeds != null)
                     {
                         foodNeeds.CurLevel -= foodNeeds.FoodFallPerTick * Props.animalTickInterval;
@@ -53,7 +52,7 @@ namespace PawnStorages.Farm.Comps
                             foodNeeds.lastNonStarvingTick = Find.TickManager.TicksGame;
 
                         // Need_Food.NeedInterval hardcodes 150 ticks, so adjust
-                        float adjustedMalnutritionSeverityPerInterval =
+                        var adjustedMalnutritionSeverityPerInterval =
                             (foodNeeds.MalnutritionSeverityPerInterval / 150f) * Props.animalTickInterval;
 
                         if (foodNeeds.Starving)
@@ -80,15 +79,23 @@ namespace PawnStorages.Farm.Comps
                         if (storedNutrition <= 0) continue;
                     }
 
-                    if (foodNeeds is { TicksUntilHungryWhenFed: <= 0 })
-                    {
-                        float available = Mathf.Min(foodNeeds.NutritionWanted, storedNutrition);
-                        storedNutrition -= available;
+                    if (foodNeeds is not { TicksUntilHungryWhenFed: <= 0 }) continue;
+
+                    var available = Mathf.Min(foodNeeds.NutritionWanted, storedNutrition);
+                    storedNutrition -= available;
                              
-                        foodNeeds.CurLevel += available;
-                        pawn.records.AddTo(RecordDefOf.NutritionEaten, available);
-                    }
+                    foodNeeds.CurLevel += available;
+                    pawn.records.AddTo(RecordDefOf.NutritionEaten, available);
                 }
+            }
+
+            if (storedNutrition > 0)
+            {
+                Parent.Notify_NutrtitionNotEmpty();
+            }
+            else
+            {
+                Parent.Notify_NutrtitionEmpty();
             }
         }
 

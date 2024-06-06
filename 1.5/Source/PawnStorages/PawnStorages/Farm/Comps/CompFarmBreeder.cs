@@ -83,7 +83,7 @@ namespace PawnStorages.Farm.Comps
                                 developmentalStages: DevelopmentalStage.Newborn
                             ));
 
-                        Parent.StoreNewPawn(newPawn);
+                        Parent.Notify_PawnBorn(newPawn);
                     }
 
 
