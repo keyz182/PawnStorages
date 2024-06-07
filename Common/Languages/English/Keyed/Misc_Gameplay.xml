@@ -13,6 +13,7 @@
 	<PS_Filled>(filled)</PS_Filled>
 	
 	<PS_StoredPawns>Stored Colonists:</PS_StoredPawns>
+	<PS_StoredAnimals>Stored Animals:</PS_StoredAnimals>
 	
 	<PS_ReleaseReportA>Releasing {0} from {1} at {2}</PS_ReleaseReportA>
 	<PS_ReleaseReportB>Releasing all colonists from {0} at {1}</PS_ReleaseReportB>
@@ -36,8 +37,10 @@
 	<PS_NoEntityStore>No valid storage for {0}</PS_NoEntityStore>
 	<PS_CannotStore>Cannot store {0}</PS_CannotStore>
 
-	<PS_FarmAnimal>Farm {0} on {1}</PS_FarmAnimal>
+	<PS_FarmAnimal>Farm {0} in {1}</PS_FarmAnimal>
+	<PS_BreedAnimal>Breed {0} in {1}</PS_BreedAnimal>
 	<PS_NoFarm>No valid farm for {0}</PS_NoFarm>
+	<PS_NoBreedingFarm>No valid breeding farm for {0}</PS_NoBreedingFarm>
 	<PS_ReleaseAnimals>Release animals</PS_ReleaseAnimals>
 	<PS_EjectAnimals>Eject animals</PS_EjectAnimals>
 
@@ -54,6 +57,8 @@
 
 	<PS_Rotate>Rotate</PS_Rotate>
 
+	<PS_FarmTab>Farming</PS_FarmTab>
+	<PS_ProductionTab>Production</PS_ProductionTab>
 	<PS_BreedingTab>Breeding</PS_BreedingTab>
 
 	<PS_Reset>Reset</PS_Reset>

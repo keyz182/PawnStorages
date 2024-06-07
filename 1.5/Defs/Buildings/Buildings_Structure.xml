@@ -141,6 +141,7 @@
         <fillPercent>0.50</fillPercent>
         <holdsRoof>false</holdsRoof>
         <inspectorTabs>
+            <li>PawnStorages.Farm.ITab_Production</li>
             <li>PawnStorages.Farm.ITab_Farm</li>
             <li>ITab_BiosculpterNutritionStorage</li>
         </inspectorTabs>
@@ -152,7 +153,7 @@
                 <colonyAnimalsOnly>true</colonyAnimalsOnly>
                 <showGizmo>true</showGizmo>
             </li>
-            <li Class="PawnStorages.Farm.CompProperties_FarmStorage">
+            <li Class="PawnStorages.Farm.Comps.CompProperties_FarmStorage">
                 <needsDrop>true</needsDrop>
                 <releaseOption>true</releaseOption>
                 <convertOption>false</convertOption>
@@ -160,10 +161,9 @@
                 <lightEffect>true</lightEffect>
                 <storageStation>PS_BatteryFarm</storageStation>
             </li>
-            <li Class="PawnStorages.Farm.CompProperties_FarmNutrition">
-                <maxNutrition>500</maxNutrition>
-                <doesProduction>true</doesProduction>
-                <doesBreeding>false</doesBreeding>
+            <li Class="PawnStorages.Farm.Comps.CompProperties_FarmNutrition">
+            </li>
+            <li Class="PawnStorages.Farm.Comps.CompProperties_FarmProducer">
             </li>
         </comps>
         <building>
@@ -249,7 +249,7 @@
                 <colonyAnimalsOnly>true</colonyAnimalsOnly>
                 <showGizmo>true</showGizmo>
             </li>
-            <li Class="PawnStorages.Farm.CompProperties_FarmStorage">
+            <li Class="PawnStorages.Farm.Comps.CompProperties_FarmStorage">
                 <needsDrop>true</needsDrop>
                 <releaseOption>true</releaseOption>
                 <convertOption>false</convertOption>
@@ -257,10 +257,9 @@
                 <lightEffect>true</lightEffect>
                 <storageStation>PS_BatteryFarm</storageStation>
             </li>
-            <li Class="PawnStorages.Farm.CompProperties_FarmNutrition">
-                <maxNutrition>500</maxNutrition>
-                <doesProduction>false</doesProduction>
-                <doesBreeding>true</doesBreeding>
+            <li Class="PawnStorages.Farm.Comps.CompProperties_FarmNutrition">
+            </li>
+            <li Class="PawnStorages.Farm.Comps.CompProperties_FarmBreeder">
             </li>
         </comps>
         <building>

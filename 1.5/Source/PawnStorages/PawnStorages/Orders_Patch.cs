@@ -51,7 +51,7 @@ public static class OrdersPatch
         };
     }
 
-    public static TargetingParameters ForFarming()
+    public static TargetingParameters ForFarming(bool breeding = false)
     {
         return new TargetingParameters()
         {
@@ -63,7 +63,7 @@ public static class OrdersPatch
                 Faction.OfPlayer
             ],
             mapObjectTargetsMustBeAutoAttackable = false,
-            validator = (targ) => targ is { HasThing: true, Thing: Pawn thing } && WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(thing, assign: false) != null
+            validator = (targ) => targ is { HasThing: true, Thing: Pawn thing } && WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(thing, assign: false, breeding: breeding) != null
         };
     }
 
@@ -198,6 +198,43 @@ public static class OrdersPatch
                     {
                         opts.Add(new FloatMenuOption(
                             "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
+                            null));
+                    }
+                }
+            }
+
+
+
+            //Take to breeding domes
+            IEnumerable<LocalTargetInfo> breedableTargets = GenUI.TargetsAt(clickPos, ForFarming(true), true);
+            foreach (LocalTargetInfo localTargetInfo in breedableTargets)
+            {
+                if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
+                {
+                    opts.Add(new FloatMenuOption(
+                        "PS_NoBreedingFarm".Translate((NamedArgument)localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
+                }
+                else
+                {
+                    Pawn pTarg = (Pawn)localTargetInfo.Thing;
+                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(pTarg, assign: false, true);
+
+                    if (building != null)
+                    {
+                        opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
+                            "PS_BreedAnimal".Translate((NamedArgument)localTargetInfo.Thing.Label,
+                                (NamedArgument)building.LabelCap),
+                            () =>
+                            {
+                                Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureAnimalToFarm, localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                job.count = 1;
+                                pawn.jobs.TryTakeOrderedJob(job);
+                            }), pawn, localTargetInfo));
+                    }
+                    else
+                    {
+                        opts.Add(new FloatMenuOption(
+                            "PS_NoBreedingFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
                             null));
                     }
                 }

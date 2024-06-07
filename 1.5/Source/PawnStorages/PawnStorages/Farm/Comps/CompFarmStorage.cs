@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using PawnStorages.Farm.Comps;
 using RimWorld;
 using UnityEngine;
 using Verse;
 
-namespace PawnStorages.Farm
+namespace PawnStorages.Farm.Comps
 {
     [StaticConstructorOnStartup]
     public class CompFarmStorage : CompPawnStorage
     {
+        public override string PawnTypeLabel => "PS_StoredAnimals".Translate();
         public new CompProperties_FarmStorage Props => props as CompProperties_FarmStorage;
 
         public override int MaxStoredPawns() => PawnStoragesMod.settings.MaxPawnsInFarm;
@@ -52,7 +54,7 @@ namespace PawnStorages.Farm
                 yield return new Command_Action
                 {
                     defaultLabel = "PS_ReleaseAnimals".Translate(),
-                    action = delegate { ReleaseContents(parent.Map, true); },
+                    action = delegate { ReleaseContents(parent.Map); },
                     icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Release")
                 };
                 yield return new Command_Action
