@@ -335,7 +335,11 @@ public class CompPawnStorage : ThingComp
         yield return new Command_Toggle
         {
             defaultLabel = "PS_Rotate".Translate(),
-            toggleAction = () => { Rotation.Rotate(RotationDirection.Clockwise); },
+            toggleAction = () =>
+            {
+                Rotation.Rotate(RotationDirection.Clockwise);
+                this.SetLabelDirty();
+            },
             isActive = () => true,
             icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
         };

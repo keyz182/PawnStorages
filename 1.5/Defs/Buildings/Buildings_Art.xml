@@ -26,7 +26,7 @@
     </stuffCategories>
     <costStuffCount>50</costStuffCount>
     <comps>
-      <li Class="CompProperties_AssignableToPawn">
+      <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
         <drawAssignmentOverlay>false</drawAssignmentOverlay>
         <compClass>PawnStorages.CompAssignableToPawn_PawnStorage</compClass>
       </li>
@@ -79,5 +79,55 @@
         <allowNonColonist>true</allowNonColonist>
       </li>
     </comps>
+  </ThingDef>
+  <ThingDef ParentName="SculptureBase">
+    <defName>PS_Plastinite</defName>
+    <label>Plastinite Slab</label>
+    <description>A slab of plastinite. Peculiar due to it's complete unremarkableness.</description>
+    <thingClass>PawnStorages.Building_PawnStorage</thingClass>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/Art/PS_Plastinite</texPath>
+      <drawSize>(1,2)</drawSize>
+    </graphicData>
+    <size>(1,2)</size>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <fillPercent>0.35</fillPercent>
+    <rotatable>true</rotatable>
+    <comps>
+      <li Class="PawnStorages.CompProperties_PawnStorage">
+        <needsDrop>false</needsDrop>
+        <maxStoredPawns>1</maxStoredPawns>
+        <releaseOption>true</releaseOption>
+        <convertOption>true</convertOption>
+        <appendOfName>true</appendOfName>
+        <showStoredPawn>true</showStoredPawn>
+        <transformEffect>true</transformEffect>
+        <canBeScheduled>true</canBeScheduled>
+        <allowNonColonist>true</allowNonColonist>
+      </li>
+      <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
+        <drawAssignmentOverlay>false</drawAssignmentOverlay>
+        <drawAsFrozenInCarbonite>true</drawAsFrozenInCarbonite>
+      </li>
+    </comps>
+    <statBases>
+      <MaxHitPoints>90</MaxHitPoints>
+      <Mass>3</Mass>
+      <Beauty>50</Beauty>
+      <WorkToMake>500</WorkToMake>
+      <StyleDominance MayRequire="Ludeon.RimWorld.Ideology">10</StyleDominance>
+    </statBases>
+    <costList>
+      <Plasteel>50</Plasteel>
+    </costList>
+    <placeWorkers>
+      <li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
+    </placeWorkers>
+    <modExtensions>
+      <li Class="PawnStorages.PSExtension">
+        <statueOffset>(0,0,0.5)</statueOffset>
+      </li>
+    </modExtensions>
   </ThingDef>
 </Defs>
