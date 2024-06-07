@@ -13,6 +13,7 @@
 	<PS_Filled>(filled)</PS_Filled>
 	
 	<PS_StoredPawns>Stored Colonists:</PS_StoredPawns>
+	<PS_StoredAnimals>Stored Animals:</PS_StoredAnimals>
 	
 	<PS_ReleaseReportA>Releasing {0} from {1} at {2}</PS_ReleaseReportA>
 	<PS_ReleaseReportB>Releasing all colonists from {0} at {1}</PS_ReleaseReportB>

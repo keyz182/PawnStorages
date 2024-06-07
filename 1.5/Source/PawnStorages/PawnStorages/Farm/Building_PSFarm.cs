@@ -21,9 +21,9 @@ namespace PawnStorages.Farm
 
         public Dictionary<ThingDef, bool> AllowedThings => allowedThings;
 
-        public bool Allowed(ThingDef def)
+        public bool Allowed(ThingDef potentialDef)
         {
-            return allowedThings.GetValueOrDefault(def, false);
+            return allowedThings.GetValueOrDefault(potentialDef, false);
         }
 
         public bool IsBreeder => FarmBreeder != null;

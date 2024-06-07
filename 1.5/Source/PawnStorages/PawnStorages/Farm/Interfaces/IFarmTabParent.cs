@@ -13,7 +13,7 @@ namespace PawnStorages.Farm.Interfaces
 
         public Dictionary<ThingDef, bool> AllowedThings { get; }
 
-        public bool Allowed(ThingDef def);
+        public bool Allowed(ThingDef potentialDef);
 
         public void AllowAll();
         public void DenyAll();

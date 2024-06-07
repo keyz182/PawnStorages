@@ -44,12 +44,12 @@ namespace PawnStorages.Farm
             Rect buttonRect = new Rect(menuRect.x + 3f, menuRect.y + 3f, (float)((double)num1 / 2.0 - 3.0 - 1.5), 24f);
             if (Widgets.ButtonText(buttonRect, (string)"ClearAll".Translate()))
             {
-                // filter.SetDisallowAll(forceHiddenDefs, forceHiddenFilters);
+                Parent.DenyAll();
                 SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
             }
             if (Widgets.ButtonText(new Rect(buttonRect.xMax + 3f, buttonRect.y, buttonRect.width, 24f), (string)"AllowAll".Translate()))
             {
-                // filter.SetAllowAll(parentFilter);
+                Parent.AllowAll();
                 SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
             }
 

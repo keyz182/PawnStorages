@@ -140,9 +140,7 @@ public static class Utility
 
     public static bool CompPropertiesIsProducer(CompProperties c)
     {
-        return c.compClass == typeof(CompEggLayer) || c.compClass.IsSubclassOf(typeof(CompEggLayer)) ||
-               c.compClass == typeof(CompHasGatherableBodyResource) ||
-               c.compClass.IsSubclassOf(typeof(CompHasGatherableBodyResource));
+        return typeof(CompEggLayer).IsAssignableFrom(c.compClass) || typeof(CompHasGatherableBodyResource).IsAssignableFrom(c.compClass);
     }
 
     public static bool ValidateThingDef(ThingDef td, bool IsProducer)
@@ -151,8 +149,7 @@ public static class Utility
                td.thingCategories.Contains(ThingCategoryDefOf.Animals) &&
                (
                    (IsProducer &&
-                    td.comps != null &&
-                    td.comps.Any((Predicate<CompProperties>)(CompPropertiesIsProducer))
+                    (td.comps?.Any((Predicate<CompProperties>)(CompPropertiesIsProducer)) ?? false)
                     ||
                     (!IsProducer)
                    ));
