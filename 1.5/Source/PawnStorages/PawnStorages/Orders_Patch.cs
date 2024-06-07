@@ -102,7 +102,7 @@ public static class OrdersPatch
                     };
                     opts.Add(FloatMenuUtility.DecoratePrioritizedTask(
                         new FloatMenuOption(
-                            "PS_TakeToStorageFloatMenu".Translate((NamedArgument)dest.Thing.LabelCap, (NamedArgument)dest.Thing), action, MenuOptionPriority.High,
+                            "PS_TakeToStorageFloatMenu".Translate((NamedArgument)dest.Thing.LabelCap, (NamedArgument)dest.Thing.LabelCap), action, MenuOptionPriority.High,
                             revalidateClickTarget: dest.Thing), pawn,
                         (LocalTargetInfo)(Thing)pTarg));
                 }

@@ -13,6 +13,7 @@ public class JobDriver_TakeToStorage : JobDriver
     private const TargetIndex StorageIndex = TargetIndex.B;
 
     protected Pawn Takee => (Pawn)job.GetTarget(TakeeIndex).Thing;
+    protected Thing Storage => job.GetTarget(StorageIndex).Thing;
 
     private bool TakeeRescued
     {
@@ -40,7 +41,9 @@ public class JobDriver_TakeToStorage : JobDriver
     {
         if (job.def == JobDefOf.Rescue && !TakeeRescued)
         {
-            return "PS_TakingToStorage".Translate(Takee);
+            if(Storage.TryGetComp<CompAssignableToPawn_PawnStorage>()?.Props.drawAsFrozenInCarbonite ?? false)
+                return "PS_TakingToPlastinite".Translate(Takee.Label, Storage.Label);
+            return "PS_TakingToStorage".Translate(Takee.Label, Storage.Label);
         }
 
         return base.GetReport();
