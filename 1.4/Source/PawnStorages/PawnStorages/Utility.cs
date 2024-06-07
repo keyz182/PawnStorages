@@ -7,16 +7,18 @@ public static class Utility
 {
     public static bool IsWall(this ThingDef def)
     {
-        if (def.category != ThingCategory.Building) return false;
-        if (!def.graphicData?.Linked ?? true) return false;
-        return (def.graphicData.linkFlags & LinkFlags.Wall) != LinkFlags.None &&
-               def.graphicData.linkType == LinkDrawerType.CornerFiller &&
-               def.fillPercent >= 1f &&
-               def.blockWind &&
-               def.coversFloor &&
-               def.castEdgeShadows &&
-               def.holdsRoof &&
-               def.blockLight;
+        if (def.category != ThingCategory.Building)
+            return false;
+        if (!def.graphicData?.Linked ?? true)
+            return false;
+        return (def.graphicData.linkFlags & LinkFlags.Wall) != LinkFlags.None
+            && def.graphicData.linkType == LinkDrawerType.CornerFiller
+            && def.fillPercent >= 1f
+            && def.blockWind
+            && def.coversFloor
+            && def.castEdgeShadows
+            && def.holdsRoof
+            && def.blockLight;
     }
 
     public static Mesh SetUVs(this Mesh mesh, bool flipped)
@@ -60,7 +62,13 @@ public static class Utility
 
     public static Texture2D MakeReadableTextureInstance(this RenderTexture source)
     {
-        RenderTexture temporary = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+        RenderTexture temporary = RenderTexture.GetTemporary(
+            source.width,
+            source.height,
+            0,
+            RenderTextureFormat.Default,
+            RenderTextureReadWrite.Linear
+        );
         temporary.name = "MakeReadableTexture_Temp";
         Graphics.Blit(source, temporary);
         RenderTexture active = RenderTexture.active;

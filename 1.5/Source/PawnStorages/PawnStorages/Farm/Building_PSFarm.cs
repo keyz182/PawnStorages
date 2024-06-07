@@ -5,7 +5,6 @@ using PawnStorages.Farm.Comps;
 using PawnStorages.Farm.Interfaces;
 using RimWorld;
 using Verse;
-using Verse.Noise;
 
 namespace PawnStorages.Farm
 {
@@ -28,6 +27,7 @@ namespace PawnStorages.Farm
 
         public bool IsBreeder => FarmBreeder != null;
         public bool IsProducer => FarmProducer != null;
+
         public override void ExposeData()
         {
             Scribe_Collections.Look(ref allowedThings, "allowedThings", LookMode.Def);
@@ -41,6 +41,7 @@ namespace PawnStorages.Farm
                 AllowedThings[allowedThingsKey] = true;
             }
         }
+
         public void DenyAll()
         {
             foreach (var allowedThingsKey in AllowedThings.Keys)
@@ -108,6 +109,7 @@ namespace PawnStorages.Farm
         public bool StorageTabVisible => true;
 
         public bool IsActive => NutritionAvailable;
+
         public void ReleasePawn(Pawn pawn)
         {
             pawnStorage.ReleaseSingle(this.Map, pawn, true, true);
@@ -121,10 +123,12 @@ namespace PawnStorages.Farm
         public void Notify_NutrtitionNotEmpty() => NutritionAvailable = true;
 
         public List<Pawn> BreedablePawns => pawnStorage.StoredPawns.Where(p => p.ageTracker.Adult && !p.health.Dead && !p.health.Downed).ToList();
+
         public List<Pawn> ProducingPawns => pawnStorage.StoredPawns
             .Where(p => p.ageTracker.Adult && !p.health.Dead && !p.health.Downed).ToList();
 
         public int TickInterval => 250;
+
         public void Notify_PawnBorn(Pawn newPawn)
         {
             pawnStorage.StorePawn(newPawn);

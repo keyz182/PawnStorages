@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using PawnStorages.Farm.Comps;
 using PawnStorages.Farm.Interfaces;
 using RimWorld;
-using TMPro;
 using UnityEngine;
 using Verse;
-using Verse.Noise;
 using Verse.Sound;
-using static HarmonyLib.Code;
-using static UnityEngine.Random;
 
 namespace PawnStorages.Farm
 {
@@ -34,7 +26,6 @@ namespace PawnStorages.Farm
 
         public override void FillTab()
         {
-
             Rect tabRect = new Rect(0.0f, 0.0f, ITab_Storage.WinSize.x, ITab_Storage.WinSize.y).ContractedBy(10f);
             Widgets.BeginGroup(tabRect);
 
@@ -47,18 +38,15 @@ namespace PawnStorages.Farm
                 Parent.DenyAll();
                 SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
             }
+
             if (Widgets.ButtonText(new Rect(buttonRect.xMax + 3f, buttonRect.y, buttonRect.width, 24f), (string)"AllowAll".Translate()))
             {
                 Parent.AllowAll();
                 SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
             }
 
-            // tabRect.yMin = menuRect.yMax;
             Rect searchWidgetRect = new Rect(menuRect.x + 3f, menuRect.yMin + 26f, (float)((double)tabRect.width - 16.0 - 6.0), 24f);
             QuickSearchWidget.OnGUI(searchWidgetRect);
-            // tabRect.yMin = searchWidgetRect.yMax + 3f;
-            // tabRect.xMax -= 4f;
-            // tabRect.yMax -= 6f;
 
             float totalHeight = Parent.AllowableThing.Count * (LineHeight + 2f);
 
@@ -88,7 +76,7 @@ namespace PawnStorages.Farm
             {
                 var iconWidth = 20f;
                 Widgets.DefIcon(new Rect(5f, num, iconWidth, LineHeight), (Def)tDef, drawPlaceholder: true);
-                
+
                 var labelX = iconWidth + 2f + 5f;
                 Rect labelLeft = new Rect(labelX, num, viewRect.width - 26f - labelX - 5f, LineHeight);
 
@@ -112,7 +100,7 @@ namespace PawnStorages.Farm
 
                 bool checkOn = Parent.AllowedThings[tDef];
                 bool flag = checkOn;
-                
+
                 Widgets.Checkbox(new Vector2(labelLeft.xMax, num), ref flag, LineHeight, paintable: true);
                 if (checkOn != flag)
                     Parent.AllowedThings[tDef] = flag;
@@ -125,6 +113,5 @@ namespace PawnStorages.Farm
 
             Widgets.EndGroup();
         }
-
     }
 }

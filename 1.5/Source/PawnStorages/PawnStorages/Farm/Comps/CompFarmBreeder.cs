@@ -1,13 +1,13 @@
-﻿using RimWorld;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using PawnStorages.Farm.Interfaces;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace PawnStorages.Farm.Comps
 {
-    public class CompFarmBreeder: ThingComp
+    public class CompFarmBreeder : ThingComp
     {
         public IBreederParent Parent => parent as IBreederParent;
 
@@ -36,16 +36,14 @@ namespace PawnStorages.Farm.Comps
             if (!PawnStoragesMod.settings.AllowNeedsDrop) return;
 
 
-
             if (parent.IsHashIntervalTick(Parent.TickInterval))
             {
-                
                 if (Parent.BreedablePawns.Count < PawnStoragesMod.settings.MaxPawnsInFarm)
                 {
                     var types = from p in Parent.BreedablePawns
-                                group p by p.kindDef
+                        group p by p.kindDef
                         into def
-                                select def;
+                        select def;
 
                     foreach (var type in types)
                     {
@@ -59,7 +57,10 @@ namespace PawnStorages.Farm.Comps
                         }
 
                         // no males, stop progress
-                        if (!males) { continue; }
+                        if (!males)
+                        {
+                            continue;
+                        }
 
                         var gestationTicks = AnimalProductionUtility.GestationDaysEach(type.Key.race) * 60000 * PawnStoragesMod.settings.BreedingScale;
 
@@ -86,12 +87,9 @@ namespace PawnStorages.Farm.Comps
 
                         Parent.Notify_PawnBorn(newPawn);
                     }
-
-
                 }
             }
         }
-
 
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra()

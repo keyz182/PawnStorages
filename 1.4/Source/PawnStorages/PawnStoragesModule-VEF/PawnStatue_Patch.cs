@@ -12,16 +12,33 @@ public static class GenerateBuildingAt_Patch
     [HarmonyPrefix]
     public static bool Generate(Map map, SymbolDef symbol, IntVec3 cell, Faction faction)
     {
-        if (symbol.thing != "PS_PawnStatue" || symbol.chanceToContainPawn <= 0 || Rand.Value > (double) symbol.chanceToContainPawn) return true;
-        ThingDef stuff = (symbol.stuff == null || symbol.randomizeStuff) ? GenStuff.RandomStuffByCommonalityFor(PS_DefOf.PS_PawnStatue) : DefDatabase<ThingDef>.GetNamed(symbol.stuff, false);
-        ThingWithComps storageItem = ThingMaker.MakeThing(PS_DefOf.PS_PawnStatue, stuff) as ThingWithComps;
-        if (storageItem == null) return true;
+        if (
+            symbol.thing != "PS_PawnStatue"
+            || symbol.chanceToContainPawn <= 0
+            || Rand.Value > (double)symbol.chanceToContainPawn
+        )
+            return true;
+        ThingDef stuff =
+            (symbol.stuff == null || symbol.randomizeStuff)
+                ? GenStuff.RandomStuffByCommonalityFor(PS_DefOf.PS_PawnStatue)
+                : DefDatabase<ThingDef>.GetNamed(symbol.stuff, false);
+        ThingWithComps storageItem =
+            ThingMaker.MakeThing(PS_DefOf.PS_PawnStatue, stuff) as ThingWithComps;
+        if (storageItem == null)
+            return true;
         storageItem.InitializeComps();
-        CompPawnStorage storageComp = storageItem.GetInnerIfMinified()?.TryGetComp<CompPawnStorage>();
+        CompPawnStorage storageComp = storageItem
+            .GetInnerIfMinified()
+            ?.TryGetComp<CompPawnStorage>();
         Faction chosenFaction = symbol.spawnPartOfFaction ? map.ParentFaction : null;
         Pawn pawn = null;
-        if (!PawnStoragesMod.settings.ForcedPawn.NullOrEmpty() &&
-            PawnsFinder.AllMapsAndWorld_Alive.Where(p => p.ThingID == PawnStoragesMod.settings.ForcedPawn).FirstOrFallback() is { } forcedPawn)
+        if (
+            !PawnStoragesMod.settings.ForcedPawn.NullOrEmpty()
+            && PawnsFinder
+                .AllMapsAndWorld_Alive.Where(p => p.ThingID == PawnStoragesMod.settings.ForcedPawn)
+                .FirstOrFallback()
+                is { } forcedPawn
+        )
         {
             pawn = forcedPawn;
             PawnStoragesMod.settings.ForcedPawn = "";

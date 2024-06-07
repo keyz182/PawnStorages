@@ -18,15 +18,29 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
     public static Job TryMakeJob(Pawn pawn, Thing t, bool forced = false)
     {
         Pawn prisoner = (Pawn)t;
-        if (!forced || prisoner.CurJobDef == PS_DefOf.PS_Enter) return null;
+        if (!forced || prisoner.CurJobDef == PS_DefOf.PS_Enter)
+            return null;
         Job job2 = TakeToPreferredStorageJob(prisoner, pawn);
         return job2;
     }
 
     private static Job TakeToPreferredStorageJob(Pawn prisoner, Pawn warden)
     {
-        if (!prisoner.Spawned || prisoner.InAggroMentalState || prisoner.IsForbidden(warden) || prisoner.IsFormingCaravan() ||
-            !warden.CanReserveAndReach(prisoner, PathEndMode.OnCell, warden.NormalMaxDanger(), 1, -1, null, ignoreOtherReservations: true))
+        if (
+            !prisoner.Spawned
+            || prisoner.InAggroMentalState
+            || prisoner.IsForbidden(warden)
+            || prisoner.IsFormingCaravan()
+            || !warden.CanReserveAndReach(
+                prisoner,
+                PathEndMode.OnCell,
+                warden.NormalMaxDanger(),
+                1,
+                -1,
+                null,
+                ignoreOtherReservations: true
+            )
+        )
         {
             return null;
         }
@@ -43,23 +57,41 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
 
     public static ThingWithComps GetStorageForPawn(Pawn prisoner, bool assign = false)
     {
-        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage.compAssignables
-            .FirstOrDefault(c => c.parent is not Building_PSFarm && c.assignedPawns.Contains(prisoner))?.parent;
+        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage
+            .compAssignables.FirstOrDefault(c =>
+                c.parent is not Building_PSFarm && c.assignedPawns.Contains(prisoner)
+            )
+            ?.parent;
         if (existingAssigned != null)
         {
             return existingAssigned;
         }
 
-        if (CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c => c.parent is not Building_PSFarm && c.HasFreeSlot && c.OwnerType == BedOwnerType.Prisoner) is not
-            { } assignable) return null;
-        if (assign) assignable.TryAssignPawn(prisoner);
+        if (
+            CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c =>
+                c.parent is not Building_PSFarm
+                && c.HasFreeSlot
+                && c.OwnerType == BedOwnerType.Prisoner
+            )
+            is not { } assignable
+        )
+            return null;
+        if (assign)
+            assignable.TryAssignPawn(prisoner);
         return assignable.parent;
     }
 
-    public static ThingWithComps GetStorageEntityOrAnimal(Pawn prisoner, bool assign = false, bool asPrisoner = true)
+    public static ThingWithComps GetStorageEntityOrAnimal(
+        Pawn prisoner,
+        bool assign = false,
+        bool asPrisoner = true
+    )
     {
-        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage.compAssignables
-            .FirstOrDefault(c => c.parent is not Building_PSFarm && c.assignedPawns.Contains(prisoner))?.parent;
+        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage
+            .compAssignables.FirstOrDefault(c =>
+                c.parent is not Building_PSFarm && c.assignedPawns.Contains(prisoner)
+            )
+            ?.parent;
         if (existingAssigned != null)
         {
             return existingAssigned;
@@ -67,28 +99,49 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
 
         var bedOwnerType = BedOwnerType.Prisoner;
 
-        if (prisoner.Faction == Faction.OfPlayer) bedOwnerType = BedOwnerType.Colonist;
+        if (prisoner.Faction == Faction.OfPlayer)
+            bedOwnerType = BedOwnerType.Colonist;
 
-        if (CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c => c.parent is not Building_PSFarm && c.HasFreeSlot && (!asPrisoner || c.OwnerType == bedOwnerType))
-            is not { } assignable) return null;
+        if (
+            CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c =>
+                c.parent is not Building_PSFarm
+                && c.HasFreeSlot
+                && (!asPrisoner || c.OwnerType == bedOwnerType)
+            )
+            is not { } assignable
+        )
+            return null;
 
-        if (assign) assignable.TryAssignPawn(prisoner);
+        if (assign)
+            assignable.TryAssignPawn(prisoner);
         return assignable.parent;
     }
 
-    public static ThingWithComps GetStorageForFarmAnimal(Pawn prisoner, bool assign = false, bool breeding = false)
+    public static ThingWithComps GetStorageForFarmAnimal(
+        Pawn prisoner,
+        bool assign = false,
+        bool breeding = false
+    )
     {
-        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c => c.parent is Building_PSFarm && c.assignedPawns.Contains(prisoner))
+        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage
+            .compAssignables.FirstOrDefault(c =>
+                c.parent is Building_PSFarm && c.assignedPawns.Contains(prisoner)
+            )
             ?.parent;
         if (existingAssigned != null)
         {
             return existingAssigned;
         }
 
-        var assignable = CompAssignableToPawn_PawnStorage.compAssignables
-            .FirstOrDefault(c => c.parent is Building_PSFarm farm && farm.Allowed(prisoner.def) && (farm.IsBreeder == breeding));
-        if (assignable == null) return null;
-        if (assign) assignable.TryAssignPawn(prisoner);
+        var assignable = CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c =>
+            c.parent is Building_PSFarm farm
+            && farm.Allowed(prisoner.def)
+            && (farm.IsBreeder == breeding)
+        );
+        if (assignable == null)
+            return null;
+        if (assign)
+            assignable.TryAssignPawn(prisoner);
         return assignable.parent;
     }
 }

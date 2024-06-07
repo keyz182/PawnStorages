@@ -9,16 +9,30 @@ namespace PawnStorages;
 public static class TradeUtilityBuy_Patch
 {
     [HarmonyPostfix]
-    public static float Postfix(float __result, Thing thing, float priceFactorBuy_TraderPriceType,
+    public static float Postfix(
+        float __result,
+        Thing thing,
+        float priceFactorBuy_TraderPriceType,
         float priceFactorBuy_JoinAs,
         float priceGain_PlayerNegotiator,
-        float priceGain_FactionBase)
+        float priceGain_FactionBase
+    )
     {
-        return __result + (thing.TryGetComp<CompPawnStorage>() is { } storageComp
-            ? storageComp.StoredPawns.Select(p => TradeUtility.GetPricePlayerBuy(p, priceFactorBuy_TraderPriceType,
-                priceFactorBuy_JoinAs,
-                priceGain_PlayerNegotiator,
-                priceGain_FactionBase)).Sum()
-            : 0);
+        return __result
+            + (
+                thing.TryGetComp<CompPawnStorage>() is { } storageComp
+                    ? storageComp
+                        .StoredPawns.Select(p =>
+                            TradeUtility.GetPricePlayerBuy(
+                                p,
+                                priceFactorBuy_TraderPriceType,
+                                priceFactorBuy_JoinAs,
+                                priceGain_PlayerNegotiator,
+                                priceGain_FactionBase
+                            )
+                        )
+                        .Sum()
+                    : 0
+            );
     }
 }

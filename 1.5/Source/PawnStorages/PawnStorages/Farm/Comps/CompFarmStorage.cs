@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PawnStorages.Farm.Comps;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -11,7 +10,8 @@ namespace PawnStorages.Farm.Comps
     [StaticConstructorOnStartup]
     public class CompFarmStorage : CompPawnStorage
     {
-        public override string PawnTypeLabel => "PS_StoredAnimals".Translate();
+        public override string PawnTypeLabel =>
+            "PS_StoredAnimals".Translate();
         public new CompProperties_FarmStorage Props => props as CompProperties_FarmStorage;
 
         public override int MaxStoredPawns() => PawnStoragesMod.settings.MaxPawnsInFarm;
@@ -23,7 +23,7 @@ namespace PawnStorages.Farm.Comps
 
         public float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(animal =>
             SimplifiedPastureNutritionSimulator.NutritionConsumedPerDay(animal.def, animal.ageTracker.CurLifeStage));
-        
+
         public new void StorePawn(Pawn pawn)
         {
             pawn.DeSpawn();
@@ -96,7 +96,6 @@ namespace PawnStorages.Farm.Comps
             resource = eggLayer.Props.eggUnfertilizedDef;
             amount = eggLayer.Props.eggCountRange.RandomInRange;
             return true;
-
         }
 
         public void TryProduce()

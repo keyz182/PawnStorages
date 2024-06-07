@@ -19,15 +19,21 @@ public class Tradeable_StoredPawn : Tradeable
                 return str;
             if (AnyPawn.Name is { Numerical: false } && !AnyPawn.RaceProps.Humanlike)
                 str = str + ", " + AnyPawn.def.label;
-            return str + " (" + AnyPawn.GetGenderLabel() + ", " + Mathf.FloorToInt(AnyPawn.ageTracker.AgeBiologicalYearsFloat) + ")";
+            return str
+                + " ("
+                + AnyPawn.GetGenderLabel()
+                + ", "
+                + Mathf.FloorToInt(AnyPawn.ageTracker.AgeBiologicalYearsFloat)
+                + ")";
         }
     }
 
-    public override string TipDescription => AnyPawn == null
-        ? base.TipDescription
-        : !HasAnyThing
-            ? ""
-            : $"{AnyThing.def.label}-{AnyPawn.MainDesc(true)}\n\n{AnyPawn.DescriptionDetailed}";
+    public override string TipDescription =>
+        AnyPawn == null
+            ? base.TipDescription
+            : !HasAnyThing
+                ? ""
+                : $"{AnyThing.def.label}-{AnyPawn.MainDesc(true)}\n\n{AnyPawn.DescriptionDetailed}";
 
     private Pawn AnyPawn
     {
@@ -52,35 +58,60 @@ public class Tradeable_StoredPawn : Tradeable
         switch (ActionToDo)
         {
             case TradeAction.PlayerSells:
-                List<ThingWithComps> listSold = thingsColony.Take(CountToTransferToDestination).Cast<ThingWithComps>().ToList();
+                List<ThingWithComps> listSold = thingsColony
+                    .Take(CountToTransferToDestination)
+                    .Cast<ThingWithComps>()
+                    .ToList();
                 foreach (ThingWithComps t in listSold)
                 {
                     List<Pawn> slaves = GetCompFrom(t)?.StoredPawns ?? [];
-                    int num = slaves.Select(slave => GuestUtility.IsSellingToSlavery(slave, TradeSession.trader.Faction) ? 1 : 0).Sum();
-                    foreach (Pawn s in slaves)
+                    int num = slaves
+                        .Select(slave =>
+                            GuestUtility.IsSellingToSlavery(slave, TradeSession.trader.Faction)
+                                ? 1
+                                : 0
+                        )
+                        .Sum();
+                    foreach (Pawn slavePawn in slaves)
                     {
-                        TradeSession.trader.GiveSoldThingToTrader(s, 1, TradeSession.playerNegotiator);
+                        TradeSession.trader.GiveSoldThingToTrader(
+                            slavePawn,
+                            1,
+                            TradeSession.playerNegotiator
+                        );
                     }
 
                     TradeSession.trader.GiveSoldThingToTrader(t, 1, TradeSession.playerNegotiator);
 
                     if (num != 0)
-                        Find.HistoryEventsManager.RecordEvent(new HistoryEvent(HistoryEventDefOf.SoldSlave, TradeSession.playerNegotiator.Named(HistoryEventArgsNames.Doer)));
+                        Find.HistoryEventsManager.RecordEvent(
+                            new HistoryEvent(
+                                HistoryEventDefOf.SoldSlave,
+                                TradeSession.playerNegotiator.Named(HistoryEventArgsNames.Doer)
+                            )
+                        );
                 }
 
                 break;
             case TradeAction.PlayerBuys:
-                List<ThingWithComps> listPurchased = thingsTrader.Take(CountToTransferToSource).Cast<ThingWithComps>().ToList();
-                foreach (ThingWithComps t in listPurchased)
+                List<ThingWithComps> listPurchased = thingsTrader
+                    .Take(CountToTransferToSource)
+                    .Cast<ThingWithComps>()
+                    .ToList();
+                foreach (ThingWithComps thingPurchased in listPurchased)
                 {
-                    List<Pawn> slaves = GetCompFrom(t)?.StoredPawns ?? [];
-                    foreach (Pawn s in slaves)
+                    List<Pawn> slaves = GetCompFrom(thingPurchased)?.StoredPawns ?? [];
+                    foreach (Pawn slavePawn in slaves)
                     {
-                        TradeSession.trader.GiveSoldThingToPlayer(s, 1, TradeSession.playerNegotiator);
+                        TradeSession.trader.GiveSoldThingToPlayer(
+                            slavePawn,
+                            1,
+                            TradeSession.playerNegotiator
+                        );
                     }
 
-                    TradeSession.trader.GiveSoldThingToPlayer(t, 1, TradeSession.playerNegotiator);
-                    TradeSession.trader.GiveSoldThingToPlayer(t, 1, TradeSession.playerNegotiator);
+                    TradeSession.trader.GiveSoldThingToPlayer(thingPurchased, 1, TradeSession.playerNegotiator);
+                    TradeSession.trader.GiveSoldThingToPlayer(thingPurchased, 1, TradeSession.playerNegotiator);
                 }
 
                 break;

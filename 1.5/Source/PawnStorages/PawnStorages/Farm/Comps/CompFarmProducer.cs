@@ -1,18 +1,19 @@
-﻿using RimWorld;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using PawnStorages.Farm.Interfaces;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace PawnStorages.Farm.Comps
 {
-    public class CompFarmProducer: ThingComp
+    public class CompFarmProducer : ThingComp
     {
         public IProductionParent Parent => parent as IProductionParent;
 
 
         protected List<Thing> DaysProduce = new();
         public bool ProduceNow = false;
+
         public override void PostExposeData()
         {
             base.PostExposeData();
@@ -51,6 +52,7 @@ namespace PawnStorages.Farm.Comps
             {
                 GenPlace.TryPlaceThing(thing, parent.Position, parent.Map, ThingPlaceMode.Near);
             }
+
             DaysProduce.Clear();
         }
 
@@ -99,7 +101,6 @@ namespace PawnStorages.Farm.Comps
         }
 
 
-
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
             if (!DebugSettings.ShowDevGizmos) yield break;
@@ -121,7 +122,6 @@ namespace PawnStorages.Farm.Comps
                         {
                             compGatherable.fullness = 1f;
                         }
-
                     }
                 },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
@@ -129,10 +129,7 @@ namespace PawnStorages.Farm.Comps
             yield return new Command_Action
             {
                 defaultLabel = "Produce on next tick",
-                action = delegate
-                {
-                    ProduceNow = true;
-                },
+                action = delegate { ProduceNow = true; },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
         }

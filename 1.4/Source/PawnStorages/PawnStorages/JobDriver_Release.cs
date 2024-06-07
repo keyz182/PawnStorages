@@ -13,9 +13,13 @@ public class JobDriver_Release : JobDriver
 
     public override string GetReport()
     {
-        if (HasStation && ReleasingSpecific) return "PS_ReleaseReportA".Translate(TargetC.Pawn, TargetA.Thing, TargetB.Thing);
-        if (HasStation) return "PS_ReleaseReportB".Translate(TargetA.Thing, TargetB.Thing);
-        return ReleasingSpecific ? "PS_ReleaseReportC".Translate(TargetC.Pawn, TargetA.Thing) : "PS_ReleaseReportD".Translate(TargetA.Thing);
+        if (HasStation && ReleasingSpecific)
+            return "PS_ReleaseReportA".Translate(TargetC.Pawn, TargetA.Thing, TargetB.Thing);
+        if (HasStation)
+            return "PS_ReleaseReportB".Translate(TargetA.Thing, TargetB.Thing);
+        return ReleasingSpecific
+            ? "PS_ReleaseReportC".Translate(TargetC.Pawn, TargetA.Thing)
+            : "PS_ReleaseReportD".Translate(TargetA.Thing);
     }
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)

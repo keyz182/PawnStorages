@@ -5,7 +5,8 @@ namespace PawnStorages.VEF;
 
 public class PawnStoragesModule_VEF : Mod
 {
-    public PawnStoragesModule_VEF(ModContentPack content) : base(content)
+    public PawnStoragesModule_VEF(ModContentPack content)
+        : base(content)
     {
 #if DEBUG
         Harmony.DEBUG = true;

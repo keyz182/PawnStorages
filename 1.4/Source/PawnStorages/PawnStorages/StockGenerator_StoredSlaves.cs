@@ -10,9 +10,13 @@ public class StockGenerator_StoredSlaves : StockGenerator_Slaves
 
     public override IEnumerable<Thing> GenerateThings(int forTile, Faction faction = null)
     {
-        ThingWithComps storageItem = ThingMaker.MakeThing(storeInDef, GenStuff.RandomStuffByCommonalityFor(storeInDef)) as ThingWithComps;
+        ThingWithComps storageItem =
+            ThingMaker.MakeThing(storeInDef, GenStuff.RandomStuffByCommonalityFor(storeInDef))
+            as ThingWithComps;
         storageItem?.InitializeComps();
-        CompPawnStorage storageComp = storageItem.GetInnerIfMinified().TryGetComp<CompPawnStorage>();
+        CompPawnStorage storageComp = storageItem
+            .GetInnerIfMinified()
+            .TryGetComp<CompPawnStorage>();
         IEnumerable<Thing> thingsGenerated = base.GenerateThings(forTile, faction);
         if (storageComp == null)
         {
@@ -33,7 +37,11 @@ public class StockGenerator_StoredSlaves : StockGenerator_Slaves
                 if (!storageComp?.CanStore ?? false)
                 {
                     yield return storageItem;
-                    storageItem = ThingMaker.MakeThing(storeInDef, GenStuff.RandomStuffByCommonalityFor(storeInDef)) as ThingWithComps;
+                    storageItem =
+                        ThingMaker.MakeThing(
+                            storeInDef,
+                            GenStuff.RandomStuffByCommonalityFor(storeInDef)
+                        ) as ThingWithComps;
                     storageItem?.InitializeComps();
                     storageComp = storageItem.GetInnerIfMinified()?.TryGetComp<CompPawnStorage>();
                 }

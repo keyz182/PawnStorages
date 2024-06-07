@@ -1,15 +1,14 @@
-﻿using RimWorld;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using PawnStorages.Farm.Comps;
 using PawnStorages.Farm.Interfaces;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace PawnStorages.Farm.Comps
 {
     [StaticConstructorOnStartup]
-    public class CompFarmNutrition: ThingComp
+    public class CompFarmNutrition : ThingComp
     {
         public INutritionStorageParent Parent => parent as INutritionStorageParent;
 
@@ -23,6 +22,7 @@ namespace PawnStorages.Farm.Comps
         {
             _material = MaterialPool.MatFrom("Things/Building/Production/PS_JustTheTip", ShaderDatabase.Transparent, Color.white);
         }
+
         public override void PostExposeData()
         {
             base.PostExposeData();
@@ -33,7 +33,7 @@ namespace PawnStorages.Farm.Comps
         {
             base.CompTick();
 
-            if(!PawnStoragesMod.settings.AllowNeedsDrop) return;
+            if (!PawnStoragesMod.settings.AllowNeedsDrop) return;
 
             if (parent.IsHashIntervalTick(Props.ticksToAbsorbNutrients) && Parent.IsActive)
             {
@@ -76,7 +76,7 @@ namespace PawnStorages.Farm.Comps
 
                     // if not powered
                     if (!Parent.IsActive) continue;
-                    
+
                     //Hopper absorption ticker
                     if (storedNutrition <= 0)
                     {
@@ -89,7 +89,7 @@ namespace PawnStorages.Farm.Comps
 
                     var available = Mathf.Min(foodNeeds.NutritionWanted, storedNutrition);
                     storedNutrition -= available;
-                             
+
                     foodNeeds.CurLevel += available;
                     pawn.records.AddTo(RecordDefOf.NutritionEaten, available);
                 }
@@ -128,15 +128,14 @@ namespace PawnStorages.Farm.Comps
 
             pawn.ageTracker.TickBiologicalAge(interval);
 
-            if (pawn.ageTracker.lockedLifeStageIndex >- 0)
+            if (pawn.ageTracker.lockedLifeStageIndex > -0)
                 return;
 
-            if(Find.TickManager.TicksGame >= pawn.ageTracker.nextGrowthCheckTick)
+            if (Find.TickManager.TicksGame >= pawn.ageTracker.nextGrowthCheckTick)
                 pawn.ageTracker.CalculateGrowth(interval);
 
             if (ageBioYears < pawn.ageTracker.AgeBiologicalYears)
                 pawn.ageTracker.BirthdayBiological(pawn.ageTracker.AgeBiologicalYears);
-            
         }
 
 
@@ -155,6 +154,7 @@ namespace PawnStorages.Farm.Comps
             {
                 return false;
             }
+
             int count = Mathf.Min(feedInAnyHopper.stackCount, Mathf.CeilToInt(nutrition / feedInAnyHopper.GetStatValue(StatDefOf.Nutrition)));
             storedNutrition += (float)count * feedInAnyHopper.GetStatValue(StatDefOf.Nutrition);
 
@@ -162,7 +162,7 @@ namespace PawnStorages.Farm.Comps
 
             return true;
         }
-        
+
         public virtual Thing FindFeedInAnyHopper()
         {
             for (int index1 = 0; index1 < AdjCellsCardinalInBounds.Count; ++index1)
@@ -177,9 +177,11 @@ namespace PawnStorages.Farm.Comps
                     if (maybeHopper.IsHopper())
                         hopper = maybeHopper;
                 }
+
                 if (feedInAnyHopper != null && hopper != null)
                     return feedInAnyHopper;
             }
+
             return null;
         }
 
@@ -199,11 +201,13 @@ namespace PawnStorages.Farm.Comps
                     if (potentialFeedStockThing.IsHopper())
                         hopper = potentialFeedStockThing;
                 }
+
                 if (feedStockThing != null && hopper != null)
                     num += feedStockThing.stackCount * feedStockThing.GetStatValue(StatDefOf.Nutrition);
                 if (num >= (double)parent.def.building.nutritionCostPerDispense)
                     return true;
             }
+
             return false;
         }
 
@@ -235,7 +239,7 @@ namespace PawnStorages.Farm.Comps
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
         }
-        
+
         private static Material _material;
         private const float Scale = 3f;
         private const float StartOffset = 0.5f;
@@ -245,7 +249,7 @@ namespace PawnStorages.Farm.Comps
         {
             base.PostDraw();
             if (!Parent.HasSuggestiveSilos || !PawnStoragesMod.settings.SuggestiveSilo) return;
-            
+
             var filled = this.storedNutrition / this.Props.maxNutrition;
 
             var pos = parent.DrawPos;

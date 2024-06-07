@@ -16,7 +16,8 @@ public class PSBuilding : Building
 
     //
     protected bool HasExtension => defExtension != null;
-    public virtual bool ShouldUseAlternative => HasExtension && defExtension.extraGraphicData != null;
+    public virtual bool ShouldUseAlternative =>
+        HasExtension && defExtension.extraGraphicData != null;
 
     protected Vector3 StatueOffset => HasExtension ? defExtension.statueOffset : Vector3.zero;
 
@@ -24,8 +25,10 @@ public class PSBuilding : Building
     {
         get
         {
-            if (alternativeGraphicInt != null) return alternativeGraphicInt;
-            if (!HasExtension || defExtension.extraGraphicData == null) return BaseContent.BadGraphic;
+            if (alternativeGraphicInt != null)
+                return alternativeGraphicInt;
+            if (!HasExtension || defExtension.extraGraphicData == null)
+                return BaseContent.BadGraphic;
 
             alternativeGraphicInt = defExtension.extraGraphicData.GraphicColoredFor(this);
 

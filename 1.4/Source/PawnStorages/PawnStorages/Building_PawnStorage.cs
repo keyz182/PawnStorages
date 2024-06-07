@@ -9,14 +9,17 @@ public class Building_PawnStorage : PSBuilding
 {
     public CompPawnStorage storageComp;
 
-    public override bool ShouldUseAlternative => base.ShouldUseAlternative && !(storageComp?.StoredPawns.NullOrEmpty() ?? true);
+    public override bool ShouldUseAlternative =>
+        base.ShouldUseAlternative && !(storageComp?.StoredPawns.NullOrEmpty() ?? true);
 
     public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
         base.SpawnSetup(map, respawningAfterLoad);
         storageComp = this.TryGetComp<CompPawnStorage>();
         if (storageComp == null)
-            Log.Warning($"{this} has null CompPawnStorage even though of type {nameof(Building_PawnStorage)}");
+            Log.Warning(
+                $"{this} has null CompPawnStorage even though of type {nameof(Building_PawnStorage)}"
+            );
     }
 
     /*
@@ -35,12 +38,19 @@ public class Building_PawnStorage : PSBuilding
             Vector3 pos = DrawPos;
             pos.y += Altitudes.AltInc;
             Rot4 rot = Rotation;
-            RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f), rot, new Vector3(0f, 0f, 0.1f), 1.5f);
+            RenderTexture texture = PortraitsCache.Get(
+                pawn,
+                new Vector2(175f, 175f),
+                rot,
+                new Vector3(0f, 0f, 0.1f),
+                1.5f
+            );
 
             MaterialRequest req2 = default;
             req2.mainTex = texture.GetGreyscale();
             req2.shader = Graphic.data?.shaderType?.Shader;
-            if (req2.shader == null) req2.shader = ShaderDatabase.DefaultShader;
+            if (req2.shader == null)
+                req2.shader = ShaderDatabase.DefaultShader;
             req2.color = DrawColor;
             req2.colorTwo = DrawColorTwo;
 
@@ -53,7 +63,12 @@ public class Building_PawnStorage : PSBuilding
 
             //Somehow this magically fixes the flipping issue, just keeping it this way.
             mesh.SetUVs(false);
-            Printer_Mesh.PrintMesh(layer, Matrix4x4.TRS(pos, Graphic.QuatFromRot(rot), s), mesh, mat);
+            Printer_Mesh.PrintMesh(
+                layer,
+                Matrix4x4.TRS(pos, Graphic.QuatFromRot(rot), s),
+                mesh,
+                mat
+            );
         }
 
         base.Print(layer);

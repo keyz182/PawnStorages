@@ -44,7 +44,7 @@ public class Tradeable_StoredPawn : Tradeable
 
     public CompPawnStorage GetCompFrom(Thing thing)
     {
-        return AnyThing?.GetInnerIfMinified()?.TryGetComp<CompPawnStorage>();
+        return thing?.GetInnerIfMinified()?.TryGetComp<CompPawnStorage>();
     }
 
     public override void ResolveTrade()
@@ -53,16 +53,16 @@ public class Tradeable_StoredPawn : Tradeable
         {
             case TradeAction.PlayerSells:
                 List<ThingWithComps> listSold = thingsColony.Take(CountToTransferToDestination).Cast<ThingWithComps>().ToList();
-                foreach (ThingWithComps t in listSold)
+                foreach (ThingWithComps thingSold in listSold)
                 {
-                    List<Pawn> slaves = GetCompFrom(t)?.StoredPawns ?? [];
+                    List<Pawn> slaves = GetCompFrom(thingSold)?.StoredPawns ?? [];
                     int num = slaves.Select(slave => GuestUtility.IsSellingToSlavery(slave, TradeSession.trader.Faction) ? 1 : 0).Sum();
-                    foreach (Pawn s in slaves)
+                    foreach (Pawn slaveSold in slaves)
                     {
-                        TradeSession.trader.GiveSoldThingToTrader(s, 1, TradeSession.playerNegotiator);
+                        TradeSession.trader.GiveSoldThingToTrader(slaveSold, 1, TradeSession.playerNegotiator);
                     }
 
-                    TradeSession.trader.GiveSoldThingToTrader(t, 1, TradeSession.playerNegotiator);
+                    TradeSession.trader.GiveSoldThingToTrader(thingSold, 1, TradeSession.playerNegotiator);
 
                     if (num != 0)
                         Find.HistoryEventsManager.RecordEvent(new HistoryEvent(HistoryEventDefOf.SoldSlave, TradeSession.playerNegotiator.Named(HistoryEventArgsNames.Doer)));
@@ -71,16 +71,15 @@ public class Tradeable_StoredPawn : Tradeable
                 break;
             case TradeAction.PlayerBuys:
                 List<ThingWithComps> listPurchased = thingsTrader.Take(CountToTransferToSource).Cast<ThingWithComps>().ToList();
-                foreach (ThingWithComps t in listPurchased)
+                foreach (ThingWithComps thingPurchased in listPurchased)
                 {
-                    List<Pawn> slaves = GetCompFrom(t)?.StoredPawns ?? [];
-                    foreach (Pawn s in slaves)
+                    List<Pawn> slaves = GetCompFrom(thingPurchased)?.StoredPawns ?? [];
+                    foreach (Pawn slavePurchased in slaves)
                     {
-                        TradeSession.trader.GiveSoldThingToPlayer(s, 1, TradeSession.playerNegotiator);
+                        TradeSession.trader.GiveSoldThingToPlayer(slavePurchased, 1, TradeSession.playerNegotiator);
                     }
 
-                    TradeSession.trader.GiveSoldThingToPlayer(t, 1, TradeSession.playerNegotiator);
-                    TradeSession.trader.GiveSoldThingToPlayer(t, 1, TradeSession.playerNegotiator);
+                    TradeSession.trader.GiveSoldThingToPlayer(thingPurchased, 1, TradeSession.playerNegotiator);
                 }
 
                 break;
