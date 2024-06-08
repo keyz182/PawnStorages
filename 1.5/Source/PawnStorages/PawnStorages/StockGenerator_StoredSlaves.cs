@@ -40,6 +40,7 @@ public class StockGenerator_StoredSlaves : StockGenerator_Slaves
 
                 storageComp?.StoredPawns.Add(thing as Pawn);
                 storageComp?.SetLabelDirty();
+                storageComp?.SetBarDirty();
             }
 
             yield return storageItem;

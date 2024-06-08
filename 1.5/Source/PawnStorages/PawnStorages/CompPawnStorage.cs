@@ -13,6 +13,7 @@ namespace PawnStorages;
 
 public class CompPawnStorage : ThingComp
 {
+    public static Dictionary<Map, List<CompPawnStorage>> AllStorages = new();
     public const int TICKRATE = 60;
     public const int NEEDS_INTERVAL = 150;
 
@@ -43,11 +44,58 @@ public class CompPawnStorage : ThingComp
     public void TryAssignPawn(Pawn pawn) => compAssignable?.TryAssignPawn(pawn);
 
     public void SetLabelDirty() => labelDirty = true;
+    public void SetBarDirty() => StoredPawnBar.StoredPawnBar.Bar.entriesDirty = true;
 
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {
         base.PostSpawnSetup(respawningAfterLoad);
         compAssignable = parent.TryGetComp<CompAssignableToPawn_PawnStorage>();
+        if (!CompPawnStorage.AllStorages.ContainsKey(parent.Map))
+            CompPawnStorage.AllStorages.Add(parent.Map, new List<CompPawnStorage>());
+        
+        CompPawnStorage.AllStorages[parent.Map].Add(this);
+    }
+
+    public static List<ColonistBar.Entry> CachedColonistBarEntries = new List<ColonistBar.Entry>();
+    public static List<int> CachedEntriesInGroup = new List<int>();
+    public static int CachedColonistBarGroups = 0;
+
+    public static bool IsPawnStored(Pawn pawn)
+    {
+        var pawnList = new List<Pawn>();
+        foreach (var compList in AllStorages.Values)
+        {
+            pawnList.AddRange(compList.SelectMany(c => c.storedPawns));
+        }
+
+        return pawnList.Contains(pawn);
+    }
+    public static void StoredColonistsForMap()
+    {
+        CachedColonistBarEntries.Clear();
+        
+        CachedColonistBarGroups = 0;
+        foreach (var mapStorage in AllStorages)
+        {
+            CachedColonistBarEntries.AddRange(mapStorage.Value
+                .SelectMany(storage => storage.storedPawns)
+                // .Where(p=>p.IsPlayerControlled)
+                .Select(pawn => new ColonistBar.Entry(pawn, mapStorage.Key, ++CachedColonistBarGroups)));
+        }
+    }
+    
+    public static void ColonistsInGroup()
+    {
+        CachedEntriesInGroup.Clear();
+        for (var idx = 0; idx < CachedColonistBarGroups; ++idx)
+        {
+            CachedEntriesInGroup.Add(0);
+        }
+        
+        foreach (var entry in CachedColonistBarEntries)
+        {
+            CachedEntriesInGroup[entry.group]++;
+        }
     }
 
     public override void PostExposeData()
@@ -71,6 +119,7 @@ public class CompPawnStorage : ThingComp
         }
 
         base.PostDestroy(mode, previousMap);
+        SetBarDirty();
     }
 
 
@@ -131,6 +180,7 @@ public class CompPawnStorage : ThingComp
     public void ReleasePawn(Pawn pawn, IntVec3 cell, Map map)
     {
         Utility.ReleasePawn(this, pawn, cell, map);
+        SetBarDirty();
     }
 
     public virtual void ApplyNeedsForStoredPeriodFor(Pawn pawn)
@@ -178,6 +228,7 @@ public class CompPawnStorage : ThingComp
         if (compAssignable != null && !compAssignable.AssignedPawns.Contains(pawn)) compAssignable.TryAssignPawn(pawn);
         labelDirty = true;
         pawnStoringTick.SetOrAdd(pawn.thingIDNumber, Find.TickManager.TicksGame);
+        SetBarDirty();
     }
 
     public virtual bool CanRelease(Pawn releaser)
@@ -339,6 +390,7 @@ public class CompPawnStorage : ThingComp
             {
                 Rotation.Rotate(RotationDirection.Clockwise);
                 this.SetLabelDirty();
+                this.SetBarDirty();
             },
             isActive = () => true,
             icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
@@ -357,6 +409,7 @@ public class CompPawnStorage : ThingComp
         }
 
         storedPawns.Clear();
+        SetBarDirty();
     }
 
     public void EjectContents(Map map)
@@ -385,6 +438,7 @@ public class CompPawnStorage : ThingComp
         }
 
         storedPawns.Clear();
+        SetBarDirty();
     }
 
     public void ReleaseSingle(Map map, Pawn pawn, bool remove = true, bool makeFilth = false)
@@ -399,5 +453,6 @@ public class CompPawnStorage : ThingComp
 
         if (remove)
             storedPawns.Remove(pawn);
+        SetBarDirty();
     }
 }

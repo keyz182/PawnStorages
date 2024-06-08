@@ -33,6 +33,7 @@ public static class GenerateBuildingAt_Patch
 
         storageComp?.StoredPawns?.Add(pawn);
         storageComp?.SetLabelDirty();
+        storageComp?.SetBarDirty();
 
         GenSpawn.Spawn(storageItem, cell, map, symbol.rotation, WipeMode.VanishOrMoveAside);
         // Set the faction if applicable

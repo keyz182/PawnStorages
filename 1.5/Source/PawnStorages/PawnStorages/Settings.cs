@@ -12,6 +12,7 @@ public class Settings : ModSettings
     public float ProductionScale = 0.5f;
     public float BreedingScale = 2f;
     public int MaxPawnsInFarm = 16;
+    public bool ShowStatueBar = true;
 
     public void DoWindowContents(Rect wrect)
     {
@@ -25,6 +26,8 @@ public class Settings : ModSettings
         ForcedPawn = options.TextEntryLabeled("PS_Settings_ForceNextPawnStatue".Translate(), ForcedPawn);
         options.Gap();
         options.CheckboxLabeled("PS_Settings_SuggestiveSilo".Translate(), ref SuggestiveSilo);
+        options.Gap();
+        options.CheckboxLabeled("PS_Settings_StatueBar".Translate(), ref ShowStatueBar);
         options.Gap();
         options.Label("PS_Settings_Production_Scale".Translate(ProductionScale.ToString("0.00")));
         ProductionScale = options.Slider(ProductionScale, 0f, 10f);
@@ -63,5 +66,6 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref ProductionScale, "ProductionScale", 0.5f);
         Scribe_Values.Look(ref BreedingScale, "BreedingScale", 2);
         Scribe_Values.Look(ref MaxPawnsInFarm, "MaxPawnsInFarm", 16);
+        Scribe_Values.Look(ref ShowStatueBar, "ShowStatueBar", false);
     }
 }

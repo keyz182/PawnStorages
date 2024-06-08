@@ -104,6 +104,7 @@ public static class Utility
         store.Parent.Map.mapDrawer.MapMeshDirty(store.Parent.Position, MapMeshFlagDefOf.Things);
 
         store.SetLabelDirty();
+        store.SetBarDirty();
         store.ApplyNeedsForStoredPeriodFor(pawn);
         pawn.guest?.WaitInsteadOfEscapingFor(1250);
     }
