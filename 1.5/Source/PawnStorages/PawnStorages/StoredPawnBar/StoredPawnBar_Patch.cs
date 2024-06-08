@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using HarmonyLib;
 using RimWorld;
-using RimWorld.Planet;
 using UnityEngine;
-using Verse;
 
 namespace PawnStorages.StoredPawnBar;
 
@@ -37,11 +35,9 @@ public static class StoredPawnBar_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(ColonistBar.TryGetEntryAt))]
-    public static void TryGetEntryAt_Patch(ref bool __result, ColonistBar __instance, Vector2 pos, ref ColonistBar.Entry entry)
+    public static void TryGetEntryAt_Patch(ref bool __result, ColonistBar __instance, Vector2 pos,
+        ref ColonistBar.Entry entry)
     {
-        if (!__result)
-        {
-            __result = StoredPawnBar.Bar.TryGetEntryAt(pos, out entry);
-        }
+        if (!__result) __result = StoredPawnBar.Bar.TryGetEntryAt(pos, out entry);
     }
 }

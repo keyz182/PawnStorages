@@ -27,7 +27,12 @@ public class Settings : ModSettings
         options.Gap();
         options.CheckboxLabeled("PS_Settings_SuggestiveSilo".Translate(), ref SuggestiveSilo);
         options.Gap();
+
+        var origShowStatueBar = ShowStatueBar;
         options.CheckboxLabeled("PS_Settings_StatueBar".Translate(), ref ShowStatueBar);
+        if (origShowStatueBar != ShowStatueBar)
+            StoredPawnBar.StoredPawnBar.Bar.entriesDirty = true;
+        
         options.Gap();
         options.Label("PS_Settings_Production_Scale".Translate(ProductionScale.ToString("0.00")));
         ProductionScale = options.Slider(ProductionScale, 0f, 10f);

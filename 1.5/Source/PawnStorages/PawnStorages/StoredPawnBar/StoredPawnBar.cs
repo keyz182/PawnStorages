@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -10,74 +8,77 @@ namespace PawnStorages.StoredPawnBar;
 
 public class StoredPawnBar : ColonistBar
 {
-  public static StoredPawnBar Bar = new StoredPawnBar();
+    public static StoredPawnBar Bar = new();
+
     public StoredPawnBar()
     {
         drawLocsFinder = new StoredPawnBarDrawLocsFinder(this);
         drawer = new StoredPawnBarColonistDrawer(this);
     }
-    
+
     public new Caravan CaravanMemberCaravanAt(Vector2 at)
     {
-      if (!this.Visible)
-        return (Caravan) null;
-      return this.ColonistOrCorpseAt(at) is Pawn pawn && pawn.IsCaravanMember() ? pawn.GetCaravan() : (Caravan) null;
+        if (!Visible)
+            return null;
+        return ColonistOrCorpseAt(at) is Pawn pawn && pawn.IsCaravanMember() ? pawn.GetCaravan() : null;
     }
-    public new bool TryGetEntryAt(Vector2 pos, out ColonistBar.Entry entry)
+
+    public new bool TryGetEntryAt(Vector2 pos, out Entry entry)
     {
-      List<Vector2> drawLocs = this.DrawLocs;
-      List<ColonistBar.Entry> entries = this.Entries;
-      Vector2 size = this.Size;
-      for (int index = 0; index < drawLocs.Count; ++index)
-      {
-        if (new Rect(drawLocs[index].x, drawLocs[index].y, size.x, size.y).Contains(pos))
-        {
-          entry = entries[index];
-          return true;
-        }
-      }
-      entry = new ColonistBar.Entry();
-      return false;
+        var drawLocs = DrawLocs;
+        var entries = Entries;
+        var size = Size;
+        for (var index = 0; index < drawLocs.Count; ++index)
+            if (new Rect(drawLocs[index].x, drawLocs[index].y, size.x, size.y).Contains(pos))
+            {
+                entry = entries[index];
+                return true;
+            }
+
+        entry = new Entry();
+        return false;
     }
-    
+
     public void CheckRecacheEntries_Override()
     {
-      if (!this.entriesDirty)
-        return;
-      this.entriesDirty = false;
-      this.cachedEntries.Clear();
-      int num = 0;
-      if (Find.PlaySettings.showColonistBar)
-      {
-        StoredPawnBar.tmpMaps.Clear();
-        StoredPawnBar.tmpMaps.AddRange((IEnumerable<Map>) CompPawnStorage.AllStorages.Keys);
-        StoredPawnBar.tmpMaps.SortBy<Map, bool, int>((Func<Map, bool>) (x => !x.IsPlayerHome), (Func<Map, int>) (x => x.uniqueID));
-        for (int index1 = 0; index1 < StoredPawnBar.tmpMaps.Count; ++index1)
+        if (!entriesDirty)
+            return;
+        entriesDirty = false;
+        cachedEntries.Clear();
+        var groups = 0;
+        if (PawnStoragesMod.settings.ShowStatueBar)
         {
-          Map map = CompPawnStorage.AllStorages.Keys.ToArray()[index1];
-          
-          StoredPawnBar.tmpPawns.Clear();
-          StoredPawnBar.tmpPawns.AddRange((IEnumerable<Pawn>) CompPawnStorage.AllStorages[map].SelectMany(store=>store.StoredPawns).Where(pawn => pawn.Faction == Faction.OfPlayer));
-          
-          foreach (Pawn tmpPawn in StoredPawnBar.tmpPawns)
-          {
-            if (tmpPawn.playerSettings.displayOrder == -9999999)
-              tmpPawn.playerSettings.displayOrder = Mathf.Max(StoredPawnBar.tmpPawns.MaxBy<Pawn, int>((Func<Pawn, int>) (p => p.playerSettings.displayOrder)).playerSettings.displayOrder, 0) + 1;
-          }
-          PlayerPawnsDisplayOrderUtility.Sort(StoredPawnBar.tmpPawns);
-          foreach (Pawn tmpPawn in StoredPawnBar.tmpPawns)
-            this.cachedEntries.Add(new StoredPawnBar.Entry(tmpPawn, StoredPawnBar.tmpMaps[index1], num));
-          if (!StoredPawnBar.tmpPawns.Any<Pawn>())
-            this.cachedEntries.Add(new StoredPawnBar.Entry((Pawn) null, StoredPawnBar.tmpMaps[index1], num));
-          ++num;
+            tmpMaps.Clear();
+            tmpMaps.AddRange(CompPawnStorage.AllStorages.Keys);
+            tmpMaps.SortBy(x => !x.IsPlayerHome, x => x.uniqueID);
+            for (var index1 = 0; index1 < tmpMaps.Count; ++index1)
+            {
+                var map = CompPawnStorage.AllStorages.Keys.ToArray()[index1];
+
+                tmpPawns.Clear();
+                tmpPawns.AddRange(CompPawnStorage.AllStorages[map].SelectMany(store => store.StoredPawns)
+                    .Where(pawn => pawn.Faction == Faction.OfPlayer));
+
+                foreach (var tmpPawn in tmpPawns)
+                    if (tmpPawn.playerSettings.displayOrder == -9999999)
+                        tmpPawn.playerSettings.displayOrder =
+                            Mathf.Max(tmpPawns.MaxBy(p => p.playerSettings.displayOrder).playerSettings.displayOrder,
+                                0) + 1;
+                PlayerPawnsDisplayOrderUtility.Sort(tmpPawns);
+                foreach (var tmpPawn in tmpPawns)
+                    cachedEntries.Add(new Entry(tmpPawn, tmpMaps[index1], groups));
+                if (!tmpPawns.Any())
+                    cachedEntries.Add(new Entry(null, tmpMaps[index1], groups));
+                ++groups;
+            }
         }
-      }
-      this.cachedReorderableGroups.Clear();
-      foreach (StoredPawnBar.Entry cachedEntry in this.cachedEntries)
-        this.cachedReorderableGroups.Add(-1);
-      this.drawer.Notify_RecachedEntries();
-      StoredPawnBar.tmpPawns.Clear();
-      StoredPawnBar.tmpMaps.Clear();
-      this.drawLocsFinder.CalculateDrawLocs(this.cachedDrawLocs, out this.cachedScale, num);
+
+        cachedReorderableGroups.Clear();
+        foreach (var cachedEntry in cachedEntries)
+            cachedReorderableGroups.Add(-1);
+        drawer.Notify_RecachedEntries();
+        tmpPawns.Clear();
+        tmpMaps.Clear();
+        drawLocsFinder.CalculateDrawLocs(cachedDrawLocs, out cachedScale, groups);
     }
 }

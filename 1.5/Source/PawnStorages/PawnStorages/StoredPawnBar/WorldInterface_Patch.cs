@@ -1,16 +1,14 @@
-﻿using System.Collections.Generic;
-using HarmonyLib;
+﻿using HarmonyLib;
 using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace PawnStorages;
 
-[HarmonyPatch(typeof(WorldInterface), "WorldInterfaceOnGUI")]
+[HarmonyPatch(typeof(WorldInterface), nameof(WorldInterface.WorldInterfaceOnGUI))]
 public class WorldInterface_Patch
 {
     [HarmonyPostfix]
-    private static void Postfix(MapInterface __instance)
+    private static void Postfix(WorldInterface __instance)
     {
         if (!Find.UIRoot.screenshotMode.FiltersCurrentEvent)
             StoredPawnBar.StoredPawnBar.Bar.ColonistBarOnGUI();
