@@ -1,6 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using PawnStorages.Farm;
-using PawnStorages.Farm.Comps;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -55,61 +55,47 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
         return job;
     }
 
-    public static ThingWithComps GetStorageForPawn(Pawn prisoner, bool assign = false)
+    public static IEnumerable<CompAssignableToPawn_PawnStorage> GetPossibleStorages(Pawn pawn, bool asPrisoner = true, Def ofDef = null)
     {
-        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage
-            .compAssignables.FirstOrDefault(c =>
-                c.parent is not Building_PSFarm && c.assignedPawns.Contains(prisoner)
-            )
-            ?.parent;
-        if (existingAssigned != null)
-        {
-            return existingAssigned;
-        }
-
-        if (
-            CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c =>
-                c.parent is not Building_PSFarm
-                && c.HasFreeSlot
-                && c.OwnerType == BedOwnerType.Prisoner
-            )
-            is not { } assignable
-        )
-            return null;
-        if (assign)
-            assignable.TryAssignPawn(prisoner);
-        return assignable.parent;
-    }
-
-    public static ThingWithComps GetStorageEntityOrAnimal(
-        Pawn prisoner,
-        bool assign = false,
-        bool asPrisoner = true
-    )
-    {
-        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage
-            .compAssignables.FirstOrDefault(c =>
-                c.parent is not Building_PSFarm && c.assignedPawns.Contains(prisoner)
-            )
-            ?.parent;
-        if (existingAssigned != null)
-        {
-            return existingAssigned;
-        }
-
-        var bedOwnerType = BedOwnerType.Prisoner;
-
-        if (prisoner.Faction == Faction.OfPlayer)
+        BedOwnerType bedOwnerType = BedOwnerType.Prisoner;
+        if (pawn.Faction == Faction.OfPlayer)
             bedOwnerType = BedOwnerType.Colonist;
 
-        if (
-            CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c =>
+        return CompAssignableToPawn_PawnStorage.compAssignables
+            .Where(c =>
                 c.parent is not Building_PSFarm
-                && c.HasFreeSlot
-                && (!asPrisoner || c.OwnerType == bedOwnerType)
+                && (ofDef == null || c.parent.def == ofDef)
+                && ((c.HasFreeSlot && (!asPrisoner || c.OwnerType == bedOwnerType))
+                    || c.assignedPawns.Contains(pawn))
+            );
+    }
+
+    public static ThingWithComps GetStorageForPawn(Pawn prisoner, bool assign = false, CompAssignableToPawn_PawnStorage preferredStorage = null) =>
+        GetStorageGeneral(prisoner, assign: assign, asPrisoner: true, preferredStorage: preferredStorage);
+
+    public static ThingWithComps GetStorageGeneral(
+        Pawn prisoner,
+        bool assign = false,
+        bool asPrisoner = true, CompAssignableToPawn_PawnStorage preferredStorage = null)
+    {
+        Def preferredDef = preferredStorage?.parent?.def;
+        if (preferredStorage is not null)
+        {
+            if (preferredStorage.HasFreeSlot && assign) preferredStorage.TryAssignPawn(prisoner);
+            if ((!assign && preferredStorage.HasFreeSlot) || preferredStorage.AssignedPawns.Contains(prisoner)) return preferredStorage.parent;
+        }
+
+        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage
+            .compAssignables.FirstOrDefault(c =>
+                c.parent is not Building_PSFarm && c.assignedPawns.Contains(prisoner)
             )
-            is not { } assignable
-        )
+            ?.parent;
+        if (existingAssigned != null)
+        {
+            return existingAssigned;
+        }
+
+        if (GetPossibleStorages(prisoner, asPrisoner: asPrisoner, ofDef: preferredDef).FirstOrDefault() is not { } assignable)
             return null;
 
         if (assign)
@@ -133,7 +119,7 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
             return existingAssigned;
         }
 
-        var assignable = CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c =>
+        CompAssignableToPawn_PawnStorage assignable = CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c =>
             c.parent is Building_PSFarm farm
             && farm.Allowed(prisoner.def)
             && (farm.IsBreeder == breeding)

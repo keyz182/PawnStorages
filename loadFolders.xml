@@ -16,5 +16,6 @@
 		<li>1.5</li>
 		<li IfModActive="oskarpotocki.vanillafactionsexpanded.core">Compatibility/oskarpotocki.vanillafactionsexpanded.core/1.5</li>
 		<li IfModActive="OskarPotocki.VFE.Deserters">Compatibility/OskarPotocki.VFE.Deserters/1.5</li>
+		<li IfModActive="neronix17.outerrim.core">Compatibility/starwars/Common</li>
 	</v1.5>
 </loadFolders>

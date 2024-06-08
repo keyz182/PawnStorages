@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -16,12 +17,13 @@ public static class OrdersPatch
         return new TargetingParameters()
         {
             canTargetPawns = true,
+            canTargetBloodfeeders = true,
             canTargetBuildings = false,
             mapObjectTargetsMustBeAutoAttackable = false,
             validator = targ =>
                 targ is { HasThing: true, Thing: Pawn thing } && thing != arrester &&
                 WorkGiver_Warden_TakeToStorage.GetStorageForPawn(thing, assign: false) != null &&
-                (thing.CarriedBy == arrester || thing.IsPrisoner || (thing.CanBeArrestedBy(arrester) && (!thing.Downed || !thing.guilt.IsGuilty)))
+                (thing.CarriedBy == arrester || thing.IsPrisoner || thing.CanBeCaptured() || (thing.CanBeArrestedBy(arrester) && (!thing.Downed || !thing.guilt.IsGuilty)))
         };
     }
 
@@ -44,10 +46,13 @@ public static class OrdersPatch
             canTargetPawns = true,
             canTargetBuildings = false,
             canTargetAnimals = true,
+            canTargetMutants = true,
+            canTargetHumans = false,
+            canTargetMechs = true,
             mapObjectTargetsMustBeAutoAttackable = false,
             validator = targ =>
                 targ is { HasThing: true, Thing: Pawn thing } &&
-                WorkGiver_Warden_TakeToStorage.GetStorageEntityOrAnimal(thing, assign: false) != null
+                WorkGiver_Warden_TakeToStorage.GetStorageGeneral(thing, assign: false) != null
         };
     }
 
@@ -63,7 +68,8 @@ public static class OrdersPatch
                 Faction.OfPlayer
             ],
             mapObjectTargetsMustBeAutoAttackable = false,
-            validator = (targ) => targ is { HasThing: true, Thing: Pawn thing } && WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(thing, assign: false, breeding: breeding) != null
+            validator = (targ) =>
+                targ is { HasThing: true, Thing: Pawn thing } && WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(thing, assign: false, breeding: breeding) != null
         };
     }
 
@@ -81,30 +87,38 @@ public static class OrdersPatch
                 else
                 {
                     Pawn pTarg = (Pawn)dest.Thing;
-                    Action action = () =>
+                    bool notArresting = pTarg.Faction == null || (pTarg.Faction == Faction.OfPlayer || pTarg.Faction.Hidden) && !pTarg.IsQuestLodger();
+
+                    bool anyStorage = false;
+                    foreach (CompAssignableToPawn_PawnStorage storage in WorkGiver_Warden_TakeToStorage.GetPossibleStorages(pTarg).GroupBy(s => s.parent.def)
+                                 .Select(sGroup => sGroup.FirstOrDefault()))
                     {
-                        ThingWithComps storage = WorkGiver_Warden_TakeToStorage.GetStorageForPawn(pTarg, assign: true);
-                        if (storage == null)
-                        {
-                            Messages.Message("CannotArrest".Translate() + ": " + "NoPrisonerStorage".Translate(), (Thing)pTarg,
-                                MessageTypeDefOf.RejectInput,
-                                false);
-                        }
-                        else
-                        {
-                            Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorage, (LocalTargetInfo)(Thing)pTarg, (LocalTargetInfo)(Thing)storage);
-                            job.count = 1;
-                            pawn.jobs.TryTakeOrderedJob(job);
-                            if (pTarg.Faction == null || (pTarg.Faction == Faction.OfPlayer || pTarg.Faction.Hidden) && !pTarg.IsQuestLodger())
-                                return;
-                            TutorUtility.DoModalDialogIfNotKnown(ConceptDefOf.ArrestingCreatesEnemies, pTarg.GetAcceptArrestChance(pawn).ToStringPercent());
-                        }
-                    };
-                    opts.Add(FloatMenuUtility.DecoratePrioritizedTask(
-                        new FloatMenuOption(
-                            "PS_TakeToStorageFloatMenu".Translate((NamedArgument)dest.Thing.LabelCap, (NamedArgument)dest.Thing.LabelCap), action, MenuOptionPriority.High,
-                            revalidateClickTarget: dest.Thing), pawn,
-                        (LocalTargetInfo)(Thing)pTarg));
+                        if (storage == null) continue;
+                        anyStorage = true;
+                        opts.Add(FloatMenuUtility.DecoratePrioritizedTask(
+                            new FloatMenuOption(
+                                (notArresting ? "PS_TakeToStorageFloatMenu" : "PS_CaptureToStorageFloatMenu").Translate((NamedArgument)pTarg.LabelCap, (NamedArgument) storage.parent.LabelNoParenthesisCap),
+                                () =>
+                                {
+                                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageGeneral(pTarg, assign: true, preferredStorage: storage);
+                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorage, (LocalTargetInfo)(Thing)pTarg, (LocalTargetInfo)(Thing)building);
+                                    job.count = 1;
+                                    pawn.jobs.TryTakeOrderedJob(job);
+                                    if (notArresting)
+                                        return;
+                                    TutorUtility.DoModalDialogIfNotKnown(ConceptDefOf.ArrestingCreatesEnemies, pTarg.GetAcceptArrestChance(pawn).ToStringPercent());
+                                },
+                                MenuOptionPriority.High,
+                                revalidateClickTarget: pTarg), pawn,
+                            (LocalTargetInfo)(Thing)pTarg));
+                    }
+
+                    if (!anyStorage)
+                    {
+                        opts.Add(new FloatMenuOption(
+                            "PS_NoPrisonerStorage".Translate((NamedArgument)dest.Thing.Label),
+                            null));
+                    }
                 }
             }
 
@@ -144,25 +158,29 @@ public static class OrdersPatch
                 else
                 {
                     Pawn pTarg = (Pawn)localTargetInfo.Thing;
-                    ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageEntityOrAnimal(pTarg, assign: true);
 
-                    if (building != null)
+                    bool anyStorage = false;
+                    foreach (CompAssignableToPawn_PawnStorage storage in WorkGiver_Warden_TakeToStorage.GetPossibleStorages(pTarg).GroupBy(s => s.parent.def).Select(sGroup => sGroup.FirstOrDefault()))
                     {
+                        if (storage == null) continue;
+                        anyStorage = true;
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
                             "PS_StoreEntity".Translate((NamedArgument)localTargetInfo.Thing.Label,
-                                (NamedArgument)building.LabelCap),
+                                (NamedArgument)storage.parent.LabelNoParenthesisCap),
                             () =>
                             {
+                                ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageGeneral(pTarg, assign: true, preferredStorage: storage);
                                 Job job = JobMaker.MakeJob(pTarg.Faction == Faction.OfPlayer ? PS_DefOf.PS_CaptureAnimalInPawnStorage : PS_DefOf.PS_CaptureEntityInPawnStorage,
                                     localTargetInfo, (LocalTargetInfo)(Thing)building);
                                 job.count = 1;
                                 pawn.jobs.TryTakeOrderedJob(job);
                             }), pawn, localTargetInfo));
                     }
-                    else
+
+                    if (!anyStorage)
                     {
                         opts.Add(new FloatMenuOption(
-                            "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
+                            "PS_NoEntityStore".Translate((NamedArgument)localTargetInfo.Thing.Label),
                             null));
                     }
                 }
@@ -202,7 +220,6 @@ public static class OrdersPatch
                     }
                 }
             }
-
 
 
             //Take to breeding domes
