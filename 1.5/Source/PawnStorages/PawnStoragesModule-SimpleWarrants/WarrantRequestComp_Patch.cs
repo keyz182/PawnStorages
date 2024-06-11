@@ -14,13 +14,14 @@ public static class WarrantRequestComp_Patch
     {
         var tame = warrant as Warrant_TameAnimal;
         
-        foreach (var bldthing in CaravanInventoryUtility.AllInventoryItems(caravan).Where(t => t is Building_PawnStorage))
+        foreach (var thing1 in CaravanInventoryUtility.AllInventoryItems(caravan).Where(t => t is MinifiedThing mThing && mThing.InnerThing is Building_PawnStorage))
         {
-            if (bldthing is not Building_PawnStorage storage) return (null, null);
-
-            foreach (var thing in storage.storageComp.StoredPawns)
+            var bldthing = (MinifiedThing)thing1;
+            if (bldthing.InnerThing is not Building_PawnStorage storage) continue;
+            var storageComp = storage.GetComp<CompPawnStorage>();
+            
+            foreach (var thing in storageComp.StoredPawns)
             {
-                    
                 // Tame warrant requires any pawn of the required type.
                 if (tame != null && thing.RaceProps.Animal && thing.kindDef == tame.AnimalRace)
                 {
@@ -39,6 +40,12 @@ public static class WarrantRequestComp_Patch
                 {
                     return (thing, storage);
                 }
+
+                // Living pawn for pawn warrant.
+                if (thing == warrant.thing)
+                {
+                    return (thing, storage);
+                }
             }
         }
         return  (null, null);
@@ -46,10 +53,11 @@ public static class WarrantRequestComp_Patch
     
     [HarmonyPostfix]
     [HarmonyPatch("TryGetWarrantTargetInCaravan")]
-    public static Thing TryGetWarrantTargetInCaravan_Patch(Warrant warrant, Caravan caravan)
+    public static void TryGetWarrantTargetInCaravan_Patch(ref Thing __result, Warrant warrant, Caravan caravan)
     {
+        if(__result != null) return;
         (var thing, var _) = TryGetWarrantTargetAsPawnStorageInCaravan(warrant, caravan);
-        return thing;
+        __result = thing;
     }
     
     [HarmonyPrefix]
@@ -61,9 +69,10 @@ public static class WarrantRequestComp_Patch
             (var target, var storage) = TryGetWarrantTargetAsPawnStorageInCaravan(warrant, caravan);
             if (target == null || storage == null)
                 continue;
+            var storageComp = storage.GetComp<CompPawnStorage>();
             
-            storage.storageComp.StoredPawns.Remove((Pawn)target);
-            storage.storageComp.SetLabelDirty();
+            storageComp.StoredPawns.Remove((Pawn)target);
+            storageComp.SetLabelDirty();
             
             warrant.GiveReward(caravan, target);
             QuestUtility.SendQuestTargetSignals(target.questTags, "WarrantRequestFulfilled", __instance.parent.Named("SUBJECT"), caravan.Named("CARAVAN"));
