@@ -53,7 +53,7 @@ public class CompPawnStorage : ThingComp
     public override void PostExposeData()
     {
         Scribe_Collections.Look(ref pawnStoringTick, "pawnStoringTick", LookMode.Value, LookMode.Value);
-        Scribe_Collections.Look(ref storedPawns, "storedPawns", LookMode.Deep);
+        Scribe_Collections.Look(ref storedPawns, "storedPawns", LookMode.Reference);
         Scribe_Values.Look(ref schedulingEnabled, "schedulingEnabled");
         Scribe_Values.Look(ref Rotation, "Rotation");
         if (Scribe.mode != LoadSaveMode.PostLoadInit) return;
