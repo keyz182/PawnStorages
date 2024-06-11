@@ -41,8 +41,8 @@ public static class WarrantRequestComp_Patch
                     return (thing, storage);
                 }
 
-                // Living pawn for pawn warrant.
-                if (thing == warrant.thing)
+                // force check when there's pawn duping happening
+                if (thing.thingIDNumber == warrant.thing.thingIDNumber)
                 {
                     return (thing, storage);
                 }
