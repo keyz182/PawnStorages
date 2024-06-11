@@ -27,7 +27,7 @@ namespace PawnStorages.Farm.Comps
         public new void StorePawn(Pawn pawn)
         {
             pawn.DeSpawn();
-            storedPawns.Add(pawn);
+            storedPawns.TryAdd(pawn);
 
             parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
 
@@ -117,10 +117,10 @@ namespace PawnStorages.Farm.Comps
         public override string CompInspectStringExtra()
         {
             StringBuilder sb = new();
-            if (StoredPawns?.Any() != true) return sb.ToString().TrimStart().TrimEnd();
+            if (storedPawns?.Any<Pawn>() != true) return sb.ToString().TrimStart().TrimEnd();
             sb.AppendLine();
             sb.AppendLine("PS_StoredPawns".Translate());
-            foreach (Pawn pawn in StoredPawns)
+            foreach (Pawn pawn in storedPawns)
             {
                 sb.AppendLine(pawn.needs.food.Starving
                     ? $"    - {pawn.LabelCap} [Starving!]"

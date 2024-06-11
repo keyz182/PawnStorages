@@ -19,15 +19,16 @@ public class CompPawnStorage : ThingComp
     protected CompAssignableToPawn_PawnStorage compAssignable;
     protected bool labelDirty = true;
     public bool schedulingEnabled;
-    protected List<Pawn> storedPawns = [];
     private Dictionary<int, int> pawnStoringTick = new();
     protected string transformLabelCache;
 
     public Rot4 Rotation;
 
     public Thing Parent => parent;
+    public IThingHolder Holder => (IThingHolder)parent;
+    protected ThingOwner<Pawn> storedPawns => (ThingOwner<Pawn>)Holder.GetDirectlyHeldThings();
+    
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
-    public List<Pawn> StoredPawns => storedPawns;
     public virtual int MaxStoredPawns() => Props.MaxStoredPawns;
     public bool CanStore => storedPawns.Count < MaxStoredPawns();
 
@@ -53,22 +54,21 @@ public class CompPawnStorage : ThingComp
     public override void PostExposeData()
     {
         Scribe_Collections.Look(ref pawnStoringTick, "pawnStoringTick", LookMode.Value, LookMode.Value);
-        Scribe_Collections.Look(ref storedPawns, "storedPawns", LookMode.Reference);
         Scribe_Values.Look(ref schedulingEnabled, "schedulingEnabled");
         Scribe_Values.Look(ref Rotation, "Rotation");
         if (Scribe.mode != LoadSaveMode.PostLoadInit) return;
-        storedPawns ??= [];
+        
         pawnStoringTick ??= new Dictionary<int, int>();
     }
 
     public override void PostDestroy(DestroyMode mode, Map previousMap)
     {
-        for (int num = storedPawns.Count - 1; num >= 0; num--)
-        {
-            Pawn pawn = storedPawns[num];
-            storedPawns.Remove(pawn);
-            GenSpawn.Spawn(pawn, parent.Position, previousMap);
-        }
+        // for (int num = storedPawns.Count - 1; num >= 0; num--)
+        // {
+        //     Pawn pawn = storedPawns[num];
+        //     storedPawns.Remove(pawn);
+        //     GenSpawn.Spawn(pawn, parent.Position, previousMap);
+        // }
 
         base.PostDestroy(mode, previousMap);
     }
@@ -77,7 +77,7 @@ public class CompPawnStorage : ThingComp
     public override string TransformLabel(string label)
     {
         if (!labelDirty) return transformLabelCache;
-        if (StoredPawns.NullOrEmpty())
+        if (storedPawns.NullOrEmpty<Pawn>())
         {
             transformLabelCache = $"{base.TransformLabel(label)} {"PS_Empty".Translate()}";
         }
@@ -97,9 +97,9 @@ public class CompPawnStorage : ThingComp
 
     public override bool AllowStackWith(Thing other)
     {
-        return StoredPawns.NullOrEmpty()
+        return storedPawns.NullOrEmpty<Pawn>()
                && base.AllowStackWith(other)
-               && (other.TryGetComp<CompPawnStorage>()?.storedPawns?.NullOrEmpty() ?? true);
+               && (other.TryGetComp<CompPawnStorage>()?.storedPawns?.NullOrEmpty<Pawn>() ?? true);
     }
 
     public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
@@ -113,7 +113,7 @@ public class CompPawnStorage : ThingComp
                 selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
             });
 
-        if (!storedPawns.Any()) yield break;
+        if (!storedPawns.Any<Pawn>()) yield break;
         {
             if (Props.releaseAllOption && !(Props.releaseOption && storedPawns.Count == 1))
                 yield return new FloatMenuOption("PS_ReleaseAll".Translate(), delegate
@@ -171,7 +171,8 @@ public class CompPawnStorage : ThingComp
         Props.storeEffect?.Spawn(pawn.Position, parent.Map);
 
         pawn.DeSpawn();
-        storedPawns.Add(pawn);
+        storedPawns.TryAdd(pawn);
+        //Find.WorldPawns.AddPawn(pawn);
 
         parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
 
@@ -229,10 +230,10 @@ public class CompPawnStorage : ThingComp
     public override string CompInspectStringExtra()
     {
         StringBuilder sb = new(base.CompInspectStringExtra());
-        if (StoredPawns?.Any() != true) return sb.ToString().TrimStart().TrimEnd();
+        if (storedPawns?.Any<Pawn>() != true) return sb.ToString().TrimStart().TrimEnd();
         sb.AppendLine();
         sb.AppendLine(PawnTypeLabel);
-        foreach (Pawn pawn in StoredPawns) sb.AppendLine($"    - {pawn.LabelCap}");
+        foreach (Pawn pawn in storedPawns) sb.AppendLine($"    - {pawn.LabelCap}");
 
         return sb.ToString().TrimStart().TrimEnd();
     }
@@ -240,18 +241,18 @@ public class CompPawnStorage : ThingComp
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
         foreach (Gizmo g in base.CompGetGizmosExtra()) yield return g;
-        if (Props.releaseAllOption && storedPawns.Any())
+        if (Props.releaseAllOption && storedPawns.Any<Pawn>())
         {
             yield return new Command_Action
             {
                 defaultLabel = storedPawns.Count == 1
-                    ? "PS_Release".Translate(storedPawns[0].Name.ToStringShort)
+                    ? "PS_Release".Translate(storedPawns.innerList[0].Name.ToStringShort)
                     : "PS_ReleaseAll".Translate(),
                 action = delegate
                 {
                     for (int num = storedPawns.Count - 1; num >= 0; num--)
                     {
-                        Pawn pawn = storedPawns[num];
+                        Pawn pawn = storedPawns.innerList[num];
                         storedPawns.Remove(pawn);
                         GenSpawn.Spawn(pawn, parent.Position, parent.Map);
                         parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
@@ -262,7 +263,7 @@ public class CompPawnStorage : ThingComp
 
             if (Find.Selector.SelectedObjectsListForReading
                     .Select(o => (o as ThingWithComps)?.TryGetComp<CompPawnStorage>())
-                    .Where(o => o?.storedPawns?.Any() == true)
+                    .Where(o => o?.storedPawns?.Any<Pawn>() == true)
                     .ToList() is { Count: > 1 } comps
                 && this == comps.First())
             {
@@ -275,7 +276,7 @@ public class CompPawnStorage : ThingComp
                         {
                             for (int num = compPawnStorage.storedPawns.Count - 1; num >= 0; num--)
                             {
-                                Pawn pawn = compPawnStorage.storedPawns[num];
+                                Pawn pawn = compPawnStorage.storedPawns.innerList[num];
                                 compPawnStorage.storedPawns.Remove(pawn);
                                 GenSpawn.Spawn(pawn, compPawnStorage.parent.Position, compPawnStorage.parent.Map);
                                 compPawnStorage.parent.Map.mapDrawer.MapMeshDirty(compPawnStorage.parent.Position, MapMeshFlagDefOf.Things);

@@ -91,8 +91,8 @@ public static class Utility
                 cell = intVec;
                 break;
             }
-
-        store.StoredPawns.Remove(pawn);
+        
+        store.Holder.GetDirectlyHeldThings().Remove(pawn);
         GenSpawn.Spawn(pawn, cell, map);
 
         //Spawn the release effecter

@@ -10,41 +10,43 @@ namespace PawnStorages.SimpleWarrants;
 [HarmonyPatch(typeof(WarrantRequestComp))]
 public static class WarrantRequestComp_Patch
 {
-    public static (Thing, Building_PawnStorage) TryGetWarrantTargetAsPawnStorageInCaravan(Warrant warrant, Caravan caravan)
+    public static (Thing, IThingHolder) TryGetWarrantTargetAsPawnStorageInCaravan(Warrant warrant, Caravan caravan)
     {
         var tame = warrant as Warrant_TameAnimal;
         
         foreach (var thing1 in CaravanInventoryUtility.AllInventoryItems(caravan).Where(t => t is MinifiedThing mThing && mThing.InnerThing is Building_PawnStorage))
         {
             var bldthing = (MinifiedThing)thing1;
-            if (bldthing.InnerThing is not Building_PawnStorage storage) continue;
-            var storageComp = storage.GetComp<CompPawnStorage>();
+            if (bldthing.InnerThing is not IThingHolder holder) continue;
             
-            foreach (var thing in storageComp.StoredPawns)
+            foreach (var thing in holder.GetDirectlyHeldThings())
             {
+                var pawn = thing as Pawn;
+                if(pawn == null) continue;
+                
                 // Tame warrant requires any pawn of the required type.
-                if (tame != null && thing.RaceProps.Animal && thing.kindDef == tame.AnimalRace)
+                if (tame != null && pawn.RaceProps.Animal && pawn.kindDef == tame.AnimalRace)
                 {
                     // Check tameness.
-                    var isTame = thing.training?.HasLearned(TrainableDefOf.Tameness) ?? false;
+                    var isTame = pawn.training?.HasLearned(TrainableDefOf.Tameness) ?? false;
 
                     // Check health.
-                    var healthPct = thing.health.summaryHealth.SummaryHealthPercent;
+                    var healthPct = pawn.health.summaryHealth.SummaryHealthPercent;
 
                     if (isTame && healthPct >= 0.9f)
-                        return (thing, storage);
+                        return (pawn, holder);
                 }
 
                 // Living pawn for pawn warrant.
                 if (thing == warrant.thing)
                 {
-                    return (thing, storage);
+                    return (thing, bldthing);
                 }
 
                 // force check when there's pawn duping happening
                 if (thing.thingIDNumber == warrant.thing.thingIDNumber)
                 {
-                    return (thing, storage);
+                    return (thing, bldthing);
                 }
             }
         }
@@ -69,10 +71,9 @@ public static class WarrantRequestComp_Patch
             (var target, var storage) = TryGetWarrantTargetAsPawnStorageInCaravan(warrant, caravan);
             if (target == null || storage == null)
                 continue;
-            var storageComp = storage.GetComp<CompPawnStorage>();
-            
-            storageComp.StoredPawns.Remove((Pawn)target);
-            storageComp.SetLabelDirty();
+
+            storage.GetDirectlyHeldThings().Remove(target);
+            ((ThingWithComps)storage).TryGetComp<CompPawnStorage>()?.SetLabelDirty();
             
             warrant.GiveReward(caravan, target);
             QuestUtility.SendQuestTargetSignals(target.questTags, "WarrantRequestFulfilled", __instance.parent.Named("SUBJECT"), caravan.Named("CARAVAN"));

@@ -17,6 +17,8 @@ namespace PawnStorages.Farm
 
         public CompFarmStorage compFarmStorage => SelThing.TryGetComp<CompFarmStorage>();
         public CompFarmProducer compFarmProducer => SelThing.TryGetComp<CompFarmProducer>();
+
+        public IThingHolder Holder => (IThingHolder)SelThing;
         public bool NeedsDrop => PawnStoragesMod.settings.AllowNeedsDrop || compFarmStorage.Props.needsDrop;
 
         public ITab_Production()
@@ -82,14 +84,14 @@ namespace PawnStorages.Farm
         public override void FillTab()
         {
             if (compFarmStorage == null) return;
-            if (compFarmStorage.StoredPawns.Count <= 0) return;
+            if (Holder.GetDirectlyHeldThings().Count <= 0) return;
 
             Widgets.Label(new Rect(5.0f, 0.0f, WinSize.x, 30f), "Farm Animals");
 
             Rect tabRect = new Rect(0.0f, 30.0f, WinSize.x, WinSize.y - 30f).ContractedBy(10f);
             Rect scrollViewRect = new Rect(tabRect);
 
-            float totalHeight = compFarmStorage.StoredPawns.Count * LineHeight;
+            float totalHeight = Holder.GetDirectlyHeldThings().Count * LineHeight;
 
             Rect viewRect = new Rect(0.0f, 0.0f, scrollViewRect.width, totalHeight);
 
@@ -99,7 +101,7 @@ namespace PawnStorages.Farm
             alternate = false;
             float num = 0.0f;
             List<Pawn> removed = [];
-            foreach (Pawn pawn in compFarmStorage.StoredPawns)
+            foreach (Pawn pawn in Holder.GetDirectlyHeldThings())
             {
                 if (DrawLine(num, scrollViewRect.width, pawn))
                 {

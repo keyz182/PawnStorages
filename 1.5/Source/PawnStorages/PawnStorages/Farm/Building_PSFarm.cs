@@ -8,7 +8,7 @@ using Verse;
 
 namespace PawnStorages.Farm
 {
-    public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorageParent, IBreederParent, IProductionParent, IFarmTabParent
+    public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorageParent, IBreederParent, IProductionParent, IFarmTabParent, IThingHolder
     {
         public CompFarmStorage pawnStorage;
         public CompFarmNutrition FarmNutrition;
@@ -16,9 +16,17 @@ namespace PawnStorages.Farm
         public CompFarmProducer FarmProducer;
         private StorageSettings allowedNutritionSettings;
 
+        public ThingOwner GetDirectlyHeldThings() => this.innerContainer;
+
         protected Dictionary<ThingDef, bool> allowedThings;
 
         public Dictionary<ThingDef, bool> AllowedThings => allowedThings;
+
+        public ThingOwner innerContainer;
+        public Building_PSFarm()
+        {
+            this.innerContainer = new ThingOwner<Pawn>((IThingHolder) this);
+        }
 
         public bool Allowed(ThingDef potentialDef)
         {
@@ -31,6 +39,7 @@ namespace PawnStorages.Farm
         public override void ExposeData()
         {
             Scribe_Collections.Look(ref allowedThings, "allowedThings", LookMode.Def);
+            Scribe_Deep.Look<ThingOwner>(ref this.innerContainer, "innerContainer", (object) this);
             base.ExposeData();
         }
 
@@ -81,6 +90,12 @@ namespace PawnStorages.Farm
             Designator_Build allowedDesignator = BuildCopyCommandUtility.FindAllowedDesignator(ThingDefOf.Hopper);
             if (allowedDesignator != null)
                 yield return allowedDesignator;
+            foreach (Thing thing in (IEnumerable<Thing>) innerContainer)
+            {
+                Gizmo gizmo;
+                if ((gizmo = Building.SelectContainedItemGizmo(thing, thing)) != null)
+                    yield return gizmo;
+            }
         }
 
         public override string GetInspectString()
@@ -117,15 +132,29 @@ namespace PawnStorages.Farm
 
         public bool HasSuggestiveSilos => true;
         public bool HasStoredPawns => true;
-        public List<Pawn> StoredPawns => pawnStorage.StoredPawns;
+        public List<Pawn> StoredPawns => innerContainer.Select(p=>p as Pawn).ToList();
+
         public void Notify_NutrtitionEmpty() => NutritionAvailable = false;
 
         public void Notify_NutrtitionNotEmpty() => NutritionAvailable = true;
 
-        public List<Pawn> BreedablePawns => pawnStorage.StoredPawns.Where(p => p.ageTracker.Adult && !p.health.Dead && !p.health.Downed).ToList();
+        public List<Pawn> BreedablePawns
+        {
+            get
+            {
+                if (!IsBreeder) return [];
+                 return innerContainer.Select(p => p as Pawn).Where<Pawn>(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed).ToList();
+            }
+        }
 
-        public List<Pawn> ProducingPawns => pawnStorage.StoredPawns
-            .Where(p => p.ageTracker.Adult && !p.health.Dead && !p.health.Downed).ToList();
+        public List<Pawn> ProducingPawns
+        {
+            get
+            {
+                if (!IsProducer) return [];
+                return innerContainer.Select(p => p as Pawn).Where<Pawn>(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed).ToList();
+            }
+        }
 
         public int TickInterval => 250;
 
@@ -133,5 +162,11 @@ namespace PawnStorages.Farm
         {
             pawnStorage.StorePawn(newPawn);
         }
+        
+        public void GetChildHolders(List<IThingHolder> outChildren)
+        {
+            ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, (IList<Thing>) this.GetDirectlyHeldThings());
+        }
+        
     }
 }
