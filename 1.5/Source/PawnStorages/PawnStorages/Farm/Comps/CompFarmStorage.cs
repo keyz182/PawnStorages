@@ -27,7 +27,7 @@ namespace PawnStorages.Farm.Comps
         public new void StorePawn(Pawn pawn)
         {
             pawn.DeSpawn();
-            storedPawns.TryAdd(pawn);
+            innerContainer.TryAdd(pawn);
 
             parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
 
@@ -49,7 +49,7 @@ namespace PawnStorages.Farm.Comps
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
-            if (storedPawns.Count > 0)
+            if (innerContainer.Count > 0)
             {
                 yield return new Command_Action
                 {
@@ -100,7 +100,7 @@ namespace PawnStorages.Farm.Comps
 
         public void TryProduce()
         {
-            foreach (Pawn pawn in storedPawns)
+            foreach (Pawn pawn in innerContainer)
             {
                 if (!GetProduct(pawn, out ThingDef thingDef, out int amount)) continue;
                 while (amount > 0)
@@ -117,10 +117,10 @@ namespace PawnStorages.Farm.Comps
         public override string CompInspectStringExtra()
         {
             StringBuilder sb = new();
-            if (storedPawns?.Any<Pawn>() != true) return sb.ToString().TrimStart().TrimEnd();
+            if (innerContainer?.Any() != true) return sb.ToString().TrimStart().TrimEnd();
             sb.AppendLine();
             sb.AppendLine("PS_StoredPawns".Translate());
-            foreach (Pawn pawn in storedPawns)
+            foreach (Pawn pawn in innerContainer)
             {
                 sb.AppendLine(pawn.needs.food.Starving
                     ? $"    - {pawn.LabelCap} [Starving!]"

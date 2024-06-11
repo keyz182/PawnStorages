@@ -92,7 +92,7 @@ public static class Utility
                 break;
             }
         
-        store.Holder.GetDirectlyHeldThings().Remove(pawn);
+        store.GetDirectlyHeldThings().Remove(pawn);
         GenSpawn.Spawn(pawn, cell, map);
 
         //Spawn the release effecter

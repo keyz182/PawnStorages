@@ -11,8 +11,9 @@ using Verse.AI;
 
 namespace PawnStorages;
 
-public class CompPawnStorage : ThingComp
+public class CompPawnStorage : ThingComp, IThingHolder
 {
+    public ThingOwner innerContainer;
     public const int TICKRATE = 60;
     public const int NEEDS_INTERVAL = 150;
 
@@ -25,12 +26,13 @@ public class CompPawnStorage : ThingComp
     public Rot4 Rotation;
 
     public Thing Parent => parent;
-    public IThingHolder Holder => (IThingHolder)parent;
-    protected ThingOwner<Pawn> storedPawns => (ThingOwner<Pawn>)Holder.GetDirectlyHeldThings();
-    
+    public CompPawnStorage()
+    {
+        this.innerContainer = new ThingOwner<Pawn>((IThingHolder) this);
+    }
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
     public virtual int MaxStoredPawns() => Props.MaxStoredPawns;
-    public bool CanStore => storedPawns.Count < MaxStoredPawns();
+    public bool CanStore => innerContainer.Count < MaxStoredPawns();
 
     public bool CanAssign(Pawn pawn, bool couldMakePrisoner) =>
         compAssignable?.OwnerType switch
@@ -56,6 +58,8 @@ public class CompPawnStorage : ThingComp
         Scribe_Collections.Look(ref pawnStoringTick, "pawnStoringTick", LookMode.Value, LookMode.Value);
         Scribe_Values.Look(ref schedulingEnabled, "schedulingEnabled");
         Scribe_Values.Look(ref Rotation, "Rotation");
+        Scribe_Deep.Look<ThingOwner>(ref this.innerContainer, "innerContainer", (object) this);
+
         if (Scribe.mode != LoadSaveMode.PostLoadInit) return;
         
         pawnStoringTick ??= new Dictionary<int, int>();
@@ -77,7 +81,7 @@ public class CompPawnStorage : ThingComp
     public override string TransformLabel(string label)
     {
         if (!labelDirty) return transformLabelCache;
-        if (storedPawns.NullOrEmpty<Pawn>())
+        if (innerContainer.NullOrEmpty())
         {
             transformLabelCache = $"{base.TransformLabel(label)} {"PS_Empty".Translate()}";
         }
@@ -97,9 +101,9 @@ public class CompPawnStorage : ThingComp
 
     public override bool AllowStackWith(Thing other)
     {
-        return storedPawns.NullOrEmpty<Pawn>()
+        return innerContainer.NullOrEmpty()
                && base.AllowStackWith(other)
-               && (other.TryGetComp<CompPawnStorage>()?.storedPawns?.NullOrEmpty<Pawn>() ?? true);
+               && (other.TryGetComp<CompPawnStorage>()?.innerContainer?.NullOrEmpty() ?? true);
     }
 
     public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
@@ -113,16 +117,16 @@ public class CompPawnStorage : ThingComp
                 selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
             });
 
-        if (!storedPawns.Any<Pawn>()) yield break;
+        if (!innerContainer.Any()) yield break;
         {
-            if (Props.releaseAllOption && !(Props.releaseOption && storedPawns.Count == 1))
+            if (Props.releaseAllOption && !(Props.releaseOption && innerContainer.Count == 1))
                 yield return new FloatMenuOption("PS_ReleaseAll".Translate(), delegate
                 {
                     Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, parent);
                     selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
                 });
             if (!Props.releaseOption || !CanRelease(selPawn)) yield break;
-            foreach (Pawn pawn in storedPawns)
+            foreach (Pawn pawn in innerContainer)
                 yield return new FloatMenuOption("PS_Release".Translate(pawn.LabelCap), delegate { selPawn.jobs.TryTakeOrderedJob(ReleaseJob(selPawn, pawn), JobTag.Misc); });
         }
     }
@@ -171,7 +175,7 @@ public class CompPawnStorage : ThingComp
         Props.storeEffect?.Spawn(pawn.Position, parent.Map);
 
         pawn.DeSpawn();
-        storedPawns.TryAdd(pawn);
+        innerContainer.TryAdd(pawn);
         //Find.WorldPawns.AddPawn(pawn);
 
         parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
@@ -211,10 +215,10 @@ public class CompPawnStorage : ThingComp
     public override IEnumerable<FloatMenuOption> CompMultiSelectFloatMenuOptions(List<Pawn> selPawns)
     {
         var selPawnsCopy = selPawns.ListFullCopy();
-        if (Props.convertOption && MaxStoredPawns() > storedPawns.Count)
+        if (Props.convertOption && MaxStoredPawns() > innerContainer.Count)
             yield return new FloatMenuOption("PS_Enter".Translate(), delegate
             {
-                var diff = MaxStoredPawns() - storedPawns.Count;
+                var diff = MaxStoredPawns() - innerContainer.Count;
                 for (var i = 0; i < diff; i++)
                     if (i < selPawnsCopy.Count)
                     {
@@ -230,10 +234,10 @@ public class CompPawnStorage : ThingComp
     public override string CompInspectStringExtra()
     {
         StringBuilder sb = new(base.CompInspectStringExtra());
-        if (storedPawns?.Any<Pawn>() != true) return sb.ToString().TrimStart().TrimEnd();
+        if (innerContainer?.Any() != true) return sb.ToString().TrimStart().TrimEnd();
         sb.AppendLine();
         sb.AppendLine(PawnTypeLabel);
-        foreach (Pawn pawn in storedPawns) sb.AppendLine($"    - {pawn.LabelCap}");
+        foreach (Pawn pawn in innerContainer) sb.AppendLine($"    - {pawn.LabelCap}");
 
         return sb.ToString().TrimStart().TrimEnd();
     }
@@ -241,19 +245,19 @@ public class CompPawnStorage : ThingComp
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
         foreach (Gizmo g in base.CompGetGizmosExtra()) yield return g;
-        if (Props.releaseAllOption && storedPawns.Any<Pawn>())
+        if (Props.releaseAllOption && innerContainer.Any())
         {
             yield return new Command_Action
             {
-                defaultLabel = storedPawns.Count == 1
-                    ? "PS_Release".Translate(storedPawns.innerList[0].Name.ToStringShort)
+                defaultLabel = innerContainer.Count == 1
+                    ? "PS_Release".Translate(((Pawn)innerContainer.FirstOrDefault()).Name.ToStringShort)
                     : "PS_ReleaseAll".Translate(),
                 action = delegate
                 {
-                    for (int num = storedPawns.Count - 1; num >= 0; num--)
+                    for (int num = innerContainer.Count - 1; num >= 0; num--)
                     {
-                        Pawn pawn = storedPawns.innerList[num];
-                        storedPawns.Remove(pawn);
+                        Pawn pawn = (Pawn)innerContainer.GetAt(num);
+                        innerContainer.Remove(pawn);
                         GenSpawn.Spawn(pawn, parent.Position, parent.Map);
                         parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
                     }
@@ -263,7 +267,7 @@ public class CompPawnStorage : ThingComp
 
             if (Find.Selector.SelectedObjectsListForReading
                     .Select(o => (o as ThingWithComps)?.TryGetComp<CompPawnStorage>())
-                    .Where(o => o?.storedPawns?.Any<Pawn>() == true)
+                    .Where(o => o?.innerContainer?.Any() == true)
                     .ToList() is { Count: > 1 } comps
                 && this == comps.First())
             {
@@ -274,10 +278,10 @@ public class CompPawnStorage : ThingComp
                     {
                         foreach (CompPawnStorage compPawnStorage in comps)
                         {
-                            for (int num = compPawnStorage.storedPawns.Count - 1; num >= 0; num--)
+                            for (int num = compPawnStorage.innerContainer.Count - 1; num >= 0; num--)
                             {
-                                Pawn pawn = compPawnStorage.storedPawns.innerList[num];
-                                compPawnStorage.storedPawns.Remove(pawn);
+                                Pawn pawn = (Pawn)compPawnStorage.innerContainer.GetAt(num);
+                                compPawnStorage.innerContainer.Remove(pawn);
                                 GenSpawn.Spawn(pawn, compPawnStorage.parent.Position, compPawnStorage.parent.Map);
                                 compPawnStorage.parent.Map.mapDrawer.MapMeshDirty(compPawnStorage.parent.Position, MapMeshFlagDefOf.Things);
                             }
@@ -346,18 +350,25 @@ public class CompPawnStorage : ThingComp
         };
 
         if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
+        
+        foreach (Thing thing in (IEnumerable<Thing>) innerContainer)
+        {
+            Gizmo gizmo;
+            if ((gizmo = Building.SelectContainedItemGizmo(thing, thing)) != null)
+                yield return gizmo;
+        }
     }
 
     public void ReleaseContents(Map map)
     {
         map ??= parent.Map;
 
-        foreach (Pawn pawn in storedPawns)
+        foreach (Pawn pawn in innerContainer)
         {
             ReleaseSingle(map, pawn, false);
         }
 
-        storedPawns.Clear();
+        innerContainer.Clear();
     }
 
     public void EjectContents(Map map)
@@ -366,7 +377,7 @@ public class CompPawnStorage : ThingComp
         EffecterDef flightEffecterDef = DefDatabase<EffecterDef>.GetNamed("JumpFlightEffect", false);
         SoundDef landingSound = DefDatabase<SoundDef>.GetNamed("Longjump_Land", false);
 
-        foreach (Pawn pawn in storedPawns)
+        foreach (Pawn pawn in innerContainer)
         {
             PawnComponentsUtility.AddComponentsForSpawn(pawn);
             compAssignable.TryUnassignPawn(pawn);
@@ -385,12 +396,12 @@ public class CompPawnStorage : ThingComp
                 Find.Selector.Select(pawn, false, false);
         }
 
-        storedPawns.Clear();
+        innerContainer.Clear();
     }
 
     public void ReleaseSingle(Map map, Pawn pawn, bool remove = true, bool makeFilth = false)
     {
-        if (!storedPawns.Contains(pawn)) return;
+        if (!innerContainer.Contains(pawn)) return;
         map ??= parent.Map;
 
         PawnComponentsUtility.AddComponentsForSpawn(pawn);
@@ -399,6 +410,13 @@ public class CompPawnStorage : ThingComp
         FilthMaker.TryMakeFilth(parent.InteractionCell, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
 
         if (remove)
-            storedPawns.Remove(pawn);
+            innerContainer.Remove(pawn);
     }
+
+    public void GetChildHolders(List<IThingHolder> outChildren)
+    {
+        ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, (IList<Thing>) this.GetDirectlyHeldThings());
+    }
+
+    public ThingOwner GetDirectlyHeldThings() => this.innerContainer;
 }
