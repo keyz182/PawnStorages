@@ -82,8 +82,8 @@ public class Building_PawnStorage : PSBuilding
         {
             Pawn pawn = (Pawn)storageComp.GetDirectlyHeldThings().First();
             RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f), storageComp.Rotation.Rotated(RotationDirection.Opposite), new Vector3(0f, 0f, 0.1f), 1.5f, healthStateOverride: PawnHealthState.Mobile);
-            
-            var pos = DrawPos;
+
+            Vector3 pos = DrawPos;
             pos.z += statueOffsetZ;
             pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
 

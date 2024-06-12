@@ -14,7 +14,7 @@ public static class TradeUtilityBuy_Patch
         float priceGain_PlayerNegotiator,
         float priceGain_FactionBase)
     {
-        return __result + (thing as IThingHolder is { } holder
+        return __result + (thing.GetInnerIfMinified().TryGetComp<CompPawnStorage>() is { } holder
             ? holder.GetDirectlyHeldThings().Select(p => TradeUtility.GetPricePlayerBuy(p, priceFactorBuy_TraderPriceType,
                 priceFactorBuy_JoinAs,
                 priceGain_PlayerNegotiator,

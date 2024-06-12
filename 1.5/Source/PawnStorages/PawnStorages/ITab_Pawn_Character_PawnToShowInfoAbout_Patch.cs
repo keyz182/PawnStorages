@@ -11,9 +11,9 @@ public static class ITab_Pawn_Character_PawnToShowInfoAbout_Patch
     public static bool Prefix(ref Pawn __result)
     {
         CompPawnStorage comp = Find.Selector.SingleSelectedThing.TryGetComp<CompPawnStorage>();
-        var holder = Find.Selector.SingleSelectedThing as IThingHolder;
+        IThingHolder holder = comp?.Parent as IThingHolder;
         
-        if (comp == null || !holder.GetDirectlyHeldThings().Any()) return true;
+        if (!(holder?.GetDirectlyHeldThings()?.Any() ?? false)) return true;
         __result = (Pawn)holder.GetDirectlyHeldThings().First();
         return false;
 

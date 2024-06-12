@@ -46,16 +46,15 @@ public class JobDriver_Release : JobDriver
         {
             Pawn actor = release.actor;
             CompPawnStorage comp = TargetA.Thing.TryGetComp<CompPawnStorage>();
-            var holder = TargetA.Thing as IThingHolder;
-            if (holder == null) return;
+            if (comp == null) return;
             if (ReleasingSpecific)
             {
                 comp.ReleasePawn(TargetC.Pawn, ReleaseCell, actor.Map);
             }
             else
-                for (int num = holder.GetDirectlyHeldThings().Count - 1; num >= 0; num--)
+                for (int num = comp.GetDirectlyHeldThings().Count - 1; num >= 0; num--)
                 {
-                    comp.ReleasePawn((Pawn)holder.GetDirectlyHeldThings().GetAt(num), ReleaseCell, actor.Map);
+                    comp.ReleasePawn((Pawn)comp.GetDirectlyHeldThings().GetAt(num), ReleaseCell, actor.Map);
                 }
         };
         release.defaultCompleteMode = ToilCompleteMode.Instant;

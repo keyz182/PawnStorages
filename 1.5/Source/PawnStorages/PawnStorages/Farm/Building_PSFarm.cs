@@ -84,7 +84,7 @@ namespace PawnStorages.Farm
             foreach (Thing thing in (IEnumerable<Thing>) StoredPawns)
             {
                 Gizmo gizmo;
-                if ((gizmo = Building.SelectContainedItemGizmo(thing, thing)) != null)
+                if ((gizmo = SelectContainedItemGizmo(thing, thing)) != null)
                     yield return gizmo;
             }
         }
@@ -118,7 +118,7 @@ namespace PawnStorages.Farm
 
         public void ReleasePawn(Pawn pawn)
         {
-            pawnStorage.ReleaseSingle(this.Map, pawn, true, true);
+            pawnStorage.ReleaseSingle(Map, pawn, true, true);
         }
 
         public bool HasSuggestiveSilos => true;
@@ -133,8 +133,7 @@ namespace PawnStorages.Farm
         {
             get
             {
-                if (!IsBreeder) return [];
-                 return StoredPawns.Select(p => p as Pawn).Where<Pawn>(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed).ToList();
+                return !IsBreeder ? [] : StoredPawns.Select(p => p).Where(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed).ToList();
             }
         }
 
@@ -142,8 +141,7 @@ namespace PawnStorages.Farm
         {
             get
             {
-                if (!IsProducer) return [];
-                return StoredPawns.Select(p => p as Pawn).Where<Pawn>(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed).ToList();
+                return !IsProducer ? [] : StoredPawns.Select(p => p).Where(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed).ToList();
             }
         }
 
@@ -156,7 +154,7 @@ namespace PawnStorages.Farm
         
         public void GetChildHolders(List<IThingHolder> outChildren)
         {
-            ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, (IList<Thing>) pawnStorage.GetDirectlyHeldThings());
+            ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, pawnStorage.GetDirectlyHeldThings());
         }
         
     }

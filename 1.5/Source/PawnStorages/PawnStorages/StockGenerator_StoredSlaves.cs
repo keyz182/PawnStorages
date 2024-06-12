@@ -11,8 +11,7 @@ public class StockGenerator_StoredSlaves : StockGenerator_Slaves
     public override IEnumerable<Thing> GenerateThings(int forTile, Faction faction = null)
     {
         ThingWithComps storageItem = ThingMaker.MakeThing(storeInDef, GenStuff.RandomStuffByCommonalityFor(storeInDef)) as ThingWithComps;
-        var holder = storageItem as IThingHolder;
-        
+
         storageItem?.InitializeComps();
         CompPawnStorage storageComp = storageItem.GetInnerIfMinified().TryGetComp<CompPawnStorage>();
         IEnumerable<Thing> thingsGenerated = base.GenerateThings(forTile, faction);
@@ -40,7 +39,7 @@ public class StockGenerator_StoredSlaves : StockGenerator_Slaves
                     storageComp = storageItem.GetInnerIfMinified()?.TryGetComp<CompPawnStorage>();
                 }
 
-                holder?.GetDirectlyHeldThings().TryAdd(thing as Pawn);
+                storageComp?.GetDirectlyHeldThings().TryAdd(thing as Pawn);
                 storageComp?.SetLabelDirty();
             }
 

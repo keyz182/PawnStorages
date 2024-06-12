@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using HarmonyLib;
-using PawnStorages.Farm;
 using PawnStorages.Farm.Comps;
 using RimWorld;
 using UnityEngine;
@@ -13,23 +13,26 @@ namespace PawnStorages;
 
 public class CompPawnStorage : ThingComp, IThingHolder
 {
-    public ThingOwner innerContainer;
+    public ThingOwner<Pawn> innerContainer;
     public const int TICKRATE = 60;
     public const int NEEDS_INTERVAL = 150;
 
     protected CompAssignableToPawn_PawnStorage compAssignable;
     protected bool labelDirty = true;
     public bool schedulingEnabled;
+    protected List<Pawn> storedPawns = []; // Deprecated, to remove in next major version
     private Dictionary<int, int> pawnStoringTick = new();
     protected string transformLabelCache;
 
     public Rot4 Rotation;
 
     public Thing Parent => parent;
+
     public CompPawnStorage()
     {
-        this.innerContainer = new ThingOwner<Pawn>((IThingHolder) this);
+        innerContainer = new ThingOwner<Pawn>(this);
     }
+
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
     public virtual int MaxStoredPawns() => Props.MaxStoredPawns;
     public bool CanStore => innerContainer.Count < MaxStoredPawns();
@@ -55,25 +58,40 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public override void PostExposeData()
     {
+        Log.Message(Scribe.mode);
+        base.PostExposeData();
         Scribe_Collections.Look(ref pawnStoringTick, "pawnStoringTick", LookMode.Value, LookMode.Value);
         Scribe_Values.Look(ref schedulingEnabled, "schedulingEnabled");
         Scribe_Values.Look(ref Rotation, "Rotation");
-        Scribe_Deep.Look<ThingOwner>(ref this.innerContainer, "innerContainer", (object) this);
+
+        // Deprectated - To Remove in next major version
+        Scribe_Collections.Look(ref storedPawns, "storedPawns", LookMode.Deep);
+        Scribe_Deep.Look(ref innerContainer, "innerContainer", this);
+
+        if (storedPawns?.Any() ?? false)
+        {
+            innerContainer ??= new ThingOwner<Pawn>(this);
+            foreach (Pawn pawn in storedPawns)
+            {
+                innerContainer.TryAdd(pawn);
+            }
+            storedPawns.Clear();
+        }
 
         if (Scribe.mode != LoadSaveMode.PostLoadInit) return;
-        
         pawnStoringTick ??= new Dictionary<int, int>();
+
+
     }
 
     public override void PostDestroy(DestroyMode mode, Map previousMap)
     {
-        // for (int num = storedPawns.Count - 1; num >= 0; num--)
-        // {
-        //     Pawn pawn = storedPawns[num];
-        //     storedPawns.Remove(pawn);
-        //     GenSpawn.Spawn(pawn, parent.Position, previousMap);
-        // }
+        foreach (Pawn pawn in innerContainer.InnerListForReading)
+        {
+            GenSpawn.Spawn(pawn, parent.Position, previousMap);
+        }
 
+        innerContainer.Clear();
         base.PostDestroy(mode, previousMap);
     }
 
@@ -81,7 +99,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
     public override string TransformLabel(string label)
     {
         if (!labelDirty) return transformLabelCache;
-        if (innerContainer.NullOrEmpty())
+        if (innerContainer.NullOrEmpty<Pawn>())
         {
             transformLabelCache = $"{base.TransformLabel(label)} {"PS_Empty".Translate()}";
         }
@@ -101,9 +119,9 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public override bool AllowStackWith(Thing other)
     {
-        return innerContainer.NullOrEmpty()
+        return innerContainer.NullOrEmpty<Pawn>()
                && base.AllowStackWith(other)
-               && (other.TryGetComp<CompPawnStorage>()?.innerContainer?.NullOrEmpty() ?? true);
+               && (other.TryGetComp<CompPawnStorage>()?.innerContainer?.NullOrEmpty<Pawn>() ?? true);
     }
 
     public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
@@ -117,7 +135,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
                 selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
             });
 
-        if (!innerContainer.Any()) yield break;
+        if (!innerContainer.Any<Pawn>()) yield break;
         {
             if (Props.releaseAllOption && !(Props.releaseOption && innerContainer.Count == 1))
                 yield return new FloatMenuOption("PS_ReleaseAll".Translate(), delegate
@@ -231,10 +249,11 @@ public class CompPawnStorage : ThingComp, IThingHolder
     }
 
     public virtual string PawnTypeLabel => "PS_StoredPawns".Translate();
+
     public override string CompInspectStringExtra()
     {
         StringBuilder sb = new(base.CompInspectStringExtra());
-        if (innerContainer?.Any() != true) return sb.ToString().TrimStart().TrimEnd();
+        if (innerContainer?.Any<Pawn>() != true) return sb.ToString().TrimStart().TrimEnd();
         sb.AppendLine();
         sb.AppendLine(PawnTypeLabel);
         foreach (Pawn pawn in innerContainer) sb.AppendLine($"    - {pawn.LabelCap}");
@@ -245,12 +264,12 @@ public class CompPawnStorage : ThingComp, IThingHolder
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
         foreach (Gizmo g in base.CompGetGizmosExtra()) yield return g;
-        if (Props.releaseAllOption && innerContainer.Any())
+        if (Props.releaseAllOption && innerContainer.Any<Pawn>())
         {
             yield return new Command_Action
             {
                 defaultLabel = innerContainer.Count == 1
-                    ? "PS_Release".Translate(((Pawn)innerContainer.FirstOrDefault()).Name.ToStringShort)
+                    ? "PS_Release".Translate(((Pawn)innerContainer.FirstOrDefault<Pawn>()).Name.ToStringShort)
                     : "PS_ReleaseAll".Translate(),
                 action = delegate
                 {
@@ -267,7 +286,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
             if (Find.Selector.SelectedObjectsListForReading
                     .Select(o => (o as ThingWithComps)?.TryGetComp<CompPawnStorage>())
-                    .Where(o => o?.innerContainer?.Any() == true)
+                    .Where(o => o?.innerContainer?.Any<Pawn>() == true)
                     .ToList() is { Count: > 1 } comps
                 && this == comps.First())
             {
@@ -350,11 +369,11 @@ public class CompPawnStorage : ThingComp, IThingHolder
         };
 
         if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
-        
-        foreach (Thing thing in (IEnumerable<Thing>) innerContainer)
+
+        foreach (Pawn pawn in innerContainer)
         {
             Gizmo gizmo;
-            if ((gizmo = Building.SelectContainedItemGizmo(thing, thing)) != null)
+            if ((gizmo = Building.SelectContainedItemGizmo(parent, pawn)) != null)
                 yield return gizmo;
         }
     }
@@ -415,8 +434,9 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public void GetChildHolders(List<IThingHolder> outChildren)
     {
-        ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, (IList<Thing>) this.GetDirectlyHeldThings());
+        ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
     }
 
-    public ThingOwner GetDirectlyHeldThings() => this.innerContainer;
+    public ThingOwner GetDirectlyHeldThings() => innerContainer;
+    public ThingOwner<Pawn> GetDirectlyHeldPawns() => innerContainer;
 }

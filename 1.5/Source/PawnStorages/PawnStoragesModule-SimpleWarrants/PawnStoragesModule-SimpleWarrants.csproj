@@ -30,8 +30,8 @@
 
     <ItemGroup>
         <Reference Include="SimpleWarrants">
-            <HintPath Condition="Exists('../../../../../SimpleWarrants')">../../../../../SimpleWarrants/1.5/Assemblies/SimpleWarrants.dll</HintPath>
-            <HintPath Condition="!Exists('../../../../../SimpleWarrants')">../../../../../../../../workshop/content/294100/2676828755/1.5/Assemblies/SimpleWarrants.dll</HintPath>
+            <HintPath Condition="Exists('../../../../../2676828755')">../../../../../2676828755/1.5/Assemblies/SimpleWarrants.dll</HintPath>
+            <HintPath Condition="!Exists('../../../../../2676828755')">../../../../../../../../workshop/content/294100/2676828755/1.5/Assemblies/SimpleWarrants.dll</HintPath>
             <Private>False</Private>
         </Reference>
     </ItemGroup>
