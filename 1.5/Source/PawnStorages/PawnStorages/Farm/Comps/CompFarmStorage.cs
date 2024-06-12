@@ -36,7 +36,7 @@ namespace PawnStorages.Farm.Comps
                 compAssignable.TryAssignPawn(pawn);
             }
 
-            labelDirty = true;
+            SetLabelDirty();
         }
 
         public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)

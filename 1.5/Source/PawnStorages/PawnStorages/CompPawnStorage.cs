@@ -50,12 +50,23 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public void TryAssignPawn(Pawn pawn) => compAssignable?.TryAssignPawn(pawn);
 
-    public void SetLabelDirty() => labelDirty = true;
+    public void SetLabelDirty()
+    {
+        labelDirty = true;
+        PawnStorages_GameComponent.PawnStorageBar.PawnsDirty = true;
+    }
 
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {
         base.PostSpawnSetup(respawningAfterLoad);
         compAssignable = parent.TryGetComp<CompAssignableToPawn_PawnStorage>();
+        PawnStorages_GameComponent.CompPawnStorage.Add(this);
+    }
+
+    public override void PostDeSpawn(Map map)
+    {
+        base.PostDeSpawn(map);
+        PawnStorages_GameComponent.CompPawnStorage.Remove(this);
     }
 
     public override void PostExposeData()
@@ -201,7 +212,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
 
         if (compAssignable != null && !compAssignable.AssignedPawns.Contains(pawn)) compAssignable.TryAssignPawn(pawn);
-        labelDirty = true;
+        SetLabelDirty();
         pawnStoringTick.SetOrAdd(pawn.thingIDNumber, Find.TickManager.TicksGame);
     }
 
@@ -441,4 +452,6 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public ThingOwner GetDirectlyHeldThings() => innerContainer;
     public ThingOwner<Pawn> GetDirectlyHeldPawns() => innerContainer;
+    
+    
 }
