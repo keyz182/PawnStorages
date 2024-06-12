@@ -27,7 +27,7 @@ namespace PawnStorages.Farm
 
         public bool IsBreeder => FarmBreeder != null;
         public bool IsProducer => FarmProducer != null;
-        
+
         public bool IsFull => pawnStorage.IsFull;
 
         public override void ExposeData()
@@ -38,7 +38,7 @@ namespace PawnStorages.Farm
 
         public void AllowAll()
         {
-            foreach (var allowedThingsKey in AllowedThings.Keys)
+            foreach (ThingDef allowedThingsKey in AllowedThings.Keys)
             {
                 AllowedThings[allowedThingsKey] = true;
             }
@@ -68,9 +68,9 @@ namespace PawnStorages.Farm
                 return;
             allowedNutritionSettings.CopyFrom(def.building.defaultStorageSettings);
 
-            allowedThings ??= new();
+            allowedThings ??= new Dictionary<ThingDef, bool>();
 
-            foreach (var thingDef in AllowableThing.Where(t => !allowedThings.Keys.Contains(t)))
+            foreach (ThingDef thingDef in AllowableThing.Where(t => !allowedThings.Keys.Contains(t)))
             {
                 AllowedThings[thingDef] = true;
             }
@@ -83,7 +83,7 @@ namespace PawnStorages.Farm
             Designator_Build allowedDesignator = BuildCopyCommandUtility.FindAllowedDesignator(ThingDefOf.Hopper);
             if (allowedDesignator != null)
                 yield return allowedDesignator;
-            foreach (Thing thing in (IEnumerable<Thing>) StoredPawns)
+            foreach (Thing thing in (IEnumerable<Thing>)StoredPawns)
             {
                 Gizmo gizmo;
                 if ((gizmo = SelectContainedItemGizmo(thing, thing)) != null)
@@ -125,17 +125,20 @@ namespace PawnStorages.Farm
 
         public bool HasSuggestiveSilos => true;
         public bool HasStoredPawns => true;
-        public List<Pawn> StoredPawns => pawnStorage.GetDirectlyHeldThings().Select(p=>p as Pawn).ToList();
+        public List<Pawn> StoredPawns => pawnStorage.GetDirectlyHeldThings().Select(p => p as Pawn).ToList();
 
-        public void Notify_NutrtitionEmpty() => NutritionAvailable = false;
+        public void Notify_NutritionEmpty() => NutritionAvailable = false;
 
-        public void Notify_NutrtitionNotEmpty() => NutritionAvailable = true;
+        public void Notify_NutritionNotEmpty() => NutritionAvailable = true;
 
         public List<Pawn> BreedablePawns
         {
             get
             {
-                return !IsBreeder ? [] : StoredPawns.Select(p => p).Where(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed).ToList();
+                return !IsBreeder
+                    ? []
+                    : StoredPawns.Select(p => p).Where(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed)
+                        .ToList();
             }
         }
 
@@ -143,7 +146,11 @@ namespace PawnStorages.Farm
         {
             get
             {
-                return !IsProducer ? [] : StoredPawns.Select(p => p).Where(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed).ToList();
+                return !IsProducer
+                    ? []
+                    : StoredPawns.Select(p => p)
+                        .Where(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed)
+                        .ToList();
             }
         }
 
@@ -153,11 +160,10 @@ namespace PawnStorages.Farm
         {
             pawnStorage.StorePawn(newPawn);
         }
-        
+
         public void GetChildHolders(List<IThingHolder> outChildren)
         {
             ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, pawnStorage.GetDirectlyHeldThings());
         }
-        
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -19,7 +18,7 @@ public class Building_PawnStorage : PSBuilding
         base.SpawnSetup(map, respawningAfterLoad);
         storageComp = this.TryGetComp<CompPawnStorage>();
         compAssignable = this.TryGetComp<CompAssignableToPawn_PawnStorage>();
-        
+
         if (storageComp == null)
             Log.Warning($"{this} has null CompPawnStorage even though of type {nameof(Building_PawnStorage)}");
     }
@@ -39,7 +38,6 @@ public class Building_PawnStorage : PSBuilding
         {
             if (!compAssignable.Props.drawAsFrozenInCarbonite)
             {
-
                 Vector3 pos = DrawPos;
                 pos.y += Altitudes.AltInc;
 
@@ -72,14 +70,16 @@ public class Building_PawnStorage : PSBuilding
     }
 
     public float scale = 1.15f;
-    
+
     public override void DrawAt(Vector3 drawLoc, bool flip = false)
     {
         base.DrawAt(drawLoc, flip);
         if (compAssignable.Props.drawAsFrozenInCarbonite && storageComp.GetDirectlyHeldThings().Count > 0)
         {
             Pawn pawn = (Pawn)storageComp.GetDirectlyHeldThings().First();
-            RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f), storageComp.Rotation, new Vector3(0f, 0f, 0.1f), 1.5f, healthStateOverride: PawnHealthState.Mobile);
+            RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f),
+                storageComp.Rotation, new Vector3(0f, 0f, 0.1f), 1.5f,
+                healthStateOverride: PawnHealthState.Mobile);
 
             Vector3 pos = DrawPos;
             pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
@@ -99,5 +99,4 @@ public class Building_PawnStorage : PSBuilding
             Graphics.DrawMesh(MeshPool.plane10, matrix, mat, 0);
         }
     }
-    
 }
