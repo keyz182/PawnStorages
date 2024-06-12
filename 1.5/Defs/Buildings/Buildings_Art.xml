@@ -87,9 +87,13 @@
         <description>A slab of plastinite. Peculiar due to its complete unremarkableness.</description>
         <thingClass>PawnStorages.Building_PawnStorage</thingClass>
         <graphicData>
-            <graphicClass>Graphic_Single</graphicClass>
+            <graphicClass>Graphic_Multi</graphicClass>
             <texPath>Things/Building/Art/PS_Plastinite</texPath>
             <drawSize>(1,2)</drawSize>
+            <drawOffsetNorth>(0,0,0)</drawOffsetNorth>
+            <drawOffsetSouth>(0,0,0.3)</drawOffsetSouth>
+            <drawOffsetWest>(0.2,0,0)</drawOffsetWest>
+            <drawOffsetEast>(-0.2,0,0)</drawOffsetEast>
         </graphicData>
         <size>(1,2)</size>
         <drawerType>MapMeshAndRealTime</drawerType>
@@ -127,7 +131,7 @@
         </placeWorkers>
         <modExtensions>
             <li Class="PawnStorages.PSExtension">
-                <statueOffset>(0,0,0.5)</statueOffset>
+                <statueOffset>(0,0,-0.25)</statueOffset>
             </li>
         </modExtensions>
     </ThingDef>

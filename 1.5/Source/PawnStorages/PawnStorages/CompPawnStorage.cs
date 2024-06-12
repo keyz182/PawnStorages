@@ -24,7 +24,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
     private Dictionary<int, int> pawnStoringTick = new();
     protected string transformLabelCache;
 
-    public Rot4 Rotation;
+    public Rot4 Rotation = Rot4.North.Opposite;
 
     public Thing Parent => parent;
 
@@ -35,6 +35,8 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
     public virtual int MaxStoredPawns() => Props.MaxStoredPawns;
+        
+    public bool IsFull => GetDirectlyHeldThings().Count >= MaxStoredPawns();
     public bool CanStore => innerContainer.Count < MaxStoredPawns();
 
     public bool CanAssign(Pawn pawn, bool couldMakePrisoner) =>

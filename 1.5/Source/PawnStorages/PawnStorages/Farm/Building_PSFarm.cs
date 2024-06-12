@@ -27,6 +27,8 @@ namespace PawnStorages.Farm
 
         public bool IsBreeder => FarmBreeder != null;
         public bool IsProducer => FarmProducer != null;
+        
+        public bool IsFull => pawnStorage.IsFull;
 
         public override void ExposeData()
         {

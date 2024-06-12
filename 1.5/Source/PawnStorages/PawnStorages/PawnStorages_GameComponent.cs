@@ -14,6 +14,7 @@ public class PawnStorages_GameComponent : GameComponent
     public override void FinalizeInit()
     {
         base.FinalizeInit();
-        CompAssignables.Clear();
+        // this runs _after_ everything is set up, so it just clears out CompAssignables immediately after filling it
+        // CompAssignables.Clear();
     }
 }
