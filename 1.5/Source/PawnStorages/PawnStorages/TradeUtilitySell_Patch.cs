@@ -18,8 +18,8 @@ public static class TradeUtilitySell_Patch
         float priceGain_AnimalProduceBonus,
         TradeCurrency currency)
     {
-        return __result + (thing.TryGetComp<CompPawnStorage>() is { } storageComp
-            ? storageComp.StoredPawns.Select(p => TradeUtility.GetPricePlayerSell(p, priceFactorSell_TraderPriceType,
+        return __result + (thing.GetInnerIfMinified().TryGetComp<CompPawnStorage>() is { } holder
+            ? holder.GetDirectlyHeldThings().Select(p => TradeUtility.GetPricePlayerSell(p, priceFactorSell_TraderPriceType,
                 priceFactorSell_HumanPawn,
                 priceGain_PlayerNegotiator,
                 priceGain_FactionBase,

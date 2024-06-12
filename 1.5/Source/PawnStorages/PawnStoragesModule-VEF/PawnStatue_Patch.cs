@@ -17,6 +17,9 @@ public static class GenerateBuildingAt_Patch
         ThingWithComps storageItem = ThingMaker.MakeThing(PS_DefOf.PS_PawnStatue, stuff) as ThingWithComps;
         if (storageItem == null) return true;
         storageItem.InitializeComps();
+        var holder = storageItem as IThingHolder;
+        if (holder == null) return true;
+        
         CompPawnStorage storageComp = storageItem.GetInnerIfMinified()?.TryGetComp<CompPawnStorage>();
         Faction chosenFaction = symbol.spawnPartOfFaction ? map.ParentFaction : null;
         Pawn pawn = null;
@@ -31,7 +34,7 @@ public static class GenerateBuildingAt_Patch
             pawn = SymbolUtils.GeneratePawnForContainer(symbol, map);
         }
 
-        storageComp?.StoredPawns?.Add(pawn);
+        holder.GetDirectlyHeldThings()?.TryAdd(pawn);
         storageComp?.SetLabelDirty();
 
         GenSpawn.Spawn(storageItem, cell, map, symbol.rotation, WipeMode.VanishOrMoveAside);

@@ -1,9 +1,8 @@
-﻿using System.Linq;
-using Mono.Unix.Native;
+﻿using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
-using Verse.Noise;
 
 namespace PawnStorages;
 
@@ -13,7 +12,7 @@ public class Building_PawnStorage : PSBuilding
 
     public CompAssignableToPawn_PawnStorage compAssignable;
 
-    public override bool ShouldUseAlternative => base.ShouldUseAlternative && !(storageComp?.StoredPawns.NullOrEmpty() ?? true);
+    public override bool ShouldUseAlternative => base.ShouldUseAlternative && !storageComp.GetDirectlyHeldThings().NullOrEmpty();
 
     public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
@@ -36,7 +35,7 @@ public class Building_PawnStorage : PSBuilding
 
     public override void Print(SectionLayer layer)
     {
-        Pawn pawn = storageComp.StoredPawns.FirstOrDefault();
+        Pawn pawn = (Pawn)storageComp.GetDirectlyHeldThings().FirstOrDefault();
         if (storageComp.Props.showStoredPawn && pawn != null)
         {
             if (!compAssignable.Props.drawAsFrozenInCarbonite)
@@ -79,12 +78,12 @@ public class Building_PawnStorage : PSBuilding
     public override void DrawAt(Vector3 drawLoc, bool flip = false)
     {
         base.DrawAt(drawLoc, flip);
-        if (compAssignable.Props.drawAsFrozenInCarbonite && storageComp.StoredPawns.Count > 0)
+        if (compAssignable.Props.drawAsFrozenInCarbonite && storageComp.GetDirectlyHeldThings().Count > 0)
         {
-            Pawn pawn = storageComp.StoredPawns.First();
+            Pawn pawn = (Pawn)storageComp.GetDirectlyHeldThings().First();
             RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f), storageComp.Rotation.Rotated(RotationDirection.Opposite), new Vector3(0f, 0f, 0.1f), 1.5f, healthStateOverride: PawnHealthState.Mobile);
-            
-            var pos = DrawPos;
+
+            Vector3 pos = DrawPos;
             pos.z += statueOffsetZ;
             pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
 
@@ -102,4 +101,5 @@ public class Building_PawnStorage : PSBuilding
             Graphics.DrawMesh(MeshPool.plane10, matrix, mat, 0);
         }
     }
+    
 }

@@ -33,9 +33,9 @@ public class Tradeable_StoredPawn : Tradeable
     {
         get
         {
-            if (GetCompFrom(AnyThing) is { } storageComp)
+            if (AnyThing as IThingHolder is { } holder)
             {
-                return storageComp.StoredPawns.FirstOrDefault();
+                return (Pawn)holder.GetDirectlyHeldThings().FirstOrDefault();
             }
 
             return null;
@@ -55,7 +55,7 @@ public class Tradeable_StoredPawn : Tradeable
                 List<ThingWithComps> listSold = thingsColony.Take(CountToTransferToDestination).Cast<ThingWithComps>().ToList();
                 foreach (ThingWithComps thingSold in listSold)
                 {
-                    List<Pawn> slaves = GetCompFrom(thingSold)?.StoredPawns ?? [];
+                    List<Pawn> slaves = thingSold.GetInnerIfMinified().TryGetComp<CompPawnStorage>()?.GetDirectlyHeldPawns()?.ToList<Pawn>() ?? [];
                     int num = slaves.Select(slave => GuestUtility.IsSellingToSlavery(slave, TradeSession.trader.Faction) ? 1 : 0).Sum();
                     foreach (Pawn slaveSold in slaves)
                     {
@@ -73,7 +73,7 @@ public class Tradeable_StoredPawn : Tradeable
                 List<ThingWithComps> listPurchased = thingsTrader.Take(CountToTransferToSource).Cast<ThingWithComps>().ToList();
                 foreach (ThingWithComps thingPurchased in listPurchased)
                 {
-                    List<Pawn> slaves = GetCompFrom(thingPurchased)?.StoredPawns ?? [];
+                    List<Pawn> slaves = thingPurchased?.GetInnerIfMinified().TryGetComp<CompPawnStorage>()?.GetDirectlyHeldPawns()?.ToList<Pawn>() ?? [];
                     foreach (Pawn slavePurchased in slaves)
                     {
                         TradeSession.trader.GiveSoldThingToPlayer(slavePurchased, 1, TradeSession.playerNegotiator);

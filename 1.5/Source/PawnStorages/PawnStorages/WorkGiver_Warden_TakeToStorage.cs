@@ -61,7 +61,7 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
         if (pawn.Faction == Faction.OfPlayer)
             bedOwnerType = BedOwnerType.Colonist;
 
-        return CompAssignableToPawn_PawnStorage.compAssignables
+        return PawnStorages_GameComponent.CompAssignables
             .Where(c =>
                 c.parent is not Building_PSFarm
                 && (ofDef == null || c.parent.def == ofDef)
@@ -85,8 +85,8 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
             if ((!assign && preferredStorage.HasFreeSlot) || preferredStorage.AssignedPawns.Contains(prisoner)) return preferredStorage.parent;
         }
 
-        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage
-            .compAssignables.FirstOrDefault(c =>
+        ThingWithComps existingAssigned = PawnStorages_GameComponent
+            .CompAssignables.FirstOrDefault(c =>
                 c.parent is not Building_PSFarm && c.assignedPawns.Contains(prisoner)
             )
             ?.parent;
@@ -109,8 +109,8 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
         bool breeding = false
     )
     {
-        ThingWithComps existingAssigned = CompAssignableToPawn_PawnStorage
-            .compAssignables.FirstOrDefault(c =>
+        ThingWithComps existingAssigned = PawnStorages_GameComponent
+            .CompAssignables.FirstOrDefault(c =>
                 c.parent is Building_PSFarm && c.assignedPawns.Contains(prisoner)
             )
             ?.parent;
@@ -119,7 +119,7 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
             return existingAssigned;
         }
 
-        CompAssignableToPawn_PawnStorage assignable = CompAssignableToPawn_PawnStorage.compAssignables.FirstOrDefault(c =>
+        CompAssignableToPawn_PawnStorage assignable = PawnStorages_GameComponent.CompAssignables.FirstOrDefault(c =>
             c.parent is Building_PSFarm farm
             && farm.Allowed(prisoner.def)
             && (farm.IsBreeder == breeding)

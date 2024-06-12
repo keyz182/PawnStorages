@@ -81,6 +81,12 @@ namespace PawnStorages.Farm
             Designator_Build allowedDesignator = BuildCopyCommandUtility.FindAllowedDesignator(ThingDefOf.Hopper);
             if (allowedDesignator != null)
                 yield return allowedDesignator;
+            foreach (Thing thing in (IEnumerable<Thing>) StoredPawns)
+            {
+                Gizmo gizmo;
+                if ((gizmo = SelectContainedItemGizmo(thing, thing)) != null)
+                    yield return gizmo;
+            }
         }
 
         public override string GetInspectString()
@@ -112,20 +118,32 @@ namespace PawnStorages.Farm
 
         public void ReleasePawn(Pawn pawn)
         {
-            pawnStorage.ReleaseSingle(this.Map, pawn, true, true);
+            pawnStorage.ReleaseSingle(Map, pawn, true, true);
         }
 
         public bool HasSuggestiveSilos => true;
         public bool HasStoredPawns => true;
-        public List<Pawn> StoredPawns => pawnStorage.StoredPawns;
+        public List<Pawn> StoredPawns => pawnStorage.GetDirectlyHeldThings().Select(p=>p as Pawn).ToList();
+
         public void Notify_NutrtitionEmpty() => NutritionAvailable = false;
 
         public void Notify_NutrtitionNotEmpty() => NutritionAvailable = true;
 
-        public List<Pawn> BreedablePawns => pawnStorage.StoredPawns.Where(p => p.ageTracker.Adult && !p.health.Dead && !p.health.Downed).ToList();
+        public List<Pawn> BreedablePawns
+        {
+            get
+            {
+                return !IsBreeder ? [] : StoredPawns.Select(p => p).Where(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed).ToList();
+            }
+        }
 
-        public List<Pawn> ProducingPawns => pawnStorage.StoredPawns
-            .Where(p => p.ageTracker.Adult && !p.health.Dead && !p.health.Downed).ToList();
+        public List<Pawn> ProducingPawns
+        {
+            get
+            {
+                return !IsProducer ? [] : StoredPawns.Select(p => p).Where(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed).ToList();
+            }
+        }
 
         public int TickInterval => 250;
 
@@ -133,5 +151,11 @@ namespace PawnStorages.Farm
         {
             pawnStorage.StorePawn(newPawn);
         }
+        
+        public void GetChildHolders(List<IThingHolder> outChildren)
+        {
+            ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, pawnStorage.GetDirectlyHeldThings());
+        }
+        
     }
 }
