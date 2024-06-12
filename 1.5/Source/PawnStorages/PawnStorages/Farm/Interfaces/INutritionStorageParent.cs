@@ -9,7 +9,7 @@ namespace PawnStorages.Farm.Interfaces
         public bool HasStoredPawns { get; }
         public List<Pawn> StoredPawns { get; }
 
-        public void Notify_NutrtitionEmpty();
-        public void Notify_NutrtitionNotEmpty();
+        public void Notify_NutritionEmpty();
+        public void Notify_NutritionNotEmpty();
     }
 }

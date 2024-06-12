@@ -1,19 +1,56 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Verse;
 
 namespace PawnStorages;
 
 public class PawnStorages_GameComponent : GameComponent
 {
-    public static HashSet<CompAssignableToPawn_PawnStorage> CompAssignables = [];
+    private static HashSet<CompAssignableToPawn_PawnStorage> _CompAssignables = [];
 
+    public static bool AssignablesDirty = false;
+
+    public static HashSet<CompAssignableToPawn_PawnStorage> CompAssignables
+    {
+        get
+        {
+            if (AssignablesDirty)
+            {
+                _CompAssignables.Clear();
+                foreach (var comp in Find.CurrentMap.spawnedThings.Select(thing =>
+                             thing.TryGetComp<CompAssignableToPawn_PawnStorage>()))
+                {
+                    if (comp != null)
+                        _CompAssignables.Add(comp);
+                }
+
+                AssignablesDirty = false;
+            }
+
+            return _CompAssignables;
+        }
+    }
     public PawnStorages_GameComponent(Game game)
     {
+    }
+
+    public override void LoadedGame()
+    {
+        base.LoadedGame();
+        AssignablesDirty = true;
+    }
+
+    public override void StartedNewGame()
+    {
+        base.LoadedGame();
+        AssignablesDirty = true;
     }
 
     public override void FinalizeInit()
     {
         base.FinalizeInit();
-        CompAssignables.Clear();
+        AssignablesDirty = true;
+        // this runs _after_ everything is set up, so it just clears out CompAssignables immediately after filling it
+        // CompAssignables.Clear();
     }
 }

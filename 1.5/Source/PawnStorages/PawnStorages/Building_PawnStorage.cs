@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -19,8 +18,7 @@ public class Building_PawnStorage : PSBuilding
         base.SpawnSetup(map, respawningAfterLoad);
         storageComp = this.TryGetComp<CompPawnStorage>();
         compAssignable = this.TryGetComp<CompAssignableToPawn_PawnStorage>();
-        // Set the default rotation
-        storageComp.Rotation = Rotation;
+
         if (storageComp == null)
             Log.Warning($"{this} has null CompPawnStorage even though of type {nameof(Building_PawnStorage)}");
     }
@@ -40,7 +38,6 @@ public class Building_PawnStorage : PSBuilding
         {
             if (!compAssignable.Props.drawAsFrozenInCarbonite)
             {
-
                 Vector3 pos = DrawPos;
                 pos.y += Altitudes.AltInc;
 
@@ -72,19 +69,19 @@ public class Building_PawnStorage : PSBuilding
         base.Print(layer);
     }
 
-    public float statueOffsetZ = -0.25f;
     public float scale = 1.15f;
-    
+
     public override void DrawAt(Vector3 drawLoc, bool flip = false)
     {
         base.DrawAt(drawLoc, flip);
         if (compAssignable.Props.drawAsFrozenInCarbonite && storageComp.GetDirectlyHeldThings().Count > 0)
         {
             Pawn pawn = (Pawn)storageComp.GetDirectlyHeldThings().First();
-            RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f), storageComp.Rotation.Rotated(RotationDirection.Opposite), new Vector3(0f, 0f, 0.1f), 1.5f, healthStateOverride: PawnHealthState.Mobile);
+            RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f),
+                storageComp.Rotation, new Vector3(0f, 0f, 0.1f), 1.5f,
+                healthStateOverride: PawnHealthState.Mobile);
 
             Vector3 pos = DrawPos;
-            pos.z += statueOffsetZ;
             pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
 
             MaterialRequest req2 = default;
@@ -94,12 +91,12 @@ public class Building_PawnStorage : PSBuilding
             req2.color = DrawColor;
             req2.colorTwo = DrawColorTwo;
 
+            pos += StatueOffset.RotatedBy(Rotation);
             Material mat = MaterialPool.MatFrom(req2);
 
 
-            Matrix4x4 matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0.0f, 0f, 0.0f), new Vector3(scale, 1f, scale));
+            Matrix4x4 matrix = Matrix4x4.TRS(pos, Rotation.AsQuat, new Vector3(scale, 1f, scale));
             Graphics.DrawMesh(MeshPool.plane10, matrix, mat, 0);
         }
     }
-    
 }

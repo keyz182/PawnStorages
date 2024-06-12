@@ -121,6 +121,7 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
 
         CompAssignableToPawn_PawnStorage assignable = PawnStorages_GameComponent.CompAssignables.FirstOrDefault(c =>
             c.parent is Building_PSFarm farm
+            && !farm.IsFull
             && farm.Allowed(prisoner.def)
             && (farm.IsBreeder == breeding)
         );

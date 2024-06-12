@@ -97,11 +97,11 @@ namespace PawnStorages.Farm.Comps
 
             if (storedNutrition > 0)
             {
-                Parent.Notify_NutrtitionNotEmpty();
+                Parent.Notify_NutritionNotEmpty();
             }
             else
             {
-                Parent.Notify_NutrtitionEmpty();
+                Parent.Notify_NutritionEmpty();
             }
         }
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using HarmonyLib;
@@ -24,7 +23,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
     private Dictionary<int, int> pawnStoringTick = new();
     protected string transformLabelCache;
 
-    public Rot4 Rotation;
+    public Rot4 Rotation = Rot4.North.Opposite;
 
     public Thing Parent => parent;
 
@@ -35,6 +34,8 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public CompProperties_PawnStorage Props => props as CompProperties_PawnStorage;
     public virtual int MaxStoredPawns() => Props.MaxStoredPawns;
+
+    public bool IsFull => (GetDirectlyHeldThings()?.Count ?? 0) >= MaxStoredPawns();
     public bool CanStore => innerContainer.Count < MaxStoredPawns();
 
     public bool CanAssign(Pawn pawn, bool couldMakePrisoner) =>
@@ -75,13 +76,12 @@ public class CompPawnStorage : ThingComp, IThingHolder
             {
                 innerContainer.TryAdd(pawn);
             }
+
             storedPawns.Clear();
         }
 
         if (Scribe.mode != LoadSaveMode.PostLoadInit) return;
         pawnStoringTick ??= new Dictionary<int, int>();
-
-
     }
 
     public override void PostDestroy(DestroyMode mode, Map previousMap)
