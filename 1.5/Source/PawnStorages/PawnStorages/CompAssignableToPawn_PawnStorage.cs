@@ -27,11 +27,6 @@ public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
         }
     }
 
-    public override void PostDestroy(DestroyMode mode, Map map)
-    {
-        base.PostDestroy(mode, map);
-    }
-
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {
         base.PostSpawnSetup(respawningAfterLoad);
