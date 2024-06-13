@@ -30,6 +30,7 @@ public class PawnStorages_GameComponent : GameComponent
             return _CompAssignables;
         }
     }
+
     public PawnStorages_GameComponent(Game game)
     {
     }
@@ -50,7 +51,5 @@ public class PawnStorages_GameComponent : GameComponent
     {
         base.FinalizeInit();
         AssignablesDirty = true;
-        // this runs _after_ everything is set up, so it just clears out CompAssignables immediately after filling it
-        // CompAssignables.Clear();
     }
 }

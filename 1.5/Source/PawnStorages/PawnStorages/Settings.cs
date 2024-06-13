@@ -9,6 +9,7 @@ public class Settings : ModSettings
     public bool SpecialReleaseAll = false;
     public string ForcedPawn = "";
     public bool SuggestiveSilo = false;
+    public bool ShowStoredPawnsInBar = false;
     public float ProductionScale = 0.5f;
     public float BreedingScale = 2f;
     public int MaxPawnsInFarm = 16;
@@ -26,6 +27,14 @@ public class Settings : ModSettings
         options.Gap();
         options.CheckboxLabeled("PS_Settings_SuggestiveSilo".Translate(), ref SuggestiveSilo);
         options.Gap();
+        bool showStoredPawnsInBarBefore = ShowStoredPawnsInBar;
+        options.CheckboxLabeled("PS_Settings_ShowStoredPawnsInBar".Translate(), ref ShowStoredPawnsInBar);
+        if (showStoredPawnsInBarBefore != ShowStoredPawnsInBar)
+        {
+            Find.ColonistBar.MarkColonistsDirty();
+        }
+
+        options.Gap();
         options.Label("PS_Settings_Production_Scale".Translate(ProductionScale.ToString("0.00")));
         ProductionScale = options.Slider(ProductionScale, 0f, 10f);
         options.Gap();
@@ -42,10 +51,12 @@ public class Settings : ModSettings
             SpecialReleaseAll = false;
             ForcedPawn = "";
             SuggestiveSilo = false;
+            ShowStoredPawnsInBar = false;
             ProductionScale = 0.5f;
             BreedingScale = 2f;
             MaxPawnsInFarm = 16;
         }
+
         options.End();
     }
 
@@ -60,6 +71,7 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref AllowNeedsDrop, "AllowNeedsDrop", true);
         Scribe_Values.Look(ref SpecialReleaseAll, "SpecialReleaseAll", false);
         Scribe_Values.Look(ref SuggestiveSilo, "SuggestiveSilo", false);
+        Scribe_Values.Look(ref ShowStoredPawnsInBar, "ShowStoredPawnsInBar", false);
         Scribe_Values.Look(ref ProductionScale, "ProductionScale", 0.5f);
         Scribe_Values.Look(ref BreedingScale, "BreedingScale", 2);
         Scribe_Values.Look(ref MaxPawnsInFarm, "MaxPawnsInFarm", 16);
