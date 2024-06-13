@@ -440,7 +440,13 @@ public class CompPawnStorage : ThingComp, IThingHolder
         ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
     }
 
-    public ThingOwner GetDirectlyHeldThings() => innerContainer;
+    public ThingOwner GetDirectlyHeldThings()
+    {
+        if (innerContainer == null)
+            innerContainer = new ThingOwner<Pawn>(this);
+        return innerContainer;
+    }
+
     public ThingOwner<Pawn> GetDirectlyHeldPawns() => innerContainer;
 
     public void Notify_ReleasedFromStorage(Pawn pawn)
