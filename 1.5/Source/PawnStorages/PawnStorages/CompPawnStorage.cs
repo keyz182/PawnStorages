@@ -364,6 +364,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
             {
                 Rotation.Rotate(RotationDirection.Clockwise);
                 this.SetLabelDirty();
+                this.parent.Map.mapDrawer.MapMeshDirty(this.parent.Position, (ulong) MapMeshFlagDefOf.Things);
             },
             isActive = () => true,
             icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
@@ -440,7 +441,13 @@ public class CompPawnStorage : ThingComp, IThingHolder
         ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
     }
 
-    public ThingOwner GetDirectlyHeldThings() => innerContainer;
+    public ThingOwner GetDirectlyHeldThings()
+    {
+        if (innerContainer == null)
+            innerContainer = new ThingOwner<Pawn>(this);
+        return innerContainer;
+    }
+
     public ThingOwner<Pawn> GetDirectlyHeldPawns() => innerContainer;
 
     public void Notify_ReleasedFromStorage(Pawn pawn)
