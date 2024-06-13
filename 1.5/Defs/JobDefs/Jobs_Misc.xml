@@ -28,6 +28,16 @@
     </JobDef>
 
     <JobDef>
+        <defName>PS_CaptureInPawnStorageItem</defName>
+        <driverClass>PawnStorages.JobDriver_CaptureInStorageItem</driverClass>
+        <reportString>storing TargetA.</reportString>
+        <alwaysShowWeapon>false</alwaysShowWeapon>
+        <makeTargetPrisoner>true</makeTargetPrisoner>
+        <casualInterruptible>false</casualInterruptible>
+        <carryThingAfterJob>true</carryThingAfterJob>
+    </JobDef>
+
+    <JobDef>
         <defName>PS_CaptureEntityInPawnStorage</defName>
         <driverClass>PawnStorages.JobDriver_TakeToStorage</driverClass>
         <reportString>storing TargetA.</reportString>

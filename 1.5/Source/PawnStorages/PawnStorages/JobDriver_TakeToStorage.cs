@@ -8,14 +8,14 @@ namespace PawnStorages;
 
 public class JobDriver_TakeToStorage : JobDriver
 {
-    private const TargetIndex TakeeIndex = TargetIndex.A;
+    protected const TargetIndex TakeeIndex = TargetIndex.A;
 
     private const TargetIndex StorageIndex = TargetIndex.B;
 
     protected Pawn Takee => (Pawn)job.GetTarget(TakeeIndex).Thing;
     protected Thing Storage => job.GetTarget(StorageIndex).Thing;
 
-    private bool TakeeRescued
+    protected bool TakeeRescued
     {
         get
         {

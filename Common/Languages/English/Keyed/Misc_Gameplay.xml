@@ -32,6 +32,7 @@
 	<PS_Storage_Use_Desc>Whether this storage should be used by colonists, prisoners or slaves.</PS_Storage_Use_Desc>
 	<PS_TakeToStorageFloatMenu>Try to take {0} to {1}</PS_TakeToStorageFloatMenu>
 	<PS_CaptureToStorageFloatMenu>Try to capture {0} in {1}</PS_CaptureToStorageFloatMenu>
+	<PS_CapturingToStorage>Capturing {0} in {1}</PS_CapturingToStorage>
 	<PS_TakeToPlastiniteFloatMenu>Try to freeze {0} in {1}</PS_TakeToPlastiniteFloatMenu>
 	<PS_TakingToStorage>Taking {0} to {1}</PS_TakingToStorage>
 	<PS_TakingToPlastinite>Freezing {0} in {1}</PS_TakingToPlastinite>

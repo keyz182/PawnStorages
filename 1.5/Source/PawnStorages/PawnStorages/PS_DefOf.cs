@@ -10,6 +10,7 @@ public static class PS_DefOf
     public static JobDef PS_Enter;
     public static JobDef PS_Release;
     public static JobDef PS_CaptureInPawnStorage;
+    public static JobDef PS_CaptureInPawnStorageItem;
     public static JobDef PS_CaptureEntityInPawnStorage;
     public static JobDef PS_CaptureAnimalInPawnStorage;
     public static JobDef PS_CaptureAnimalToFarm;

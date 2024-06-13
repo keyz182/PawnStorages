@@ -56,7 +56,7 @@
         <defName>PS_PawnCrystal</defName>
         <label>mysterious gem</label>
         <!--ASK: Keep Feynman Digitizer desc instead?-->
-        <description>A storage medium for a pawn. This magical crystal can be embued with the physical essence of a colonist.</description>
+        <description>A storage medium for a pawn. This magical crystal can be imbued with the physical essence of a colonist.</description>
         <stackLimit>16</stackLimit>
         <tickerType>Never</tickerType>
         <drawGUIOverlay>true</drawGUIOverlay>
@@ -76,6 +76,80 @@
                 <storageStation>PS_Crystallizer</storageStation>
             </li>
         </comps>
+    </ThingDef>
+
+    <OrderedTakeGroupDef>
+        <defName>PS_CaptureItem</defName>
+        <label>capture item</label>
+    </OrderedTakeGroupDef>
+
+    <ThingDef ParentName="StorageDiscBase">
+        <defName>PS_CaptureCrystal</defName>
+        <label>mysterious capture gem</label>
+        <orderedTakeGroup>PS_CaptureItem</orderedTakeGroup>
+        <!--ASK: Keep Feynman Digitizer desc instead?-->
+        <description>A storage medium for a pawn. This magical crystal can ensnare any downed pawn.</description>
+        <stackLimit>16</stackLimit>
+        <tickerType>Never</tickerType>
+        <drawGUIOverlay>true</drawGUIOverlay>
+        <thingSetMakerTags><li>RewardStandardLowFreq</li></thingSetMakerTags>
+        <graphicData>
+            <texPath>Things/Item/Special/PawnCrystal</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+        </graphicData>
+        <comps>
+            <li Class="PawnStorages.CompProperties_PawnStorage">
+                <compClass>PawnStorages.CompPawnStorage</compClass>
+                <needsDrop>false</needsDrop>
+                <maxStoredPawns>1</maxStoredPawns>
+                <releaseOption>true</releaseOption>
+                <convertOption>true</convertOption>
+                <appendOfName>true</appendOfName>
+                <lightEffect>true</lightEffect>
+                <releaseEffect>Skip_Entry</releaseEffect>
+                <storeEffect>Skip_Entry</storeEffect>
+                <charges>1</charges>
+                <useCharges>true</useCharges>
+                <destroyOnZeroCharges>true</destroyOnZeroCharges>
+                <useFromInventory>true</useFromInventory>
+            </li>
+        </comps>
+        <costList>
+            <Jade>1</Jade>
+        </costList>
+        <recipeMaker>
+            <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+            <workSkill>Artistic</workSkill>
+            <skillRequirements>
+                <Crafting>6</Crafting>
+                <Artistic>5</Artistic>
+            </skillRequirements>
+            <unfinishedThingDef>UnfinishedSculpture</unfinishedThingDef>
+            <effectWorking>Sculpt</effectWorking>
+            <soundWorking>Recipe_Sculpt</soundWorking>
+            <recipeUsers>
+                <li>TableSculpting</li>
+            </recipeUsers>
+            <defaultIngredientFilter>
+                <categories>
+                    <li>Root</li>
+                </categories>
+                <thingDefs>
+                    <li>Jade</li>
+                    <li MayRequire="Ludeon.RimWorld.Anomaly">Bioferrite</li>
+                </thingDefs>
+            </defaultIngredientFilter>
+        </recipeMaker>
+        <statBases>
+            <MaxHitPoints>90</MaxHitPoints>
+            <Mass>1</Mass>
+            <Beauty>5</Beauty>
+            <WorkToMake>5000</WorkToMake>
+        </statBases>
+        <stuffCategories>
+            <li>Stony</li>
+        </stuffCategories>
+        <costStuffCount>10</costStuffCount>
     </ThingDef>
 
     <!--

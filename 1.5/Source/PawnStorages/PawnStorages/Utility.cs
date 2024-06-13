@@ -106,6 +106,7 @@ public static class Utility
         store.SetLabelDirty();
         store.ApplyNeedsForStoredPeriodFor(pawn);
         pawn.guest?.WaitInsteadOfEscapingFor(1250);
+        store.Notify_ReleasedFromStorage(pawn);
     }
 
     public static bool CanRelease(CompPawnStorage store, Pawn releaser)

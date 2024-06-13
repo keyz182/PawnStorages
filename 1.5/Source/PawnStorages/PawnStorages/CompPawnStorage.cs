@@ -18,6 +18,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     protected CompAssignableToPawn_PawnStorage compAssignable;
     protected bool labelDirty = true;
+    protected int chargesRemaining;
     public bool schedulingEnabled;
     protected List<Pawn> storedPawns = []; // Deprecated, to remove in next major version
     private Dictionary<int, int> pawnStoringTick = new();
@@ -59,10 +60,10 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public override void PostExposeData()
     {
-        Log.Message(Scribe.mode);
         base.PostExposeData();
         Scribe_Collections.Look(ref pawnStoringTick, "pawnStoringTick", LookMode.Value, LookMode.Value);
         Scribe_Values.Look(ref schedulingEnabled, "schedulingEnabled");
+        Scribe_Values.Look(ref chargesRemaining, "chargesRemaining");
         Scribe_Values.Look(ref Rotation, "Rotation");
 
         // Deprectated - To Remove in next major version
@@ -187,16 +188,16 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public void StorePawn(Pawn pawn)
     {
-        if (Props.lightEffect) FleckMaker.ThrowLightningGlow(pawn.Position.ToVector3Shifted(), pawn.Map, 0.5f);
-        if (Props.transformEffect) FleckMaker.ThrowExplosionCell(pawn.Position, pawn.Map, FleckDefOf.ExplosionFlash, Color.white);
+        Map pawnMap = pawn.Map;
+        if (Props.lightEffect) FleckMaker.ThrowLightningGlow(pawn.Position.ToVector3Shifted(), pawnMap, 0.5f);
+        if (Props.transformEffect) FleckMaker.ThrowExplosionCell(pawn.Position, pawnMap, FleckDefOf.ExplosionFlash, Color.white);
         //Spawn the store effecter
-        Props.storeEffect?.Spawn(pawn.Position, parent.Map);
+        Props.storeEffect?.Spawn(pawn.Position, pawnMap);
 
         pawn.DeSpawn();
         innerContainer.TryAdd(pawn);
-        //Find.WorldPawns.AddPawn(pawn);
 
-        parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
+        pawnMap?.mapDrawer?.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
 
         if (compAssignable != null && !compAssignable.AssignedPawns.Contains(pawn)) compAssignable.TryAssignPawn(pawn);
         labelDirty = true;
@@ -411,6 +412,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
                 return;
             FleckMaker.ThrowDustPuff(pawn.Position.ToVector3Shifted() + Gen.RandomHorizontalVector(0.5f), map, 2f);
             GenSpawn.Spawn(pawnFlyer, cell, map);
+            Notify_ReleasedFromStorage(pawn);
             if (pawnIsSelected)
                 Find.Selector.Select(pawn, false, false);
         }
@@ -426,10 +428,11 @@ public class CompPawnStorage : ThingComp, IThingHolder
         PawnComponentsUtility.AddComponentsForSpawn(pawn);
         compAssignable.TryUnassignPawn(pawn);
         GenDrop.TryDropSpawn(pawn, parent.Position, map, ThingPlaceMode.Near, out Thing _);
-        FilthMaker.TryMakeFilth(parent.InteractionCell, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
+        if (makeFilth) FilthMaker.TryMakeFilth(parent.InteractionCell, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
 
-        if (remove)
-            innerContainer.Remove(pawn);
+        if (!remove) return;
+        innerContainer.Remove(pawn);
+        Notify_ReleasedFromStorage(pawn);
     }
 
     public void GetChildHolders(List<IThingHolder> outChildren)
@@ -439,4 +442,10 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public ThingOwner GetDirectlyHeldThings() => innerContainer;
     public ThingOwner<Pawn> GetDirectlyHeldPawns() => innerContainer;
+
+    public void Notify_ReleasedFromStorage(Pawn pawn)
+    {
+        if (Props.useCharges && chargesRemaining > 0) chargesRemaining--;
+        if (chargesRemaining <= 0 && Props.destroyOnZeroCharges) Parent.Destroy();
+    }
 }

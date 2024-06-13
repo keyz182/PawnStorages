@@ -22,7 +22,6 @@ public static class OrdersPatch
             mapObjectTargetsMustBeAutoAttackable = false,
             validator = targ =>
                 targ is { HasThing: true, Thing: Pawn thing } && thing != arrester &&
-                WorkGiver_Warden_TakeToStorage.GetStorageForPawn(thing, assign: false) != null &&
                 (thing.CarriedBy == arrester || thing.IsPrisoner || thing.CanBeCaptured() || (thing.CanBeArrestedBy(arrester) && (!thing.Downed || !thing.guilt.IsGuilty)))
         };
     }
@@ -51,8 +50,7 @@ public static class OrdersPatch
             canTargetMechs = true,
             mapObjectTargetsMustBeAutoAttackable = false,
             validator = targ =>
-                targ is { HasThing: true, Thing: Pawn thing } &&
-                WorkGiver_Warden_TakeToStorage.GetStorageGeneral(thing, assign: false) != null
+                targ is { HasThing: true, Thing: Pawn thing }
         };
     }
 
@@ -102,6 +100,34 @@ public static class OrdersPatch
                                 {
                                     ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageGeneral(pTarg, assign: true, preferredStorage: storage);
                                     Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorage, (LocalTargetInfo)(Thing)pTarg, (LocalTargetInfo)(Thing)building);
+                                    job.count = 1;
+                                    pawn.jobs.TryTakeOrderedJob(job);
+                                    if (notArresting)
+                                        return;
+                                    TutorUtility.DoModalDialogIfNotKnown(ConceptDefOf.ArrestingCreatesEnemies, pTarg.GetAcceptArrestChance(pawn).ToStringPercent());
+                                },
+                                MenuOptionPriority.High,
+                                revalidateClickTarget: pTarg), pawn,
+                            (LocalTargetInfo)(Thing)pTarg));
+                    }
+
+                    foreach (CompPawnStorage comp in pawn.inventory.GetDirectlyHeldThings()
+                                 .Select(item => item.TryGetComp<CompPawnStorage>() is { } ps
+                                                 && ps.Props.useFromInventory && !ps.IsFull
+                                     ? ps
+                                     : null)
+                                 .Where(ps => ps != null)
+                                 .GroupBy(s => s.Parent.def)
+                                 .Select(sGroup => sGroup.FirstOrDefault()))
+                    {
+                        if (comp == null) continue;
+                        anyStorage = true;
+                        opts.Add(FloatMenuUtility.DecoratePrioritizedTask(
+                            new FloatMenuOption(
+                                "PS_CaptureToStorageFloatMenu".Translate((NamedArgument)pTarg.LabelCap, (NamedArgument) comp.parent.LabelNoParenthesisCap),
+                                () =>
+                                {
+                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorageItem, (LocalTargetInfo)(Thing)pTarg, (LocalTargetInfo)(Thing)comp.Parent);
                                     job.count = 1;
                                     pawn.jobs.TryTakeOrderedJob(job);
                                     if (notArresting)
@@ -175,6 +201,32 @@ public static class OrdersPatch
                                 job.count = 1;
                                 pawn.jobs.TryTakeOrderedJob(job);
                             }), pawn, localTargetInfo));
+                    }
+
+
+                    foreach (CompPawnStorage comp in pawn.inventory.GetDirectlyHeldThings()
+                                 .Select(item => item.TryGetComp<CompPawnStorage>() is { } ps
+                                                 && ps.Props.useFromInventory && !ps.IsFull
+                                     ? ps
+                                     : null)
+                                 .Where(ps => ps != null)
+                                 .GroupBy(s => s.Parent.def)
+                                 .Select(sGroup => sGroup.FirstOrDefault()))
+                    {
+                        if (comp == null) continue;
+                        anyStorage = true;
+                        opts.Add(FloatMenuUtility.DecoratePrioritizedTask(
+                            new FloatMenuOption(
+                                "PS_CaptureToStorageFloatMenu".Translate((NamedArgument)pTarg.LabelCap, (NamedArgument) comp.parent.LabelNoParenthesisCap),
+                                () =>
+                                {
+                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorageItem, (LocalTargetInfo)(Thing)pTarg, (LocalTargetInfo)(Thing)comp.Parent);
+                                    job.count = 1;
+                                    pawn.jobs.TryTakeOrderedJob(job);
+                                },
+                                MenuOptionPriority.High,
+                                revalidateClickTarget: pTarg), pawn,
+                            (LocalTargetInfo)(Thing)pTarg));
                     }
 
                     if (!anyStorage)
