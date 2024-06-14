@@ -3,9 +3,13 @@ using Verse;
 
 namespace PawnStorages.SimpleWarrants;
 
-public class PawnStoragesModule_SimpleWarrants : Mod
+public class PawnStoragesModule_SimpleWarrants(ModContentPack content) : Mod(content);
+
+[StaticConstructorOnStartup]
+
+public static class HarmonyConfig
 {
-    public PawnStoragesModule_SimpleWarrants(ModContentPack content) : base(content)
+    static HarmonyConfig()
     {
 #if DEBUG
         Harmony.DEBUG = true;

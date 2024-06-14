@@ -19,10 +19,13 @@ public static class MapPawnsPatch
     }
 }
 
+[StaticConstructorOnStartup]
 [HarmonyPatch(typeof(ColonistBarColonistDrawer), "DrawIcons")]
 public static class ColonistBarColonistDrawerTranspiler
 {
-    private static readonly Texture2D Icon_Storage = ContentFinder<Texture2D>.Get("Things/Item/Special/PawnCrystal");
+    private static readonly Texture2D Icon_Storage;
+
+    static ColonistBarColonistDrawerTranspiler() => Icon_Storage = ContentFinder<Texture2D>.Get("Things/Item/Special/PawnCrystal");
 
     public static void AddStorageIcons(List<ColonistBarColonistDrawer.IconDrawCall> iconDrawCalls, Pawn pawn)
     {
