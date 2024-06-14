@@ -150,6 +150,44 @@ public class CompPawnStorage : ThingComp, IThingHolder
         }
     }
 
+    public override void CompTick()
+    {
+        if (Find.TickManager.TicksGame % TICKRATE != 0) return;
+        if (Props.idleResearch && Find.ResearchManager.currentProj != null)
+            foreach (Pawn pawn in storedPawns)
+                if (pawn.RaceProps.Humanlike)
+                {
+                    float value = pawn.GetStatValue(StatDefOf.ResearchSpeed);
+                    value *= 0.5f;
+                    Find.ResearchManager.ResearchPerformed(value * TICKRATE, pawn);
+                    pawn.skills.Learn(SkillDefOf.Intellectual, 0.1f * TICKRATE);
+
+                    if (Props.pawnRestIncreaseTick != 0) pawn.needs.rest.CurLevel += Props.pawnRestIncreaseTick * TICKRATE;
+                }
+
+        if (!schedulingEnabled || compAssignable == null) return;
+        {
+            foreach (Pawn pawn in compAssignable.AssignedPawns)
+                switch (pawn.Spawned)
+                {
+                    case true when pawn.timetable?.CurrentAssignment == PS_DefOf.PS_Home &&
+                                   pawn.CurJobDef != PS_DefOf.PS_Enter &&
+                                   pawn.health.State == PawnHealthState.Mobile &&
+                                   !pawn.CurJob.restUntilHealed &&
+                                   !HealthAIUtility.ShouldSeekMedicalRest(pawn):
+                    {
+                        Job job = EnterJob(pawn);
+                        pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+                        break;
+                    }
+                    case false when innerContainer.Contains(pawn) && pawn.timetable?.CurrentAssignment is { } assignmentDef && assignmentDef != PS_DefOf.PS_Home:
+                        ReleasePawn(pawn, parent.Position, parent.Map);
+                        break;
+                }
+        }
+        base.CompTick();
+    }
+
     //Funcs
     public void ReleasePawn(Pawn pawn, IntVec3 cell, Map map)
     {
@@ -364,7 +402,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
             {
                 Rotation.Rotate(RotationDirection.Clockwise);
                 this.SetLabelDirty();
-                this.parent.Map.mapDrawer.MapMeshDirty(this.parent.Position, (ulong) MapMeshFlagDefOf.Things);
+                this.parent.Map.mapDrawer.MapMeshDirty(this.parent.Position, (ulong)MapMeshFlagDefOf.Things);
             },
             isActive = () => true,
             icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
