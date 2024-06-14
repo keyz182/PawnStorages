@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using HarmonyLib;
@@ -161,8 +162,6 @@ public class CompPawnStorage : ThingComp, IThingHolder
                     value *= 0.5f;
                     Find.ResearchManager.ResearchPerformed(value * TICKRATE, pawn);
                     pawn.skills.Learn(SkillDefOf.Intellectual, 0.1f * TICKRATE);
-
-                    if (Props.pawnRestIncreaseTick != 0) pawn.needs.rest.CurLevel += Props.pawnRestIncreaseTick * TICKRATE;
                 }
 
         if (!schedulingEnabled || compAssignable == null) return;
@@ -202,11 +201,25 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
         // We drop one tick interval to make sure we don't boost need drops from being at home, the slight reduction can be seen as a benefit of being at home.
         int ticksStored = Mathf.Max(0, Find.TickManager.TicksGame - storedAtTick - NEEDS_INTERVAL);
+        if (Props.pawnRestIncreaseTick != 0 && pawn.needs?.rest is { } restNeed)
+        {
+            restNeed.CurLevel += Props.pawnRestIncreaseTick * ticksStored;
+            int periodsStored = Math.Max(ticksStored / NEEDS_INTERVAL, 1);
+            IEnumerable<Hediff_Injury> hds = pawn.health.tmpHediffInjuries.TakeRandom(Math.Min(pawn.health.tmpHediffInjuries.Count, periodsStored)).ToList();
+            if (hds.Any())
+            {
+                float multiplierPerInjury = periodsStored / (float) hds.Count();
+                foreach (Hediff_Injury hd in hds)
+                {
+                    hd.Heal((float) (multiplierPerInjury * pawn.HealthScale * 0.04) * pawn.GetStatValue(StatDefOf.InjuryHealingFactor));
+                }
+            }
+        }
         if (!Props.needsDrop) return;
 
         CompFarmNutrition nutritionComp;
         nutritionComp = parent.TryGetComp<CompFarmNutrition>();
-        foreach (Need need in pawn.needs.AllNeeds)
+        foreach (Need need in pawn.needs?.AllNeeds ?? [])
         {
             switch (need)
             {
