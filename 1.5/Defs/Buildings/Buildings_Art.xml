@@ -96,7 +96,7 @@
             <drawOffsetEast>(-0.2,0,0)</drawOffsetEast>
         </graphicData>
         <size>(1,2)</size>
-        <drawerType>MapMeshAndRealTime</drawerType>
+        <drawerType>MapMeshOnly</drawerType>
         <fillPercent>0.35</fillPercent>
         <rotatable>true</rotatable>
         <comps>
