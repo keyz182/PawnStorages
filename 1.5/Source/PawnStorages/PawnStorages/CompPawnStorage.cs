@@ -494,9 +494,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public ThingOwner GetDirectlyHeldThings()
     {
-        if (innerContainer == null)
-            innerContainer = new ThingOwner<Pawn>(this);
-        return innerContainer;
+        return innerContainer ??= new ThingOwner<Pawn>(this);
     }
 
     public ThingOwner<Pawn> GetDirectlyHeldPawns() => innerContainer;
