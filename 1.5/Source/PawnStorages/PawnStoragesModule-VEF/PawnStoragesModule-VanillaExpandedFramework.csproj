@@ -34,6 +34,11 @@
             <HintPath Condition="!Exists('../../../../../VanillaExpandedFramework')">../../../../../2023507013/1.5/Assemblies/KCSG.dll</HintPath>
             <Private>False</Private>
         </Reference>
+        <Reference Include="PipeSystem">
+            <HintPath Condition="Exists('../../../../../VanillaExpandedFramework')">../../../../../VanillaExpandedFramework/1.5/Assemblies/PipeSystem.dll</HintPath>
+            <HintPath Condition="!Exists('../../../../../VanillaExpandedFramework')">../../../../../2023507013/1.5/Assemblies/PipeSystem.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
     </ItemGroup>
     <ItemGroup Condition="'@(Reference->WithMetadataValue('Identity', 'Assembly-CSharp')->Metadata('HintPath')->Exists())' == ''">
         <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5-*"/>

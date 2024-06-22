@@ -12,7 +12,35 @@ namespace PawnStorages.Farm.Comps
     {
         public INutritionStorageParent Parent => parent as INutritionStorageParent;
 
-        public float storedNutrition = 0f;
+        private float _storedNutrition = 0f;
+
+        private INutritionStoreAlternative AlternativeStore;
+        public bool HasAltStore => AlternativeStore != null;
+
+        public void SetAlternativeStore(INutritionStoreAlternative store)
+        {
+            AlternativeStore = store;
+            if (_storedNutrition > 0f)
+            {
+                AlternativeStore.CurrentStored = _storedNutrition;
+            }
+        } 
+
+        public float storedNutrition
+        {
+            get => HasAltStore ? AlternativeStore.CurrentStored : _storedNutrition;
+            set
+            {
+                if (HasAltStore)
+                {
+                    AlternativeStore.CurrentStored = value;
+                }
+                else
+                    _storedNutrition = value;
+            }
+        }
+
+        public float MaxNutrition => HasAltStore ? AlternativeStore.MaxStoreSize : Props.maxNutrition;
 
         private List<IntVec3> cachedAdjCellsCardinal;
 
@@ -26,7 +54,7 @@ namespace PawnStorages.Farm.Comps
         public override void PostExposeData()
         {
             base.PostExposeData();
-            Scribe_Values.Look(ref storedNutrition, "storedNutrition");
+            Scribe_Values.Look(ref _storedNutrition, "storedNutrition");
         }
 
         public override void CompTick()
@@ -37,9 +65,9 @@ namespace PawnStorages.Farm.Comps
 
             if (parent.IsHashIntervalTick(Props.ticksToAbsorbNutrients) && Parent.IsActive)
             {
-                if (storedNutrition <= Props.maxNutrition)
+                if (storedNutrition <= MaxNutrition)
                 {
-                    TryAbsorbNutritionFromHopper(Props.maxNutrition - storedNutrition);
+                    TryAbsorbNutritionFromHopper(MaxNutrition - storedNutrition);
                 }
             }
 
@@ -51,22 +79,22 @@ namespace PawnStorages.Farm.Comps
 
                     //Need fall ticker
                     var foodNeeds = pawn.needs?.food;
-                    if (foodNeeds != null)
-                    {
-                        foodNeeds.CurLevel -= foodNeeds.FoodFallPerTick * Props.animalTickInterval;
-                        if (!foodNeeds.Starving)
-                            foodNeeds.lastNonStarvingTick = Find.TickManager.TicksGame;
+                    if (foodNeeds == null)
+                        continue;
+                
+                    foodNeeds.CurLevel -= foodNeeds.FoodFallPerTick * Props.animalTickInterval;
+                    if (!foodNeeds.Starving)
+                        foodNeeds.lastNonStarvingTick = Find.TickManager.TicksGame;
 
-                        // Need_Food.NeedInterval hardcodes 150 ticks, so adjust
-                        var adjustedMalnutritionSeverityPerInterval =
-                            (foodNeeds.MalnutritionSeverityPerInterval / 150f) * Props.animalTickInterval;
+                    // Need_Food.NeedInterval hardcodes 150 ticks, so adjust
+                    var adjustedMalnutritionSeverityPerInterval =
+                        (foodNeeds.MalnutritionSeverityPerInterval / 150f) * Props.animalTickInterval;
 
-                        if (foodNeeds.Starving)
-                            HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, adjustedMalnutritionSeverityPerInterval);
-                        else
-                            HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, -adjustedMalnutritionSeverityPerInterval);
-                    }
-
+                    if (foodNeeds.Starving)
+                        HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, adjustedMalnutritionSeverityPerInterval);
+                    else
+                        HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, -adjustedMalnutritionSeverityPerInterval);
+                    
                     if (pawn.health.hediffSet.TryGetHediff(HediffDefOf.Malnutrition, out Hediff malnutritionHediff) && malnutritionHediff.Severity >= 0.75f)
                     {
                         Parent.ReleasePawn(pawn);
@@ -80,19 +108,24 @@ namespace PawnStorages.Farm.Comps
                     //Hopper absorption ticker
                     if (storedNutrition <= 0)
                     {
-                        TryAbsorbNutritionFromHopper(Props.maxNutrition - storedNutrition);
+                        TryAbsorbNutritionFromHopper(MaxNutrition - storedNutrition);
                         // Still no food available, no point trying to feed
                         if (storedNutrition <= 0) continue;
                     }
-
-                    if (foodNeeds is not { TicksUntilHungryWhenFed: <= 0 }) continue;
-
-                    var available = Mathf.Min(foodNeeds.NutritionWanted, storedNutrition);
-                    storedNutrition -= available;
-
-                    foodNeeds.CurLevel += available;
-                    pawn.records.AddTo(RecordDefOf.NutritionEaten, available);
                 }
+            }
+
+            foreach (var pawn in Parent.StoredPawns)
+            {
+                //Need fall ticker
+                var foodNeeds = pawn.needs?.food;
+                if (foodNeeds == null) continue;
+                if (!parent.IsHashIntervalTick(foodNeeds.TicksUntilHungryWhenFed)) continue;
+                 var available = Mathf.Min(foodNeeds.NutritionWanted, storedNutrition);
+                storedNutrition -= available;
+
+                foodNeeds.CurLevel += available;
+                pawn.records.AddTo(RecordDefOf.NutritionEaten, available);
             }
 
             if (storedNutrition > 0)
@@ -217,7 +250,7 @@ namespace PawnStorages.Farm.Comps
             yield return new Command_Action
             {
                 defaultLabel = "Fill Nutrition",
-                action = delegate { storedNutrition = Props.maxNutrition; },
+                action = delegate { storedNutrition = MaxNutrition; },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
             yield return new Command_Action
@@ -235,13 +268,13 @@ namespace PawnStorages.Farm.Comps
             yield return new Command_Action
             {
                 defaultLabel = "Absorb Nutrition from Hopper",
-                action = delegate { TryAbsorbNutritionFromHopper(Props.maxNutrition - storedNutrition); },
+                action = delegate { TryAbsorbNutritionFromHopper(MaxNutrition - storedNutrition); },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
         }
 
         private static Material _material;
-        private const float Scale = 3f;
+        private const float Scale = 2.997f;
         private const float StartOffset = 0.5f;
         private const int Layer = 0;
 
@@ -250,12 +283,13 @@ namespace PawnStorages.Farm.Comps
             base.PostDraw();
             if (!Parent.HasSuggestiveSilos || !PawnStoragesMod.settings.SuggestiveSilo) return;
 
-            var filled = this.storedNutrition / this.Props.maxNutrition;
+            var filled = Mathf.Clamp(storedNutrition / MaxNutrition, 0f, 1f);
 
             var pos = parent.DrawPos;
             pos.z += StartOffset;
             pos.z += filled;
             pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
+            pos.x += 0.003f;
 
             Matrix4x4 matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0.0f, 0f, 0.0f), new Vector3(Scale, 1f, Scale));
             Graphics.DrawMesh(MeshPool.plane10, matrix, _material, Layer);

@@ -96,7 +96,8 @@ namespace PawnStorages.Farm
             StringBuilder stringBuilder = new();
             stringBuilder.AppendLine(base.GetInspectString());
             stringBuilder.AppendLine("PS_NutritionPerDay".Translate(pawnStorage.NutritionRequiredPerDay()));
-            stringBuilder.AppendLine("PS_NutritionStored".Translate(FarmNutrition.storedNutrition, FarmNutrition.Props.maxNutrition));
+            if (!FarmNutrition.HasAltStore)
+                stringBuilder.AppendLine("PS_NutritionStored".Translate(FarmNutrition.storedNutrition, FarmNutrition.MaxNutrition));
             return stringBuilder.ToString().Trim();
         }
 
@@ -116,7 +117,7 @@ namespace PawnStorages.Farm
 
         public bool StorageTabVisible => true;
 
-        public bool IsActive => NutritionAvailable;
+        public bool IsActive => true;
 
         public void ReleasePawn(Pawn pawn)
         {
