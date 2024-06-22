@@ -13,6 +13,9 @@ public class Settings : ModSettings
     public float ProductionScale = 0.5f;
     public float BreedingScale = 2f;
     public int MaxPawnsInFarm = 16;
+    public float MaxFarmStoredNutrition = 500f;
+    public int TicksToAbsorbNutrients = 50;
+    public int AnimalTickInterval = 250;
 
     public void DoWindowContents(Rect wrect)
     {
@@ -43,6 +46,16 @@ public class Settings : ModSettings
         options.Gap();
         options.Label("PS_Settings_Max_Farm".Translate(MaxPawnsInFarm));
         options.IntAdjuster(ref MaxPawnsInFarm, 1, 1);
+        options.Gap();
+        options.Label("PS_Settings_Max_Farm_Nutrition".Translate(MaxFarmStoredNutrition));
+        MaxFarmStoredNutrition = options.Slider(MaxFarmStoredNutrition, 0f, 500f);
+        options.Gap();
+        options.Label("PS_Settings_Ticks_To_Absorb_Nutrients".Translate(TicksToAbsorbNutrients));
+        options.IntAdjuster(ref TicksToAbsorbNutrients, 1, 1);
+        options.Gap();
+        options.Label("PS_Settings_Animal_Tick_Interval".Translate(AnimalTickInterval));
+        options.IntAdjuster(ref AnimalTickInterval, 1, 1);
+        options.Gap();
 
         options.Gap();
         if (options.ButtonText("PS_Reset".Translate()))
@@ -55,6 +68,7 @@ public class Settings : ModSettings
             ProductionScale = 0.5f;
             BreedingScale = 2f;
             MaxPawnsInFarm = 16;
+            MaxFarmStoredNutrition = 500f;
         }
 
         options.End();

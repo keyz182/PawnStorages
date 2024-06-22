@@ -5,9 +5,9 @@ namespace PawnStorages.Farm.Comps
     public class CompProperties_FarmNutrition : CompProperties
     {
         // production
-        public float maxNutrition = 500f;
-        public int ticksToAbsorbNutrients = 50;
-        public int animalTickInterval = 250;
+        public float maxNutrition => PawnStoragesMod.settings.MaxFarmStoredNutrition;
+        public int ticksToAbsorbNutrients => PawnStoragesMod.settings.TicksToAbsorbNutrients;
+        public int animalTickInterval => PawnStoragesMod.settings.AnimalTickInterval;
 
         public CompProperties_FarmNutrition()
         {
