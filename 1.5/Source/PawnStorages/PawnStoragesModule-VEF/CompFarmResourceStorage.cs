@@ -26,4 +26,12 @@ public class CompFarmResourceStorage : PipeSystem.CompResourceStorage, INutritio
         var nutrition = parent.GetComp<CompFarmNutrition>();
         nutrition?.SetAlternativeStore(this);
     }
+
+    public override void CompTick()
+    {
+        base.CompTick();
+
+        if (Props is CompProperties_FarmResourceStorage p)
+            p.storageCapacity = PawnStoragesMod.settings.MaxFarmStoredNutrition;
+    }
 }

@@ -17,7 +17,14 @@ namespace PawnStorages.Farm.Comps
         private INutritionStoreAlternative AlternativeStore;
         public bool HasAltStore => AlternativeStore != null;
 
-        public void SetAlternativeStore(INutritionStoreAlternative store) => AlternativeStore = store; 
+        public void SetAlternativeStore(INutritionStoreAlternative store)
+        {
+            AlternativeStore = store;
+            if (_storedNutrition > 0f)
+            {
+                AlternativeStore.CurrentStored = _storedNutrition;
+            }
+        } 
 
         public float storedNutrition
         {
@@ -25,7 +32,9 @@ namespace PawnStorages.Farm.Comps
             set
             {
                 if (HasAltStore)
+                {
                     AlternativeStore.CurrentStored = value;
+                }
                 else
                     _storedNutrition = value;
             }
@@ -265,7 +274,7 @@ namespace PawnStorages.Farm.Comps
         }
 
         private static Material _material;
-        private const float Scale = 3f;
+        private const float Scale = 2.997f;
         private const float StartOffset = 0.5f;
         private const int Layer = 0;
 
@@ -274,12 +283,13 @@ namespace PawnStorages.Farm.Comps
             base.PostDraw();
             if (!Parent.HasSuggestiveSilos || !PawnStoragesMod.settings.SuggestiveSilo) return;
 
-            var filled = this.storedNutrition / this.MaxNutrition;
+            var filled = Mathf.Clamp(storedNutrition / MaxNutrition, 0f, 1f);
 
             var pos = parent.DrawPos;
             pos.z += StartOffset;
             pos.z += filled;
             pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
+            pos.x += 0.003f;
 
             Matrix4x4 matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0.0f, 0f, 0.0f), new Vector3(Scale, 1f, Scale));
             Graphics.DrawMesh(MeshPool.plane10, matrix, _material, Layer);

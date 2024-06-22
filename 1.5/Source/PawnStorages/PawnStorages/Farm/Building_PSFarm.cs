@@ -117,7 +117,7 @@ namespace PawnStorages.Farm
 
         public bool StorageTabVisible => true;
 
-        public bool IsActive => NutritionAvailable;
+        public bool IsActive => true;
 
         public void ReleasePawn(Pawn pawn)
         {
