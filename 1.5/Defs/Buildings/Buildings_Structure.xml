@@ -165,6 +165,18 @@
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmProducer">
             </li>
+            <li MayRequire="oskarpotocki.vanillafactionsexpanded.core" Class="PawnStorages.VEF.CompProperties_FarmResourceStorage">
+                <pipeNet>VNPE_NutrientPasteNet</pipeNet>
+                <barSize>(0.75, 0.20)</barSize>
+                <margin>0.05</margin>
+                <centerOffset>(0, 0, -0.35)</centerOffset>
+                <destroyOption>
+                    <filth>VNPE_Filth_Paste</filth>
+                    <ratio>1</ratio>
+                    <maxRadius>5</maxRadius>
+                </destroyOption>
+                <contentRequirePower>false</contentRequirePower>
+            </li>
         </comps>
         <building>
             <wantsHopperAdjacent>true</wantsHopperAdjacent>
@@ -260,6 +272,18 @@
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmNutrition">
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmBreeder">
+            </li>
+            <li MayRequire="oskarpotocki.vanillafactionsexpanded.core" Class="PawnStorages.VEF.CompProperties_FarmResourceStorage">
+                <pipeNet>VNPE_NutrientPasteNet</pipeNet>
+                <barSize>(0.75, 0.20)</barSize>
+                <margin>0.05</margin>
+                <centerOffset>(0, 0, -0.35)</centerOffset>
+                <destroyOption>
+                    <filth>VNPE_Filth_Paste</filth>
+                    <ratio>1</ratio>
+                    <maxRadius>5</maxRadius>
+                </destroyOption>
+                <contentRequirePower>false</contentRequirePower>
             </li>
         </comps>
         <building>
