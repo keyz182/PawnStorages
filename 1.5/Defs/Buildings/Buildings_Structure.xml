@@ -165,7 +165,7 @@
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmProducer">
             </li>
-            <li MayRequire="oskarpotocki.vanillafactionsexpanded.core" Class="PawnStorages.VEF.CompProperties_FarmResourceStorage">
+            <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_FarmResourceStorage">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
                 <barSize>(0.75, 0.20)</barSize>
                 <margin>0.05</margin>

@@ -73,12 +73,12 @@ namespace PawnStorages.Farm.Comps
 
             if (parent.IsHashIntervalTick(Props.animalTickInterval) && Parent.HasStoredPawns)
             {
-                foreach (var pawn in Parent.StoredPawns)
+                foreach (Pawn pawn in Parent.StoredPawns)
                 {
                     EmulateScaledPawnAgeTick(pawn);
 
                     //Need fall ticker
-                    var foodNeeds = pawn.needs?.food;
+                    Need_Food foodNeeds = pawn.needs?.food;
                     if (foodNeeds == null)
                         continue;
                 
@@ -87,7 +87,7 @@ namespace PawnStorages.Farm.Comps
                         foodNeeds.lastNonStarvingTick = Find.TickManager.TicksGame;
 
                     // Need_Food.NeedInterval hardcodes 150 ticks, so adjust
-                    var adjustedMalnutritionSeverityPerInterval =
+                    float adjustedMalnutritionSeverityPerInterval =
                         (foodNeeds.MalnutritionSeverityPerInterval / 150f) * Props.animalTickInterval;
 
                     if (foodNeeds.Starving)
@@ -115,13 +115,13 @@ namespace PawnStorages.Farm.Comps
                 }
             }
 
-            foreach (var pawn in Parent.StoredPawns)
+            foreach (Pawn pawn in Parent.StoredPawns)
             {
                 //Need fall ticker
-                var foodNeeds = pawn.needs?.food;
+                Need_Food foodNeeds = pawn.needs?.food;
                 if (foodNeeds == null) continue;
                 if (!parent.IsHashIntervalTick(foodNeeds.TicksUntilHungryWhenFed)) continue;
-                 var available = Mathf.Min(foodNeeds.NutritionWanted, storedNutrition);
+                 float available = Mathf.Min(foodNeeds.NutritionWanted, storedNutrition);
                 storedNutrition -= available;
 
                 foodNeeds.CurLevel += available;
@@ -152,9 +152,9 @@ namespace PawnStorages.Farm.Comps
 
         public void EmulateScaledPawnAgeTick(Pawn pawn)
         {
-            var interval = Props.animalTickInterval;
+            int interval = Props.animalTickInterval;
 
-            var ageBioYears = pawn.ageTracker.AgeBiologicalYears;
+            int ageBioYears = pawn.ageTracker.AgeBiologicalYears;
 
             if (pawn.ageTracker.lifeStageChange)
                 pawn.ageTracker.PostResolveLifeStageChange();
@@ -189,7 +189,7 @@ namespace PawnStorages.Farm.Comps
             }
 
             int count = Mathf.Min(feedInAnyHopper.stackCount, Mathf.CeilToInt(nutrition / feedInAnyHopper.GetStatValue(StatDefOf.Nutrition)));
-            storedNutrition += (float)count * feedInAnyHopper.GetStatValue(StatDefOf.Nutrition);
+            storedNutrition += count * feedInAnyHopper.GetStatValue(StatDefOf.Nutrition);
 
             feedInAnyHopper.SplitOff(count);
 
@@ -283,9 +283,9 @@ namespace PawnStorages.Farm.Comps
             base.PostDraw();
             if (!Parent.HasSuggestiveSilos || !PawnStoragesMod.settings.SuggestiveSilo) return;
 
-            var filled = Mathf.Clamp(storedNutrition / MaxNutrition, 0f, 1f);
+            float filled = Mathf.Clamp(storedNutrition / MaxNutrition, 0f, 1f);
 
-            var pos = parent.DrawPos;
+            Vector3 pos = parent.DrawPos;
             pos.z += StartOffset;
             pos.z += filled;
             pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();

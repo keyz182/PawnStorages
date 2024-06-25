@@ -12,7 +12,7 @@ public class CompFarmResourceStorage : PipeSystem.CompResourceStorage, INutritio
         get => AmountStored;
         set
         {
-            var toStore = value - CurrentStored;
+            float toStore = value - CurrentStored;
             if (toStore < 0f)
                 DrawResource(-toStore);
             else
@@ -23,7 +23,7 @@ public class CompFarmResourceStorage : PipeSystem.CompResourceStorage, INutritio
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {
         base.PostSpawnSetup(respawningAfterLoad);
-        var nutrition = parent.GetComp<CompFarmNutrition>();
+        CompFarmNutrition nutrition = parent.GetComp<CompFarmNutrition>();
         nutrition?.SetAlternativeStore(this);
     }
 
