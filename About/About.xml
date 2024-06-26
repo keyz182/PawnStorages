@@ -28,6 +28,7 @@
         <li>Ludeon.RimWorld.Anomaly</li>
         <li>oskarpotocki.vanillafactionsexpanded.core</li>
         <li>OskarPotocki.VFE.Deserters</li>
+        <li>VanillaExpanded.VNutrientE</li>
 	<li>pb3n.simplewarrants</li>
     </loadAfter>
 </ModMetaData>
