@@ -237,6 +237,20 @@ public class CompPawnStorage : ThingComp, IThingHolder
         }
     }
 
+    public void TransferPawn(CompPawnStorage otherStore, Pawn pawn)
+    {
+        innerContainer.Remove(pawn);
+        otherStore.innerContainer.TryAdd(pawn);
+        if(otherStore.compAssignable != null && !otherStore.compAssignable.AssignedPawns.Contains(pawn)) otherStore.compAssignable.TryAssignPawn(pawn);
+        labelDirty = true;
+        otherStore.labelDirty = true;
+
+        otherStore.pawnStoringTick.SetOrAdd(pawn.thingIDNumber, Find.TickManager.TicksGame);
+        
+        ApplyNeedsForStoredPeriodFor(pawn);
+        Notify_ReleasedFromStorage(pawn);
+    }
+
     public void StorePawn(Pawn pawn)
     {
         Map pawnMap = pawn.Map;
@@ -467,12 +481,12 @@ public class CompPawnStorage : ThingComp, IThingHolder
             IntVec3 cell = CellFinder.RandomClosewalkCellNear(parent.Position, map, 18);
 
             bool pawnIsSelected = Find.Selector.IsSelected(pawn);
-            PawnFlyer pawnFlyer = PawnFlyer.MakeFlyer(ThingDefOf.PawnFlyer, pawn, cell, flightEffecterDef,
-                landingSound);
-            if (pawnFlyer == null)
-                return;
-            FleckMaker.ThrowDustPuff(pawn.Position.ToVector3Shifted() + Gen.RandomHorizontalVector(0.5f), map, 2f);
-            GenSpawn.Spawn(pawnFlyer, cell, map);
+            // PawnFlyer pawnFlyer = PawnFlyer.MakeFlyer(ThingDefOf.PawnFlyer, pawn, cell, flightEffecterDef,
+            //     landingSound);
+            // if (pawnFlyer == null)
+            //     return;
+            // FleckMaker.ThrowDustPuff(pawn.Position.ToVector3Shifted() + Gen.RandomHorizontalVector(0.5f), map, 2f);
+            // GenSpawn.Spawn(pawnFlyer, cell, map);
             Notify_ReleasedFromStorage(pawn);
             if (pawnIsSelected)
                 Find.Selector.Select(pawn, false, false);

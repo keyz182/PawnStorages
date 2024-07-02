@@ -273,6 +273,19 @@
             <!-- Use default damage from explosion def -->
             <explosionDelay>100</explosionDelay>
         </projectile>
+        
+        <comps>
+            <li Class="PawnStorages.CompProperties_PawnStorage">
+                <compClass>PawnStorages.CompPawnStorage</compClass>
+                <needsDrop>false</needsDrop>
+                <maxStoredPawns>1</maxStoredPawns>
+                <releaseOption>true</releaseOption>
+                <convertOption>true</convertOption>
+                <appendOfName>true</appendOfName>
+                <lightEffect>true</lightEffect>
+                <storageStation>PS_DigitizerPlatform</storageStation>
+            </li>
+        </comps>
     </ThingDef>
 
     <!--
