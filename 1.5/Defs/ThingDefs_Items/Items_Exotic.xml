@@ -225,7 +225,6 @@
                 <commandIcon>UI/Buttons/PS_CaptureBallButton</commandIcon>
                 <hasStandardCommand>true</hasStandardCommand>
                 <range>20</range>
-                <forcedMissRadius>1</forcedMissRadius>
                 <warmupTime>1</warmupTime>
                 <noiseRadius>4</noiseRadius>
                 <ai_IsBuildingDestroyer>false</ai_IsBuildingDestroyer>
@@ -272,6 +271,7 @@
             <damageDef>Bomb</damageDef>
             <!-- Use default damage from explosion def -->
             <explosionDelay>100</explosionDelay>
+            <explosionEffect>StarExplosion</explosionEffect>
         </projectile>
         
         <comps>
