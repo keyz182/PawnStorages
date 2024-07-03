@@ -1,7 +1,7 @@
 ﻿using RimWorld;
 using Verse;
 
-namespace PawnStorages;
+namespace PawnStorages.CaptureSphere;
 
 public class Verb_LaunchCaptureSphere : Verb_LaunchProjectile
 {

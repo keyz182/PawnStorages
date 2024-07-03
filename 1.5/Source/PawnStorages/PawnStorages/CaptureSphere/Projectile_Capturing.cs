@@ -2,7 +2,7 @@
 using UnityEngine;
 using Verse;
 
-namespace PawnStorages;
+namespace PawnStorages.CaptureSphere;
 
 public class Projectile_Capturing : Projectile
 {
@@ -142,6 +142,7 @@ public class Projectile_Capturing : Projectile
             else
             {
                 Release();
+                Equipment.Destroy();
                 Destroy();
             }
         }
@@ -172,6 +173,9 @@ public class Projectile_Capturing : Projectile
             if(!NewlySpawnedBallStorageComp.CanAssign(pawn, true)) return false;
 
             NewlySpawnedBallStorageComp?.StorePawn(pawn);
+
+            var hediff = pawn.health.GetOrAddHediff(PS_DefOf.PS_CapturedPawn);
+            hediff.visible = false;
             return false;
         }
         
@@ -211,6 +215,10 @@ public class Projectile_Capturing : Projectile
         
         if(NewlySpawnedBallStorageComp == null) return false;
         ProjectileStorage.TransferPawn(NewlySpawnedBallStorageComp, pawn);
+
+        var hediff = pawn.health.GetOrAddHediff(PS_DefOf.PS_CapturedPawn);
+        hediff.visible = false;
+        
         return true;
     }
 
@@ -219,8 +227,6 @@ public class Projectile_Capturing : Projectile
         var position = HitThing?.Position ?? this.Position;
         
         EquipmentStorageComp.ReleaseContentsAt(ThingMap, position);
-        var thing = (ThingWithComps)GenSpawn.Spawn(this.equipmentDef, position, ThingMap);
-        Equipment.Destroy();
     }
     
 }

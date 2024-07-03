@@ -221,7 +221,7 @@
         <verbs>
             <li>
                 <label>throw capture sphere</label>
-                <verbClass>PawnStorages.Verb_LaunchCaptureSphere</verbClass>
+                <verbClass>PawnStorages.CaptureSphere.Verb_LaunchCaptureSphere</verbClass>
                 <commandIcon>UI/Buttons/PS_CaptureBallButton</commandIcon>
                 <hasStandardCommand>true</hasStandardCommand>
                 <range>20</range>
@@ -261,7 +261,7 @@
     <ThingDef ParentName="BaseGrenadeProjectile">
         <defName>Proj_CaptureSphere</defName>
         <label>capture sphere</label>
-        <thingClass>PawnStorages.Projectile_Capturing</thingClass>
+        <thingClass>PawnStorages.CaptureSphere.Projectile_Capturing</thingClass>
         <graphicData>
             <texPath>Things/Item/Special/PS_CaptureBall</texPath>
             <graphicClass>Graphic_Single</graphicClass>
