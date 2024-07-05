@@ -111,7 +111,14 @@ public class CompPawnStorage : ThingComp, IThingHolder
         }
         else
         {
-            transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
+            if (Props.MaxStoredPawns == 1)
+            {
+                transformLabelCache = $"{base.TransformLabel(label)} ({innerContainer.innerList.First().Name})";
+            }
+            else
+            {
+                transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";    
+            }
         }
 
         labelDirty = false;
