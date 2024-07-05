@@ -1,6 +1,7 @@
 ﻿using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace PawnStorages.CaptureSphere;
 
@@ -137,11 +138,13 @@ public class Projectile_Capturing : Projectile
                 {
                     ticksToCapture = -1;
                     Destroy();
+                    return;
                 }
             }
             else
             {
                 Release();
+                PS_DefOf.PS_ReleaseSound.PlayOneShot((SoundInfo) new TargetInfo(this.Position, this.Map));
                 Equipment.Destroy();
                 Destroy();
             }
@@ -180,6 +183,7 @@ public class Projectile_Capturing : Projectile
         }
         
         ProjectileStorage.StorePawn(pawn);
+        PS_DefOf.PS_CaptureSound.PlayOneShot((SoundInfo) new TargetInfo(this.Position, this.Map));
 
         return true;
     }

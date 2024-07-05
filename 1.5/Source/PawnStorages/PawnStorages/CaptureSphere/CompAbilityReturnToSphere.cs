@@ -1,5 +1,6 @@
 ﻿using RimWorld;
 using Verse;
+using Verse.Sound;
 
 namespace PawnStorages.CaptureSphere;
 
@@ -22,6 +23,7 @@ public class CompAbilityReturnToSphere : CompAbilityEffect
         
         this.parent.pawn.Map.effecterMaintainer.AddEffecterToMaintain(eff, this.parent.pawn.Position.ToVector3().ToIntVec3(), 600);
         
+        PS_DefOf.PS_CaptureSound.PlayOneShot((SoundInfo) new TargetInfo(parent.pawn.Position, parent.pawn.Map));
         newlySpawnedBallStorageComp.StorePawn(this.parent.pawn);
     }
 }
