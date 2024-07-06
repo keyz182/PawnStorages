@@ -12,8 +12,8 @@ public class CompAbilityReturnToSphere : CompAbilityEffect
     {
         base.Apply(target, dest);
 
-        var newlySpawnedBall = (ThingWithComps)GenSpawn.Spawn(Props.SphereDef, parent.pawn.Position, parent.pawn.Map, WipeMode.VanishOrMoveAside);
-        var newlySpawnedBallStorageComp = newlySpawnedBall?.GetComp<CompPawnStorage>();
+        ThingWithComps newlySpawnedBall = (ThingWithComps)GenSpawn.Spawn(Props.SphereDef, parent.pawn.Position, parent.pawn.Map, WipeMode.VanishOrMoveAside);
+        CompPawnStorage newlySpawnedBallStorageComp = newlySpawnedBall?.GetComp<CompPawnStorage>();
         
         if(newlySpawnedBallStorageComp == null) return;
         
@@ -22,7 +22,7 @@ public class CompAbilityReturnToSphere : CompAbilityEffect
 
         if (Props.Effector != null)
         {
-            var eff = Props.Effector.Spawn();
+            Effecter eff = Props.Effector.Spawn();
             parent.pawn.Map.effecterMaintainer.AddEffecterToMaintain(eff, parent.pawn.Position.ToVector3().ToIntVec3(), 600);
         }
         

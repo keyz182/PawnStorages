@@ -10,9 +10,9 @@ public class Verb_LaunchCaptureSphere : Verb_LaunchProjectile
     {
         get
         {
-            if (EquipmentSource.TryGetComp<CompPawnStorage>(out var comp)) return comp;
+            if (EquipmentSource.TryGetComp<CompPawnStorage>(out CompPawnStorage comp)) return comp;
             
-            var storageComp = (CompPawnStorage) Activator.CreateInstance(typeof(CompPawnStorage));
+            CompPawnStorage storageComp = (CompPawnStorage) Activator.CreateInstance(typeof(CompPawnStorage));
             storageComp.parent = EquipmentSource;
             EquipmentSource.comps.Add(storageComp);
             return storageComp;

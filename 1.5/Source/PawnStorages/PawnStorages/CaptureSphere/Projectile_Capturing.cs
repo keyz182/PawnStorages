@@ -1,5 +1,4 @@
 ﻿using System;
-using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
@@ -16,7 +15,7 @@ public class Projectile_Capturing : Projectile
     public ThingWithComps NewlySpawnedBall;
     public CompPawnStorage NewlySpawnedBallStorageComp => NewlySpawnedBall?.GetComp<CompPawnStorage>();
     public CompPawnStorage EquipmentStorageComp => Equipment?.GetComp<CompPawnStorage>();
-    public Pawn LauncherPawn => this.launcher as Pawn;
+    public Pawn LauncherPawn => launcher as Pawn;
 
     public EffecterDef EffecterDef;
 
@@ -29,8 +28,8 @@ public class Projectile_Capturing : Projectile
     public override void ExposeData()
     {
         base.ExposeData();
-        Scribe_Values.Look(ref this.ticksToCapture, "ticksToDetonation", -1);
-        Scribe_Values.Look(ref this.BlockedByShield, "BlockedByShield", false);
+        Scribe_Values.Look(ref ticksToCapture, "ticksToDetonation", -1);
+        Scribe_Values.Look(ref BlockedByShield, "BlockedByShield");
         Scribe_References.Look(ref Equipment, "Equipment");
         Scribe_References.Look(ref HitThing, "HitThing");
         Scribe_References.Look(ref NewlySpawnedBall, "NewlySpawnedBall");
@@ -47,45 +46,45 @@ public class Projectile_Capturing : Projectile
         Thing equipment = null,
         ThingDef targetCoverDef = null)
     {
-        this.Equipment = (ThingWithComps) equipment;
-        base.Launch(launcher,origin,usedTarget, intendedTarget, hitFlags, preventFriendlyFire, equipment, base.targetCoverDef);
+        Equipment = (ThingWithComps) equipment;
+        base.Launch(launcher,origin,usedTarget, intendedTarget, hitFlags, preventFriendlyFire, equipment, this.targetCoverDef);
     }
     
     public override void DrawAt(Vector3 drawLoc, bool flip = false)
     {
-        float height = this.ArcHeightFactor * GenMath.InverseParabola(this.DistanceCoveredFractionArc);
+        float height = ArcHeightFactor * GenMath.InverseParabola(DistanceCoveredFractionArc);
         Vector3 drawLoc1 = drawLoc;
         Vector3 vector3 = drawLoc1 + new Vector3(0.0f, 0.0f, 1f) * height;
-        if ((double) this.def.projectile.shadowSize > 0.0)
-            this.DrawShadow(drawLoc1, height);
-        Quaternion rotation = this.ExactRotation;
-        if ((double) this.def.projectile.spinRate != 0.0)
+        if (def.projectile.shadowSize > 0.0)
+            DrawShadow(drawLoc1, height);
+        Quaternion rotation = ExactRotation;
+        if (def.projectile.spinRate != 0.0)
         {
-            float num = 60f / this.def.projectile.spinRate;
-            rotation = Quaternion.AngleAxis((float) ((double) Find.TickManager.TicksGame % (double) num / (double) num * 360.0), Vector3.up);
+            float num = 60f / def.projectile.spinRate;
+            rotation = Quaternion.AngleAxis((float) (Find.TickManager.TicksGame % (double) num / num * 360.0), Vector3.up);
         }
 
         if (ticksToCapture > 0)
         {
             DoWiggle(ref rotation, ref vector3);
         }
-        if (this.def.projectile.useGraphicClass)
-            this.Graphic.Draw(vector3, this.Rotation, (Thing) this, rotation.eulerAngles.y);
+        if (def.projectile.useGraphicClass)
+            Graphic.Draw(vector3, Rotation, this, rotation.eulerAngles.y);
         else
-            Graphics.DrawMesh(MeshPool.GridPlane(this.def.graphicData.drawSize), vector3, rotation, this.DrawMat, 0);
-        this.Comps_PostDraw();
+            Graphics.DrawMesh(MeshPool.GridPlane(def.graphicData.drawSize), vector3, rotation, DrawMat, 0);
+        Comps_PostDraw();
     }
 
     public void DoWiggle(ref Quaternion rot, ref Vector3 pos)
     {
         if (ticksToCapture is (<= 30 or > 60) and (<= 90 or > 120) and (<= 150 or > 180)) return;
         
-        var from = Quaternion.Euler(this.wiggleAngleFrom);
-        var to = Quaternion.Euler(this.wiggleAngleTo);
+        Quaternion from = Quaternion.Euler(wiggleAngleFrom);
+        Quaternion to = Quaternion.Euler(wiggleAngleTo);
         
-        var val = Mathf.PI * (this.ticksToCapture / 60f) * this.WiggleFrequency;
-        var lerp = 0.5F * (1.0F + Mathf.Sin(val));
-        var lerpz = 0.5F * (1.0F + Mathf.Sin(val * 2));
+        float val = Mathf.PI * (ticksToCapture / 60f) * WiggleFrequency;
+        float lerp = 0.5F * (1.0F + Mathf.Sin(val));
+        float lerpz = 0.5F * (1.0F + Mathf.Sin(val * 2));
             
         rot *=  Quaternion.Lerp(from, to, lerp);
         pos.x += Mathf.Lerp(0.25f, -0.25f, lerp);
@@ -95,21 +94,21 @@ public class Projectile_Capturing : Projectile
     public override void Tick()
     {
         base.Tick();
-        if (this.ticksToCapture <= 0)
+        if (ticksToCapture <= 0)
             return;
-        --this.ticksToCapture;
-        if (this.ticksToCapture > 0)
+        --ticksToCapture;
+        if (ticksToCapture > 0)
             return;
-        this.TicksReached();
+        TicksReached();
     }
 
     public void TicksReached()
     {
-        this.ticksToCapture = -1;
+        ticksToCapture = -1;
 
         if (Equipment != null)
         {
-            var storageComp = Equipment.GetComp<CompPawnStorage>();
+            CompPawnStorage storageComp = Equipment.GetComp<CompPawnStorage>();
             if (storageComp == null)
             {
                 storageComp = (CompPawnStorage) Activator.CreateInstance(typeof(CompPawnStorage));
@@ -139,20 +138,19 @@ public class Projectile_Capturing : Projectile
 
         if (Equipment != null)
         {
-            var storageComp = Equipment.GetComp<CompPawnStorage>();
+            CompPawnStorage storageComp = Equipment.GetComp<CompPawnStorage>();
             if ((storageComp.GetDirectlyHeldThings()?.Count ?? 0) <= 0)
             {
                 if (!PrepCapture())
                 {
                     ticksToCapture = -1;
                     Destroy();
-                    return;
                 }
             }
             else
             {
                 Release();
-                PS_DefOf.PS_ReleaseSound.PlayOneShot((SoundInfo) new TargetInfo(this.Position, this.Map));
+                PS_DefOf.PS_ReleaseSound.PlayOneShot(new TargetInfo(Position, Map));
                 Equipment.Destroy();
                 Destroy();
             }
@@ -178,23 +176,23 @@ public class Projectile_Capturing : Projectile
         }
         
         ProjectileStorage.StorePawn(pawn);
-        PS_DefOf.PS_CaptureSound.PlayOneShot((SoundInfo) new TargetInfo(this.Position, this.Map));
+        PS_DefOf.PS_CaptureSound.PlayOneShot(new TargetInfo(Position, Map));
 
         return true;
     }
 
     public void RunEffector()
     {
-        if (this.def.projectile.explosionEffect != null)
+        if (def.projectile.explosionEffect != null)
         {
-            Effecter eff = this.def.projectile.explosionEffect.Spawn();
-            if (this.def.projectile.explosionEffectLifetimeTicks != 0)
+            Effecter eff = def.projectile.explosionEffect.Spawn();
+            if (def.projectile.explosionEffectLifetimeTicks != 0)
             {
-                Map.effecterMaintainer.AddEffecterToMaintain(eff, this.Position.ToVector3().ToIntVec3(), this.def.projectile.explosionEffectLifetimeTicks);
+                Map.effecterMaintainer.AddEffecterToMaintain(eff, Position.ToVector3().ToIntVec3(), def.projectile.explosionEffectLifetimeTicks);
             }
             else
             {
-                eff.Trigger(new TargetInfo(this.Position, Map), new TargetInfo(this.Position, Map));
+                eff.Trigger(new TargetInfo(Position, Map), new TargetInfo(Position, Map));
                 eff.Cleanup();
             }
         }
@@ -203,8 +201,8 @@ public class Projectile_Capturing : Projectile
     public bool TryAddToNewBall(Pawn pawn, out ThingWithComps ball, CompPawnStorage transferTarget = null)
     {
         RunEffector();
-        ball = (ThingWithComps)GenSpawn.Spawn(this.equipmentDef, HitThing.Position, ThingMap, WipeMode.VanishOrMoveAside);
-        if (!ball.TryGetComp<CompPawnStorage>(out var comp)) return false;
+        ball = (ThingWithComps)GenSpawn.Spawn(equipmentDef, HitThing.Position, ThingMap, WipeMode.VanishOrMoveAside);
+        if (!ball.TryGetComp<CompPawnStorage>(out CompPawnStorage comp)) return false;
         if (comp?.CanAssign(pawn, true) ?? false)
         {
             if (transferTarget is not null)
@@ -216,7 +214,7 @@ public class Projectile_Capturing : Projectile
                 comp.StorePawn(pawn);
             }
         
-            var hediff = pawn.health.GetOrAddHediff(PS_DefOf.PS_CapturedPawn);
+            Hediff hediff = pawn.health.GetOrAddHediff(PS_DefOf.PS_CapturedPawn);
             hediff.visible = false;
         }
 
@@ -231,7 +229,7 @@ public class Projectile_Capturing : Projectile
 
     public void Release()
     {
-        var position = HitThing?.Position ?? this.Position;
+        IntVec3 position = HitThing?.Position ?? Position;
         
         EquipmentStorageComp?.ReleaseContentsAt(ThingMap, position);
     }
