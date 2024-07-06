@@ -111,7 +111,14 @@ public class CompPawnStorage : ThingComp, IThingHolder
         }
         else
         {
-            transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
+            if (Props.MaxStoredPawns == 1)
+            {
+                transformLabelCache = $"{base.TransformLabel(label)} ({innerContainer.innerList.First().Name})";
+            }
+            else
+            {
+                transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";    
+            }
         }
 
         labelDirty = false;
@@ -237,14 +244,36 @@ public class CompPawnStorage : ThingComp, IThingHolder
         }
     }
 
+    public bool TryTransferPawn(ThingWithComps otherStore, Pawn pawn)
+    {
+        if (!otherStore.TryGetComp<CompPawnStorage>(out var comp)) return false;
+        TransferPawn(comp, pawn);
+        return true;
+
+    }
+    
+    public void TransferPawn(CompPawnStorage otherStore, Pawn pawn)
+    {
+        innerContainer.Remove(pawn);
+        otherStore.innerContainer.TryAdd(pawn);
+        if(otherStore.compAssignable != null && !otherStore.compAssignable.AssignedPawns.Contains(pawn)) otherStore.compAssignable.TryAssignPawn(pawn);
+        labelDirty = true;
+        otherStore.labelDirty = true;
+
+        otherStore.pawnStoringTick.SetOrAdd(pawn.thingIDNumber, Find.TickManager.TicksGame);
+        
+        ApplyNeedsForStoredPeriodFor(pawn);
+        Notify_ReleasedFromStorage(pawn);
+    }
+
     public void StorePawn(Pawn pawn)
     {
         Map pawnMap = pawn.Map;
         if (Props.lightEffect) FleckMaker.ThrowLightningGlow(pawn.Position.ToVector3Shifted(), pawnMap, 0.5f);
         if (Props.transformEffect) FleckMaker.ThrowExplosionCell(pawn.Position, pawnMap, FleckDefOf.ExplosionFlash, Color.white);
+
         //Spawn the store effecter
         Props.storeEffect?.Spawn(pawn.Position, pawnMap);
-
         pawn.DeSpawn();
         innerContainer.TryAdd(pawn);
 
@@ -443,6 +472,15 @@ public class CompPawnStorage : ThingComp, IThingHolder
         innerContainer.Clear();
     }
 
+    public void ReleaseContentsAt(Map map, IntVec3 at)
+    {
+        map ??= parent.Map;
+
+        for(var i = 0; i < innerContainer.Count; i++)
+            ReleaseSingleAt(map, innerContainer.innerList[i], at, false, true);
+        innerContainer.Clear();
+    }
+
     public void EjectContents(Map map)
     {
         map ??= parent.Map;
@@ -458,12 +496,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
             IntVec3 cell = CellFinder.RandomClosewalkCellNear(parent.Position, map, 18);
 
             bool pawnIsSelected = Find.Selector.IsSelected(pawn);
-            PawnFlyer pawnFlyer = PawnFlyer.MakeFlyer(ThingDefOf.PawnFlyer, pawn, cell, flightEffecterDef,
-                landingSound);
-            if (pawnFlyer == null)
-                return;
-            FleckMaker.ThrowDustPuff(pawn.Position.ToVector3Shifted() + Gen.RandomHorizontalVector(0.5f), map, 2f);
-            GenSpawn.Spawn(pawnFlyer, cell, map);
+            
             Notify_ReleasedFromStorage(pawn);
             if (pawnIsSelected)
                 Find.Selector.Select(pawn, false, false);
@@ -474,17 +507,21 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public void ReleaseSingle(Map map, Pawn pawn, bool remove = true, bool makeFilth = false)
     {
-        if (!innerContainer.Contains(pawn)) return;
+        ReleaseSingleAt(map, pawn, parent.Position, remove, makeFilth);
+    }
+
+    public void ReleaseSingleAt(Map map, Pawn pawn, IntVec3 at, bool remove = false, bool makeFilth = false)
+    {
         map ??= parent.Map;
 
         PawnComponentsUtility.AddComponentsForSpawn(pawn);
-        compAssignable.TryUnassignPawn(pawn);
-        GenDrop.TryDropSpawn(pawn, parent.Position, map, ThingPlaceMode.Near, out Thing _);
-        if (makeFilth) FilthMaker.TryMakeFilth(parent.InteractionCell, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
-
-        if (!remove) return;
-        innerContainer.Remove(pawn);
+        compAssignable?.TryUnassignPawn(pawn);
+        GenDrop.TryDropSpawn(pawn, at, map, ThingPlaceMode.Near, out Thing _);
+        if (makeFilth) FilthMaker.TryMakeFilth(at, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
+        
+        if(!remove) return;
         Notify_ReleasedFromStorage(pawn);
+        innerContainer.Remove(pawn);
     }
 
     public void GetChildHolders(List<IThingHolder> outChildren)

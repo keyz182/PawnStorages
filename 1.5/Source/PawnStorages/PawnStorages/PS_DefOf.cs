@@ -27,4 +27,9 @@ public static class PS_DefOf
     public static WorkGiverDef PS_DoBillsDigitalBench;
 
     public static TimeAssignmentDef PS_Home;
+
+    public static HediffDef PS_CapturedPawn;
+
+    public static SoundDef PS_CaptureSound;
+    public static SoundDef PS_ReleaseSound;
 }
