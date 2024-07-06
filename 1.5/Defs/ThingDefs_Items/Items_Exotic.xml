@@ -168,16 +168,15 @@
         <description>A capture sphere capable of capturing and releasing pawns at range. It will only capture non-faction pawns if they're downed.</description>
         <recipeMaker>
             <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
-            <workSkill>Artistic</workSkill>
+            <workSkill>Crafting</workSkill>
             <skillRequirements>
-                <Crafting>6</Crafting>
-                <Artistic>5</Artistic>
+                <Crafting>8</Crafting>
             </skillRequirements>
-            <unfinishedThingDef>UnfinishedSculpture</unfinishedThingDef>
-            <effectWorking>Sculpt</effectWorking>
-            <soundWorking>Recipe_Sculpt</soundWorking>
+            <unfinishedThingDef>UnfinishedWeapon</unfinishedThingDef>
+            <effectWorking>Smith</effectWorking>
+            <soundWorking>Recipe_Machining</soundWorking>
             <recipeUsers>
-                <li>TableSculpting</li>
+                <li>TableMachining</li>
             </recipeUsers>
             <defaultIngredientFilter>
                 <categories>
@@ -185,7 +184,6 @@
                 </categories>
                 <thingDefs>
                     <li>Jade</li>
-                    <li MayRequire="Ludeon.RimWorld.Anomaly">Bioferrite</li>
                 </thingDefs>
             </defaultIngredientFilter>
         </recipeMaker>
@@ -234,7 +232,7 @@
                     <canTargetSelf>false</canTargetSelf>
                     <canTargetPawns>true</canTargetPawns>
                 </targetParams>
-                <defaultProjectile>Proj_CaptureSphere</defaultProjectile>
+                <defaultProjectile>PS_Proj_CaptureSphere</defaultProjectile>
                 <rangedFireRulepack>Combat_RangedFire_Thrown</rangedFireRulepack>
             </li>
         </verbs>
@@ -259,7 +257,7 @@
 
 
     <ThingDef ParentName="BaseGrenadeProjectile">
-        <defName>Proj_CaptureSphere</defName>
+        <defName>PS_Proj_CaptureSphere</defName>
         <label>capture sphere</label>
         <thingClass>PawnStorages.CaptureSphere.Projectile_Capturing</thingClass>
         <graphicData>
@@ -267,11 +265,9 @@
             <graphicClass>Graphic_Single</graphicClass>
         </graphicData>
         <projectile>
-            <explosionRadius>1.9</explosionRadius>
-            <damageDef>Bomb</damageDef>
             <!-- Use default damage from explosion def -->
             <explosionDelay>100</explosionDelay>
-            <explosionEffect>StarExplosion</explosionEffect>
+            <explosionEffect>PS_StarExplosion</explosionEffect>
         </projectile>
         
         <comps>

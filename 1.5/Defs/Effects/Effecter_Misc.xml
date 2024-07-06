@@ -2,12 +2,12 @@
 <Defs>
 
   <EffecterDef>
-    <defName>StarExplosion</defName>
+    <defName>PS_StarExplosion</defName>
     <children>
       <li>
         <subEffecterClass>SubEffecter_SprayerTriggered</subEffecterClass>
         <positionRadius>0.2</positionRadius>
-        <moteDef>Mote_Star</moteDef>
+        <moteDef>PS_Mote_Star</moteDef>
         <burstCount>10~15</burstCount>
         <speed>4.8~8.4</speed>
         <scale>0.5~1</scale>
@@ -17,7 +17,7 @@
 
 
   <ThingDef ParentName="MoteBase">
-    <defName>Mote_Star</defName>
+    <defName>PS_Mote_Star</defName>
     <altitudeLayer>MoteOverhead</altitudeLayer>
     <mote>
       <fadeInTime>0.25</fadeInTime>

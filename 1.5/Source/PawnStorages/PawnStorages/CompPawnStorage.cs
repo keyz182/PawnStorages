@@ -244,6 +244,14 @@ public class CompPawnStorage : ThingComp, IThingHolder
         }
     }
 
+    public bool TryTransferPawn(ThingWithComps otherStore, Pawn pawn)
+    {
+        if (!otherStore.TryGetComp<CompPawnStorage>(out var comp)) return false;
+        TransferPawn(comp, pawn);
+        return true;
+
+    }
+    
     public void TransferPawn(CompPawnStorage otherStore, Pawn pawn)
     {
         innerContainer.Remove(pawn);
@@ -488,12 +496,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
             IntVec3 cell = CellFinder.RandomClosewalkCellNear(parent.Position, map, 18);
 
             bool pawnIsSelected = Find.Selector.IsSelected(pawn);
-            // PawnFlyer pawnFlyer = PawnFlyer.MakeFlyer(ThingDefOf.PawnFlyer, pawn, cell, flightEffecterDef,
-            //     landingSound);
-            // if (pawnFlyer == null)
-            //     return;
-            // FleckMaker.ThrowDustPuff(pawn.Position.ToVector3Shifted() + Gen.RandomHorizontalVector(0.5f), map, 2f);
-            // GenSpawn.Spawn(pawnFlyer, cell, map);
+            
             Notify_ReleasedFromStorage(pawn);
             if (pawnIsSelected)
                 Find.Selector.Select(pawn, false, false);

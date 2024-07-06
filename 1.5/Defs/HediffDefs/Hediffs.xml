@@ -17,7 +17,7 @@
         <comps>
             <li Class="HediffCompProperties_GiveAbility">
                 <abilityDefs>
-                    <li>ReturnToSphere</li>
+                    <li>PS_ReturnToSphere</li>
                 </abilityDefs>
             </li>
         </comps>

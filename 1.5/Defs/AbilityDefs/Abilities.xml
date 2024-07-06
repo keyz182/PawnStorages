@@ -2,7 +2,7 @@
 
 <Defs>
     <AbilityDef>
-        <defName>ReturnToSphere</defName>
+        <defName>PS_ReturnToSphere</defName>
         <label>return to sphere</label>
         <description>This pawn has previously been captured by a sphere. Return to it.</description>
         
@@ -30,7 +30,7 @@
         
         <comps>
             <li Class="PawnStorages.CaptureSphere.CompProperties_AbilityReturnToSphere">
-                <Effector>StarExplosion</Effector>
+                <Effector>PS_StarExplosion</Effector>
                 <SphereDef>PS_CaptureSphere</SphereDef>
             </li>
         </comps>

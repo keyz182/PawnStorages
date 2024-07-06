@@ -1,11 +1,23 @@
-﻿using RimWorld;
+﻿using System;
+using RimWorld;
 using Verse;
 
 namespace PawnStorages.CaptureSphere;
 
 public class Verb_LaunchCaptureSphere : Verb_LaunchProjectile
 {
-    public CompPawnStorage PawnStorage => EquipmentSource.GetComp<CompPawnStorage>();
+    public CompPawnStorage PawnStorage
+    {
+        get
+        {
+            if (EquipmentSource.TryGetComp<CompPawnStorage>(out var comp)) return comp;
+            
+            var storageComp = (CompPawnStorage) Activator.CreateInstance(typeof(CompPawnStorage));
+            storageComp.parent = EquipmentSource;
+            EquipmentSource.comps.Add(storageComp);
+            return storageComp;
+        }
+    }
 
     protected TargetingParameters targetParamsFilled = new()
     {

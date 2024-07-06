@@ -1,4 +1,5 @@
-﻿using RimWorld;
+﻿using System;
+using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
@@ -32,7 +33,7 @@ public class Projectile_Capturing : Projectile
         Scribe_Values.Look(ref this.BlockedByShield, "BlockedByShield", false);
         Scribe_References.Look(ref Equipment, "Equipment");
         Scribe_References.Look(ref HitThing, "HitThing");
-        Scribe_References.Look(ref HitThing, "HitThing");
+        Scribe_References.Look(ref NewlySpawnedBall, "NewlySpawnedBall");
         Scribe_Deep.Look(ref ThingMap, "ThingMap");
     }
 
@@ -109,6 +110,13 @@ public class Projectile_Capturing : Projectile
         if (Equipment != null)
         {
             var storageComp = Equipment.GetComp<CompPawnStorage>();
+            if (storageComp == null)
+            {
+                storageComp = (CompPawnStorage) Activator.CreateInstance(typeof(CompPawnStorage));
+                storageComp.parent = Equipment;
+                Equipment.comps.Add(storageComp);
+            }
+
             if ((storageComp.GetDirectlyHeldThings()?.Count ?? 0) <= 0)
             {
                 if (!Capture())
@@ -166,20 +174,7 @@ public class Projectile_Capturing : Projectile
         }
         else
         {
-            // pawn is friendly, instant capture
-            RunEffector();
-        
-            NewlySpawnedBall = (ThingWithComps)GenSpawn.Spawn(this.equipmentDef, HitThing.Position, ThingMap, WipeMode.VanishOrMoveAside);
-        
-            if(NewlySpawnedBallStorageComp == null) return false;
-        
-            if(!NewlySpawnedBallStorageComp.CanAssign(pawn, true)) return false;
-
-            NewlySpawnedBallStorageComp?.StorePawn(pawn);
-
-            var hediff = pawn.health.GetOrAddHediff(PS_DefOf.PS_CapturedPawn);
-            hediff.visible = false;
-            return false;
+            return !TryAddToNewBall(pawn, out NewlySpawnedBall);
         }
         
         ProjectileStorage.StorePawn(pawn);
@@ -205,32 +200,40 @@ public class Projectile_Capturing : Projectile
         }
     }
 
+    public bool TryAddToNewBall(Pawn pawn, out ThingWithComps ball, CompPawnStorage transferTarget = null)
+    {
+        RunEffector();
+        ball = (ThingWithComps)GenSpawn.Spawn(this.equipmentDef, HitThing.Position, ThingMap, WipeMode.VanishOrMoveAside);
+        if (!ball.TryGetComp<CompPawnStorage>(out var comp)) return false;
+        if (comp?.CanAssign(pawn, true) ?? false)
+        {
+            if (transferTarget is not null)
+            {
+                transferTarget.TransferPawn(comp, pawn);
+            }
+            else
+            {
+                comp.StorePawn(pawn);
+            }
+        
+            var hediff = pawn.health.GetOrAddHediff(PS_DefOf.PS_CapturedPawn);
+            hediff.visible = false;
+        }
+
+        return true;
+    }
+
     public bool Capture()
     {
         if (HitThing is not Pawn pawn) return false;
-
-        RunEffector();
-        
-        NewlySpawnedBall = (ThingWithComps)GenSpawn.Spawn(this.equipmentDef, HitThing.Position, ThingMap, WipeMode.VanishOrMoveAside);
-        
-        if(NewlySpawnedBallStorageComp == null) return false;
-        
-        if(!NewlySpawnedBallStorageComp.CanAssign(pawn, true)) return false;
-        
-        if(NewlySpawnedBallStorageComp == null) return false;
-        ProjectileStorage.TransferPawn(NewlySpawnedBallStorageComp, pawn);
-
-        var hediff = pawn.health.GetOrAddHediff(PS_DefOf.PS_CapturedPawn);
-        hediff.visible = false;
-        
-        return true;
+        return TryAddToNewBall(pawn, out NewlySpawnedBall, ProjectileStorage);
     }
 
     public void Release()
     {
         var position = HitThing?.Position ?? this.Position;
         
-        EquipmentStorageComp.ReleaseContentsAt(ThingMap, position);
+        EquipmentStorageComp?.ReleaseContentsAt(ThingMap, position);
     }
     
 }
