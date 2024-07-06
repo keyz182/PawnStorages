@@ -41,6 +41,7 @@
         <CompatibilityFiles Include="../../../../Compatibility/**">
           <Link>Files/Compatibility/%(RecursiveDir)%(Filename)%(Extension)</Link>
         </CompatibilityFiles>
+        <None Include="../../../../.editorconfig" />
     </ItemGroup>
 
     <!-- Add A step to the build to run csharpier on build -->
