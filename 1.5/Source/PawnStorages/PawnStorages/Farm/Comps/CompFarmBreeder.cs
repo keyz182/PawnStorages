@@ -104,10 +104,10 @@ namespace PawnStorages.Farm.Comps
                         if (config != null)
                         {
                             // Only slaughter one per cycle
-                            var adultMales = type.Where(p => p.gender == Gender.Male && p.ageTracker.Adult).ToList();
-                            var adultFemales = type.Where(p => p.gender == Gender.Female && p.ageTracker.Adult).ToList();
-                            var youngMales = type.Where(p => p.gender == Gender.Male && !p.ageTracker.Adult).ToList();
-                            var youngFemales = type.Where(p => p.gender == Gender.Female && !p.ageTracker.Adult).ToList();
+                            var adultMales = type.Where(p => p.gender == Gender.Male && p.ageTracker.CurLifeStage.developmentalStage == DevelopmentalStage.Adult).ToList();
+                            var adultFemales = type.Where(p => p.gender == Gender.Female && p.ageTracker.CurLifeStage.developmentalStage == DevelopmentalStage.Adult).ToList();
+                            var youngMales = type.Where(p => p.gender == Gender.Male && p.ageTracker.CurLifeStage.developmentalStage != DevelopmentalStage.Adult).ToList();
+                            var youngFemales = type.Where(p => p.gender == Gender.Female && p.ageTracker.CurLifeStage.developmentalStage != DevelopmentalStage.Adult).ToList();
 
                             Log.Message($"Found {adultMales.Count} adultMales {config.animal}");
                             Log.Message($"Found {adultFemales.Count} adultFemales {config.animal}");
