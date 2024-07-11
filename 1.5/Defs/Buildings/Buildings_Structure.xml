@@ -252,6 +252,7 @@
             <li>PawnStorages.Farm.ITab_Farm</li>
             <li>ITab_BiosculpterNutritionStorage</li>
             <li>PawnStorages.Farm.ITab_Breeding</li>
+            <li>PawnStorages.Farm.ITab_Slaughter</li>
         </inspectorTabs>
         <designationCategory>Production</designationCategory>
         <comps>

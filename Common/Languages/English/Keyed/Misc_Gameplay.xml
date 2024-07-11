@@ -11,10 +11,10 @@
 	<PS_WorkOn>Work on {0}</PS_WorkOn>
 	<PS_Empty>(empty)</PS_Empty>
 	<PS_Filled>(filled)</PS_Filled>
-	
+
 	<PS_StoredPawns>Stored Colonists:</PS_StoredPawns>
 	<PS_StoredAnimals>Stored Animals:</PS_StoredAnimals>
-	
+
 	<PS_ReleaseReportA>Releasing {0} from {1} at {2}</PS_ReleaseReportA>
 	<PS_ReleaseReportB>Releasing all colonists from {0} at {1}</PS_ReleaseReportB>
 	<PS_ReleaseReportC>Releasing {0} from {1}</PS_ReleaseReportC>
@@ -69,8 +69,12 @@
 	<PS_FarmTab>Farming</PS_FarmTab>
 	<PS_ProductionTab>Production</PS_ProductionTab>
 	<PS_BreedingTab>Breeding</PS_BreedingTab>
+	<PS_SlaughterTab>Slaughter</PS_SlaughterTab>
 
 	<PS_Reset>Reset</PS_Reset>
 
 	<PS_ActivityIconStored>In storage</PS_ActivityIconStored>
+
+    <PS_AutoSlaughterLevel>Auto Slaughter</PS_AutoSlaughterLevel>
+    <PS_AutoSlaughterDesc>Auto Slaughter set to {0}</PS_AutoSlaughterDesc>
 </LanguageData>

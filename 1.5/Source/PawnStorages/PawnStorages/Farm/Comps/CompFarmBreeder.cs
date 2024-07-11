@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using PawnStorages.Farm.Interfaces;
 using RimWorld;
 using UnityEngine;
@@ -9,8 +11,21 @@ namespace PawnStorages.Farm.Comps
 {
     public class CompFarmBreeder : ThingComp
     {
+        public int AutoSlaughterTarget = 0;
         public IBreederParent Parent => parent as IBreederParent;
 
+        public List<AutoSlaughterConfig> AutoSlaughterSettings = new List<AutoSlaughterConfig>();
+        private void TryPopulateMissingAnimals()
+        {
+            HashSet<ThingDef> hashSet = new HashSet<ThingDef>();
+            hashSet.AddRange(AutoSlaughterSettings.Select(c => c.animal));
+            foreach (PawnKindDef allDef in DefDatabase<PawnKindDef>.AllDefs)
+            {
+                if (allDef.race != null && allDef.race.race.Animal && (double) allDef.race.race.wildness < 1.0 && !allDef.race.race.Dryad && !allDef.race.IsCorpse &&
+                    !hashSet.Contains(allDef.race))
+                    AutoSlaughterSettings.Add(new AutoSlaughterConfig() { animal = allDef.race });
+            }
+        }
 
         private Dictionary<PawnKindDef, float> breedingProgress = new();
 
@@ -27,6 +42,13 @@ namespace PawnStorages.Farm.Comps
         {
             base.PostExposeData();
             Scribe_Collections.Look(ref breedingProgress, "breedingProgress", LookMode.Def);
+
+            Scribe_Collections.Look(ref AutoSlaughterSettings, "AutoSlaughterSettings", LookMode.Deep);
+            if (Scribe.mode != LoadSaveMode.PostLoadInit)
+                return;
+            if (AutoSlaughterSettings.RemoveAll(x => x.animal == null || x.animal.IsCorpse) != 0)
+                Log.Warning("Some auto-slaughter configs had null animals after loading.");
+            TryPopulateMissingAnimals();
         }
 
         public override void CompTick()
@@ -91,6 +113,17 @@ namespace PawnStorages.Farm.Comps
             }
         }
 
+        public AutoSlaughterGizmo _autoSlaughterGizmo;
+
+        public AutoSlaughterGizmo AutoSlaughterGizmo {
+            get
+            {
+                if (_autoSlaughterGizmo is null)
+                    _autoSlaughterGizmo = new AutoSlaughterGizmo(this);
+
+                return _autoSlaughterGizmo;
+            }
+        }
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
@@ -107,6 +140,14 @@ namespace PawnStorages.Farm.Comps
                 },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
+            yield return AutoSlaughterGizmo;
+        }
+
+        public override string CompInspectStringExtra()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("PS_AutoSlaughterDesc".Translate(this.AutoSlaughterTarget));
+            return sb.ToString();
         }
     }
 }

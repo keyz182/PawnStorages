@@ -24,6 +24,20 @@ namespace PawnStorages.Farm.Comps
         public float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(animal =>
             SimplifiedPastureNutritionSimulator.NutritionConsumedPerDay(animal.def, animal.ageTracker.CurLifeStage));
 
+        public IEnumerable<PawnKindDef> HeldPawnTypes => this.innerContainer.innerList.Select(p => p.kindDef).Distinct();
+
+        public Dialog_AutoSlaughter.AnimalCountRecord CountForType(ThingDef def)
+        {
+            List<Pawn> pawns = innerContainer.innerList.Where(p => p.kindDef.race == def).ToList();
+            int total = pawns.Count;
+            int male = pawns.Count(p => p.gender == Gender.Male && p.ageTracker.Adult);
+            int maleYoung = pawns.Count(p => p.gender == Gender.Male && !p.ageTracker.Adult);
+            int female = pawns.Count(p => p.gender == Gender.Female && p.ageTracker.Adult);
+            int femaleYoung = pawns.Count(p => p.gender == Gender.Female && !p.ageTracker.Adult);
+
+            return new Dialog_AutoSlaughter.AnimalCountRecord(total, male, maleYoung, female, femaleYoung, 0, 0);
+        }
+
         public new void StorePawn(Pawn pawn)
         {
             pawn.DeSpawn();
@@ -90,7 +104,7 @@ namespace PawnStorages.Farm.Comps
                 return true;
             }
 
-            //EggLayer 
+            //EggLayer
             CompEggLayer eggLayer = animal.TryGetComp<CompEggLayer>();
             if (eggLayer is not { Active: true }) return false;
             resource = eggLayer.Props.eggUnfertilizedDef;
