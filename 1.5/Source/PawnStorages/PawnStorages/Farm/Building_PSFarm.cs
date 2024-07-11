@@ -124,6 +124,11 @@ namespace PawnStorages.Farm
             pawnStorage.ReleaseSingle(Map, pawn, true, true);
         }
 
+        public void Release(Pawn pawn)
+        {
+            ReleasePawn(pawn);
+        }
+
         public bool HasSuggestiveSilos => true;
         public bool HasStoredPawns => true;
         public List<Pawn> StoredPawns => pawnStorage.GetDirectlyHeldThings().Select(p => p as Pawn).ToList();
@@ -159,7 +164,7 @@ namespace PawnStorages.Farm
 
         public void Notify_PawnBorn(Pawn newPawn)
         {
-            pawnStorage.StorePawn(newPawn);
+            pawnStorage.StorePawn(newPawn, false);
         }
 
         public void GetChildHolders(List<IThingHolder> outChildren)

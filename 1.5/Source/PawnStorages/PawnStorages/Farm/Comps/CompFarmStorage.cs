@@ -38,9 +38,10 @@ namespace PawnStorages.Farm.Comps
             return new Dialog_AutoSlaughter.AnimalCountRecord(total, male, maleYoung, female, femaleYoung, 0, 0);
         }
 
-        public new void StorePawn(Pawn pawn)
+        public new void StorePawn(Pawn pawn, bool despawnFirst = true)
         {
-            pawn.DeSpawn();
+            if(despawnFirst)
+                pawn.DeSpawn();
             innerContainer.TryAdd(pawn);
 
             parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);

@@ -10,6 +10,8 @@ namespace PawnStorages.Farm.Interfaces
 
         public void Notify_PawnBorn(Pawn newPawn);
 
+        public void Release(Pawn pawn);
+
         public Map Map { get; }
     }
 }

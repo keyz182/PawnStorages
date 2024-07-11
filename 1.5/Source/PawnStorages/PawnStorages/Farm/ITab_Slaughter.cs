@@ -99,19 +99,19 @@ namespace PawnStorages.Farm
 
             void DrawCurrentCol(int val, int? limit)
             {
-                Color? colColour = new ();
+                Color colColour = Color.white;
+
                 if (val == 0)
                     colColour = (Color.gray);
-                else if (limit.HasValue)
+                else if (limit.HasValue && val > limit)
                 {
-                    if (val > limit)
-                        colColour = (ColorLibrary.RedReadable);
+                    colColour = (ColorLibrary.RedReadable);
                 }
 
                 Color startColor = GUI.color;
                 int anchor = (int) Text.Anchor;
                 Text.Anchor = TextAnchor.MiddleCenter;
-                GUI.color = colColour ?? Color.white;
+                GUI.color = colColour;
                 row.Label(val.ToString(), 60f);
                 Text.Anchor = (TextAnchor) anchor;
                 GUI.color = startColor;
