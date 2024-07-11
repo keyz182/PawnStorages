@@ -97,7 +97,6 @@ namespace PawnStorages.Farm.Comps
                 if (parent.IsHashIntervalTick(Parent.TickInterval * 10))
                 {
 
-                    ProfilerBlock profilerBlock = new ProfilerBlock("Check AutoSlaughter");
                     foreach (var type in types)
                     {
                         AutoSlaughterConfig config = AutoSlaughterSettings.FirstOrDefault(s => s.animal == type.Key.race);
@@ -109,6 +108,11 @@ namespace PawnStorages.Farm.Comps
                             var adultFemales = type.Where(p => p.gender == Gender.Female && p.ageTracker.Adult).ToList();
                             var youngMales = type.Where(p => p.gender == Gender.Male && !p.ageTracker.Adult).ToList();
                             var youngFemales = type.Where(p => p.gender == Gender.Female && !p.ageTracker.Adult).ToList();
+
+                            Log.Message($"Found {adultMales.Count} adultMales {config.animal}");
+                            Log.Message($"Found {adultFemales.Count} adultFemales {config.animal}");
+                            Log.Message($"Found {youngMales.Count} youngMales {config.animal}");
+                            Log.Message($"Found {youngFemales.Count} youngFemales {config.animal}");
 
                             if (config.maxMales > 0 && config.maxMales < adultMales.Count())
                             {
@@ -142,7 +146,6 @@ namespace PawnStorages.Farm.Comps
                             }
                         }
                     }
-                    profilerBlock.Dispose();
                 }
 
                 var deadPawns = Parent.BreedablePawns.Where(p => p.Dead);
