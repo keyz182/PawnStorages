@@ -77,4 +77,6 @@
 
     <PS_AutoSlaughterLevel>Auto Slaughter</PS_AutoSlaughterLevel>
     <PS_AutoSlaughterDesc>Auto Slaughter set to {0}</PS_AutoSlaughterDesc>
+
+    <PS_StorageFull>Storage {0} is full, so {1} was ejected</PS_StorageFull>
 </LanguageData>

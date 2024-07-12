@@ -6,6 +6,7 @@ namespace PawnStorages.Farm.Interfaces
     public interface IBreederParent : IActive
     {
         public List<Pawn> BreedablePawns { get; }
+        public List<Pawn> AllPawns { get; }
         public int TickInterval { get; }
 
         public void Notify_PawnBorn(Pawn newPawn);

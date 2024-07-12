@@ -24,7 +24,7 @@ namespace PawnStorages.Farm.Comps
             {
                 AlternativeStore.CurrentStored = _storedNutrition;
             }
-        } 
+        }
 
         public float storedNutrition
         {
@@ -55,6 +55,7 @@ namespace PawnStorages.Farm.Comps
         {
             base.PostExposeData();
             Scribe_Values.Look(ref _storedNutrition, "storedNutrition");
+            Scribe_References.Look(ref AlternativeStore, "AlternativeStore");
         }
 
         public override void CompTick()
@@ -81,7 +82,7 @@ namespace PawnStorages.Farm.Comps
                     Need_Food foodNeeds = pawn.needs?.food;
                     if (foodNeeds == null)
                         continue;
-                
+
                     foodNeeds.CurLevel -= foodNeeds.FoodFallPerTick * Props.animalTickInterval;
                     if (!foodNeeds.Starving)
                         foodNeeds.lastNonStarvingTick = Find.TickManager.TicksGame;
@@ -94,7 +95,7 @@ namespace PawnStorages.Farm.Comps
                         HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, adjustedMalnutritionSeverityPerInterval);
                     else
                         HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, -adjustedMalnutritionSeverityPerInterval);
-                    
+
                     if (pawn.health.hediffSet.TryGetHediff(HediffDefOf.Malnutrition, out Hediff malnutritionHediff) && malnutritionHediff.Severity >= 0.75f)
                     {
                         Parent.ReleasePawn(pawn);

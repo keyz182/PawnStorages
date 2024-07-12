@@ -74,6 +74,7 @@ namespace PawnStorages.Farm.Comps
             int amount = Mathf.Min(partHealth - 1, 1);
 
             DamageInfo dinfo = new DamageInfo(DamageDefOf.ExecutionCut, (float) amount, 999f, instigator: parent, hitPart: bodyPartRecord, instigatorGuilty: false, spawnFilth: true);
+            victim.forceNoDeathNotification = true;
             victim.TakeDamage(dinfo);
             if (!victim.Dead)
                 victim.Kill(new DamageInfo?(dinfo), (Hediff) null);
@@ -89,12 +90,12 @@ namespace PawnStorages.Farm.Comps
 
             if (parent.IsHashIntervalTick(Parent.TickInterval))
             {
-                var types = (from p in Parent.BreedablePawns
+                var types = (from p in Parent.AllPawns
                     group p by p.kindDef
                     into def
                     select def).ToList();
 
-                if (parent.IsHashIntervalTick(Parent.TickInterval * 10))
+                if (parent.IsHashIntervalTick(Parent.TickInterval * 4))
                 {
 
                     foreach (var type in types)
@@ -104,15 +105,10 @@ namespace PawnStorages.Farm.Comps
                         if (config != null)
                         {
                             // Only slaughter one per cycle
-                            var adultMales = type.Where(p => p.gender == Gender.Male && p.ageTracker.CurLifeStage.developmentalStage == DevelopmentalStage.Adult).ToList();
-                            var adultFemales = type.Where(p => p.gender == Gender.Female && p.ageTracker.CurLifeStage.developmentalStage == DevelopmentalStage.Adult).ToList();
-                            var youngMales = type.Where(p => p.gender == Gender.Male && p.ageTracker.CurLifeStage.developmentalStage != DevelopmentalStage.Adult).ToList();
-                            var youngFemales = type.Where(p => p.gender == Gender.Female && p.ageTracker.CurLifeStage.developmentalStage != DevelopmentalStage.Adult).ToList();
-
-                            Log.Message($"Found {adultMales.Count} adultMales {config.animal}");
-                            Log.Message($"Found {adultFemales.Count} adultFemales {config.animal}");
-                            Log.Message($"Found {youngMales.Count} youngMales {config.animal}");
-                            Log.Message($"Found {youngFemales.Count} youngFemales {config.animal}");
+                            var adultMales = type.Where(p => p.gender == Gender.Male && p.ageTracker.Adult).ToList();
+                            var adultFemales = type.Where(p => p.gender == Gender.Female && p.ageTracker.Adult).ToList();
+                            var youngMales = type.Where(p => p.gender == Gender.Male && !p.ageTracker.Adult).ToList();
+                            var youngFemales = type.Where(p => p.gender == Gender.Female && !p.ageTracker.Adult).ToList();
 
                             if (config.maxMales > 0 && config.maxMales < adultMales.Count())
                             {
@@ -148,14 +144,7 @@ namespace PawnStorages.Farm.Comps
                     }
                 }
 
-                var deadPawns = Parent.BreedablePawns.Where(p => p.Dead);
-
-                foreach (Pawn deadPawn in deadPawns)
-                {
-                    Log.Message(deadPawn);
-                }
-
-                if (Parent.BreedablePawns.Count < PawnStoragesMod.settings.MaxPawnsInFarm)
+                if (Parent.AllPawns.Count < PawnStoragesMod.settings.MaxPawnsInFarm)
                 {
                     foreach (var type in types)
                     {
@@ -177,8 +166,6 @@ namespace PawnStorages.Farm.Comps
                         var gestationTicks = AnimalProductionUtility.GestationDaysEach(type.Key.race) * 60000 * PawnStoragesMod.settings.BreedingScale;
 
                         var progressPerCycle = Parent.TickInterval / gestationTicks;
-                        progressPerCycle *= 25;
-
 
                         BreedingProgress.TryAdd(type.Key, 0.0f);
 
