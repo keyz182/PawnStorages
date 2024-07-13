@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using PawnStorages.Farm.Interfaces;
 using RimWorld;
@@ -9,7 +8,7 @@ using Verse.Sound;
 
 namespace PawnStorages.Farm.Comps
 {
-    public class CompFarmBreeder : ThingComp
+    public partial class CompFarmBreeder : ThingComp
     {
         public int AutoSlaughterTarget = 0;
         public IBreederParent Parent => parent as IBreederParent;
@@ -24,10 +23,7 @@ namespace PawnStorages.Farm.Comps
                     AutoSlaughterSettings.ContainsKey(allDef))
                     continue;
 
-                AutoSlaughterConfig config = new () { animal = allDef.race };
-
-
-
+                AutoSlaughterConfig config = new() { animal = allDef.race };
                 AutoSlaughterSettings.Add(allDef, config);
             }
         }
@@ -60,7 +56,7 @@ namespace PawnStorages.Farm.Comps
             Pawn victim)
         {
             Parent.ReleasePawn(victim);
-            int num = Mathf.Max(GenMath.RoundRandom(victim.BodySize * (float) 8), 1);
+            int num = Mathf.Max(GenMath.RoundRandom(victim.BodySize * 8), 1);
             for (int index = 0; index < num; ++index)
                 victim.health.DropBloodFilth();
 
@@ -69,11 +65,11 @@ namespace PawnStorages.Farm.Comps
             int partHealth = (int) victim.health.hediffSet.GetPartHealth(bodyPartRecord);
             int amount = Mathf.Min(partHealth - 1, 1);
 
-            DamageInfo dinfo = new DamageInfo(DamageDefOf.ExecutionCut, (float) amount, 999f, instigator: parent, hitPart: bodyPartRecord, instigatorGuilty: false, spawnFilth: true);
+            DamageInfo dinfo = new(DamageDefOf.ExecutionCut, amount, 999f, instigator: parent, hitPart: bodyPartRecord, instigatorGuilty: false, spawnFilth: true);
             victim.forceNoDeathNotification = true;
             victim.TakeDamage(dinfo);
             if (!victim.Dead)
-                victim.Kill(new DamageInfo?(dinfo), (Hediff) null);
+                victim.Kill(dinfo, null);
             SoundDefOf.Execute_Cut.PlayOneShot((SoundInfo) (Thing) victim);
         }
 
@@ -87,63 +83,6 @@ namespace PawnStorages.Farm.Comps
             Pawn pawn = pawns.First();
             ExecutionInt(pawn);
             return true;
-
-        }
-
-        public class AgeAndGender(bool adult, Gender gender) : IComparable<AgeAndGender>
-        {
-            public bool Adult = adult;
-            public Gender Gender = gender;
-
-            public override string ToString()
-            {
-                return $"AgeAndGender[Adult:{Adult}, Gender:{Gender}]";
-            }
-
-            public int CullValue(AutoSlaughterConfig config)
-            {
-                return Adult switch
-                {
-                    true when Gender == Gender.Male => config.maxMales,
-                    true when Gender == Gender.Female => config.maxFemales,
-                    false when Gender == Gender.Male => config.maxMalesYoung,
-                    false when Gender == Gender.Female => config.maxFemalesYoung,
-                    _ => config.maxTotal
-                };
-            }
-
-            public int CompareTo(AgeAndGender other)
-            {
-                if (ReferenceEquals(this, other))
-                {
-                    return 0;
-                }
-
-                if (ReferenceEquals(null, other))
-                {
-                    return 1;
-                }
-
-                switch (Adult)
-                {
-                    case true when !other.Adult:
-                        return -1;
-                    case false when other.Adult:
-                        return 1;
-                }
-
-                if (Adult == other.Adult)
-                {
-                    return Gender switch
-                    {
-                        Gender.Male when other.Gender == Gender.Female => -1,
-                        Gender.Female when other.Gender == Gender.Male => 1,
-                        _ => 0
-                    };
-                }
-
-                return 0;
-            }
         }
 
         public void TryCull(List<IGrouping<PawnKindDef, Pawn>> types)
@@ -154,7 +93,7 @@ namespace PawnStorages.Farm.Comps
 
                 if (config == null)
                 {
-                    config = new () { animal = type.Key.race };
+                    config = new AutoSlaughterConfig { animal = type.Key.race };
                     AutoSlaughterSettings.SetOrAdd(type.Key, config);
 
                     // If we just created the config, there's no rules set, so skip eval
@@ -162,11 +101,17 @@ namespace PawnStorages.Farm.Comps
                 }
 
                 var groupedByAgeAndGender = type
-                    .GroupBy(p => new {p.ageTracker.Adult, p.gender})
-                    .Select(group => new { AgeAndGender = new AgeAndGender(group.Key.Adult, group.Key.gender), Pawns = group.OrderByDescending(p => p.ageTracker.ageBiologicalTicksInt) })
-                    .OrderBy(g=>g.AgeAndGender).ToList();
+                    .GroupBy(p => new { p.ageTracker.Adult, p.gender })
+                    .Select(group => new
+                    {
+                        FarmAnimalCharacteristics = new FarmAnimalCharacteristics(group.Key.Adult, group.Key.gender),
+                        Pawns = group.OrderByDescending(p => p.ageTracker.ageBiologicalTicksInt)
+                    })
+                    .OrderBy(g => g.FarmAnimalCharacteristics).ToList();
 
-                bool culledThisCycle = Enumerable.Any(groupedByAgeAndGender, group => CullOldestOverLimit(group.AgeAndGender.CullValue(config), group.Pawns.ToList()));
+                bool culledThisCycle = Enumerable.Any(groupedByAgeAndGender,
+                    group => CullOldestOverLimit(group.FarmAnimalCharacteristics.CullValue(config),
+                        group.Pawns.ToList()));
 
                 if (!culledThisCycle) CullOldestOverLimit(config.maxTotal, type.ToList());
             }
