@@ -125,7 +125,7 @@
         <graphicData>
             <texPath>Things/Building/Production/PS_BatteryFarm</texPath>
             <graphicClass>Graphic_Single</graphicClass>
-            <drawSize>(3,3)</drawSize>
+            <drawSize>(3.9,3.9)</drawSize>
         </graphicData>
         <size>(3,3)</size>
         <thingCategories>
@@ -233,7 +233,7 @@
         <graphicData>
             <texPath>Things/Building/Production/PS_BreedingDomes</texPath>
             <graphicClass>Graphic_Single</graphicClass>
-            <drawSize>(3,3)</drawSize>
+            <drawSize>(5,5)</drawSize>
         </graphicData>
         <size>(3,3)</size>
         <thingCategories>
