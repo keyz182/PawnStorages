@@ -12,8 +12,7 @@
     <JobDef>
         <defName>PS_Release</defName>
         <driverClass>PawnStorages.JobDriver_Release</driverClass>
-        <reportString>N/A</reportString>
-        <!--<reportString>Releasing TargetB from TargetA</reportString>-->
+        <reportString>releasing from TargetA</reportString>
         <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
     </JobDef>
 

@@ -6,6 +6,10 @@
 	<PS_ReleaseAllSelected>Release all selected</PS_ReleaseAllSelected>
 	<PS_ReleaseAll_Anomaly_Message>'ALL' Has been released</PS_ReleaseAll_Anomaly_Message>
 	<PS_Release>Release {0}</PS_Release>
+    <PS_NoRelease>Unable to release {0}</PS_NoRelease>
+	<PS_NoStationForRelease>No working {0} available to release {1}</PS_NoStationForRelease>
+    <PS_NoEnter>No working {0} available for {1}</PS_NoEnter>
+    <PS_StationButNoRelease>A working {0} is available, but could not release {1}</PS_StationButNoRelease>
 	<PS_Enter>Enter</PS_Enter>
 	<PS_Of> of {0}</PS_Of>
 	<PS_WorkOn>Work on {0}</PS_WorkOn>

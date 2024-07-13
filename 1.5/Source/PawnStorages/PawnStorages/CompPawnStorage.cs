@@ -136,13 +136,23 @@ public class CompPawnStorage : ThingComp, IThingHolder
     public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
     {
         foreach (FloatMenuOption f in base.CompFloatMenuOptions(selPawn)) yield return f;
+        bool requiresStation = Utility.CheckStation(this, selPawn, out Thing station);
 
         if (Props.convertOption && CanStore)
-            yield return new FloatMenuOption("PS_Enter".Translate(), delegate
+        {
+            if (!requiresStation || station != null)
             {
-                Job job = EnterJob(selPawn);
-                selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
-            });
+                yield return new FloatMenuOption("PS_Enter".Translate(), delegate
+                {
+                    Job job = EnterJob(selPawn);
+                    selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+                });
+            }
+            else
+            {
+                yield return new FloatMenuOption("PS_NoEnter".Translate(Props.storageStation.label, Parent.Label), null);
+            }
+        }
 
         if (!innerContainer.Any<Pawn>()) yield break;
         {
@@ -154,7 +164,25 @@ public class CompPawnStorage : ThingComp, IThingHolder
                 });
             if (!Props.releaseOption || !CanRelease(selPawn)) yield break;
             foreach (Pawn pawn in innerContainer)
-                yield return new FloatMenuOption("PS_Release".Translate(pawn.LabelCap), delegate { selPawn.jobs.TryTakeOrderedJob(ReleaseJob(selPawn, pawn), JobTag.Misc); });
+            {
+                Job releaseJob = ReleaseJob(selPawn, pawn);
+                if (releaseJob != null)
+                {
+                    yield return new FloatMenuOption("PS_Release".Translate(pawn.LabelCap), delegate { selPawn.jobs.TryTakeOrderedJob(releaseJob, JobTag.Misc); });
+                }
+                else
+                {
+                    if (requiresStation)
+                    {
+                        yield return new FloatMenuOption((station == null ? "PS_NoStationForRelease": "PS_StationButNoRelease")
+                            .Translate(Props.storageStation.label, pawn.LabelCap), null);
+                    }
+                    else
+                    {
+                        yield return new FloatMenuOption("PS_NoRelease".Translate(pawn.LabelCap), null);
+                    }
+                }
+            }
         }
     }
 
@@ -181,11 +209,11 @@ public class CompPawnStorage : ThingComp, IThingHolder
                                    pawn.health.State == PawnHealthState.Mobile &&
                                    !pawn.CurJob.restUntilHealed &&
                                    !HealthAIUtility.ShouldSeekMedicalRest(pawn):
-                    {
-                        Job job = EnterJob(pawn);
-                        pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
-                        break;
-                    }
+                        {
+                            Job job = EnterJob(pawn);
+                            pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+                            break;
+                        }
                     case false when innerContainer.Contains(pawn) && pawn.timetable?.CurrentAssignment is { } assignmentDef && assignmentDef != PS_DefOf.PS_Home:
                         ReleasePawn(pawn, parent.Position, parent.Map);
                         break;
@@ -199,6 +227,10 @@ public class CompPawnStorage : ThingComp, IThingHolder
     {
         Utility.ReleasePawn(this, pawn, cell, map);
     }
+
+    public bool RequiresStation() => Parent.def.EverHaulable &&
+                                     Parent.def.category == ThingCategory.Item &&
+                                     Props.storageStation != null;
 
     public virtual void ApplyNeedsForStoredPeriodFor(Pawn pawn)
     {
@@ -222,6 +254,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
                 }
             }
         }
+
         if (!Props.needsDrop) return;
 
         CompFarmNutrition nutritionComp;
@@ -249,14 +282,13 @@ public class CompPawnStorage : ThingComp, IThingHolder
         if (!otherStore.TryGetComp<CompPawnStorage>(out var comp)) return false;
         TransferPawn(comp, pawn);
         return true;
-
     }
 
     public void TransferPawn(CompPawnStorage otherStore, Pawn pawn)
     {
         innerContainer.Remove(pawn);
         otherStore.innerContainer.TryAdd(pawn);
-        if(otherStore.compAssignable != null && !otherStore.compAssignable.AssignedPawns.Contains(pawn)) otherStore.compAssignable.TryAssignPawn(pawn);
+        if (otherStore.compAssignable != null && !otherStore.compAssignable.AssignedPawns.Contains(pawn)) otherStore.compAssignable.TryAssignPawn(pawn);
         labelDirty = true;
         otherStore.labelDirty = true;
 
@@ -273,7 +305,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         if (effects && Props.transformEffect) FleckMaker.ThrowExplosionCell(pawn.Position, pawnMap, FleckDefOf.ExplosionFlash, Color.white);
 
         //Spawn the store effecter
-        if(effects) Props.storeEffect?.Spawn(pawn.Position, pawnMap);
+        if (effects) Props.storeEffect?.Spawn(pawn.Position, pawnMap);
         if (pawn.Spawned)
             pawn.DeSpawn();
 
@@ -352,13 +384,13 @@ public class CompPawnStorage : ThingComp, IThingHolder
             yield return new Command_Action
             {
                 defaultLabel = innerContainer.Count == 1
-                    ? "PS_Release".Translate(((Pawn)innerContainer.FirstOrDefault<Pawn>()).Name.ToStringShort)
+                    ? "PS_Release".Translate(((Pawn) innerContainer.FirstOrDefault<Pawn>()).Name.ToStringShort)
                     : "PS_ReleaseAll".Translate(),
                 action = delegate
                 {
                     for (int num = innerContainer.Count - 1; num >= 0; num--)
                     {
-                        Pawn pawn = (Pawn)innerContainer.GetAt(num);
+                        Pawn pawn = (Pawn) innerContainer.GetAt(num);
                         innerContainer.Remove(pawn);
                         GenSpawn.Spawn(pawn, parent.Position, parent.Map);
                         parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
@@ -382,7 +414,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
                         {
                             for (int num = compPawnStorage.innerContainer.Count - 1; num >= 0; num--)
                             {
-                                Pawn pawn = (Pawn)compPawnStorage.innerContainer.GetAt(num);
+                                Pawn pawn = (Pawn) compPawnStorage.innerContainer.GetAt(num);
                                 compPawnStorage.innerContainer.Remove(pawn);
                                 GenSpawn.Spawn(pawn, compPawnStorage.parent.Position, compPawnStorage.parent.Map);
                                 compPawnStorage.parent.Map.mapDrawer.MapMeshDirty(compPawnStorage.parent.Position, MapMeshFlagDefOf.Things);
@@ -446,7 +478,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
             {
                 Rotation.Rotate(RotationDirection.Clockwise);
                 this.SetLabelDirty();
-                this.parent.Map.mapDrawer.MapMeshDirty(this.parent.Position, (ulong)MapMeshFlagDefOf.Things);
+                this.parent.Map.mapDrawer.MapMeshDirty(this.parent.Position, (ulong) MapMeshFlagDefOf.Things);
             },
             isActive = () => true,
             icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
@@ -478,7 +510,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
     {
         map ??= parent.Map;
 
-        for(var i = 0; i < innerContainer.Count; i++)
+        for (var i = 0; i < innerContainer.Count; i++)
             ReleaseSingleAt(map, innerContainer.innerList[i], at, false, true);
         innerContainer.Clear();
     }
@@ -521,7 +553,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         GenDrop.TryDropSpawn(pawn, at, map, ThingPlaceMode.Near, out Thing _);
         if (makeFilth) FilthMaker.TryMakeFilth(at, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
 
-        if(!remove) return;
+        if (!remove) return;
         Notify_ReleasedFromStorage(pawn);
         innerContainer.Remove(pawn);
     }
