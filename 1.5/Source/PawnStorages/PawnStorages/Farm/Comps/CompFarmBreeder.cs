@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using PawnStorages.Farm.Interfaces;
 using RimWorld;
 using UnityEngine;
@@ -15,22 +14,21 @@ namespace PawnStorages.Farm.Comps
         public int AutoSlaughterTarget = 0;
         public IBreederParent Parent => parent as IBreederParent;
 
-        public List<AutoSlaughterConfig> AutoSlaughterSettings = new List<AutoSlaughterConfig>();
+        public Dictionary<PawnKindDef, AutoSlaughterConfig> AutoSlaughterSettings = new();
+
         private void TryPopulateMissingAnimals()
         {
-            HashSet<ThingDef> hashSet = new HashSet<ThingDef>();
-            hashSet.AddRange(AutoSlaughterSettings.Select(c => c.animal));
             foreach (PawnKindDef allDef in DefDatabase<PawnKindDef>.AllDefs)
             {
-                if (allDef.race != null && allDef.race.race.Animal && (double) allDef.race.race.wildness < 1.0 && !allDef.race.race.Dryad && !allDef.race.IsCorpse &&
-                    !hashSet.Contains(allDef.race))
-                {
-                    AutoSlaughterConfig config = new AutoSlaughterConfig() { animal = allDef.race };
+                if (allDef.race == null || !allDef.race.race.Animal || !(allDef.race.race.wildness < 1.0) || allDef.race.race.Dryad || allDef.race.IsCorpse ||
+                    AutoSlaughterSettings.ContainsKey(allDef))
+                    continue;
+
+                AutoSlaughterConfig config = new () { animal = allDef.race };
 
 
 
-                    AutoSlaughterSettings.Add(config);
-                }
+                AutoSlaughterSettings.Add(allDef, config);
             }
         }
 
@@ -40,8 +38,7 @@ namespace PawnStorages.Farm.Comps
         {
             get
             {
-                if (breedingProgress == null) breedingProgress = new();
-                return breedingProgress;
+                return breedingProgress ??= new Dictionary<PawnKindDef, float>();
             }
         }
 
@@ -50,12 +47,11 @@ namespace PawnStorages.Farm.Comps
             base.PostExposeData();
             Scribe_Collections.Look(ref breedingProgress, "breedingProgress", LookMode.Def);
 
-            Scribe_Collections.Look(ref AutoSlaughterSettings, "AutoSlaughterSettings", LookMode.Deep);
+            Scribe_Collections.Look(ref AutoSlaughterSettings, "AutoSlaughterSettings", LookMode.Def, LookMode.Deep);
             if (Scribe.mode != LoadSaveMode.PostLoadInit)
                 return;
-            if (AutoSlaughterSettings == null)
-                AutoSlaughterSettings = new List<AutoSlaughterConfig>();
-            if (AutoSlaughterSettings.RemoveAll(x => x.animal == null || x.animal.IsCorpse) != 0)
+            AutoSlaughterSettings ??= new Dictionary<PawnKindDef, AutoSlaughterConfig>();
+            if (AutoSlaughterSettings.RemoveAll(x => x.Value.animal == null || x.Value.animal.IsCorpse) != 0)
                 Log.Warning("Some auto-slaughter configs had null animals after loading.");
             TryPopulateMissingAnimals();
         }
@@ -63,7 +59,7 @@ namespace PawnStorages.Farm.Comps
         public void ExecutionInt(
             Pawn victim)
         {
-            Parent.Release(victim);
+            Parent.ReleasePawn(victim);
             int num = Mathf.Max(GenMath.RoundRandom(victim.BodySize * (float) 8), 1);
             for (int index = 0; index < num; ++index)
                 victim.health.DropBloodFilth();
@@ -81,6 +77,146 @@ namespace PawnStorages.Farm.Comps
             SoundDefOf.Execute_Cut.PlayOneShot((SoundInfo) (Thing) victim);
         }
 
+        public bool CullOldestOverLimit(int max, List<Pawn> pawns)
+        {
+            if (max <= 0 || max >= pawns.Count)
+            {
+                return false;
+            }
+
+            Pawn pawn = pawns.First();
+            ExecutionInt(pawn);
+            return true;
+
+        }
+
+        public class AgeAndGender(bool adult, Gender gender) : IComparable<AgeAndGender>
+        {
+            public bool Adult = adult;
+            public Gender Gender = gender;
+
+            public override string ToString()
+            {
+                return $"AgeAndGender[Adult:{Adult}, Gender:{Gender}]";
+            }
+
+            public int CullValue(AutoSlaughterConfig config)
+            {
+                return Adult switch
+                {
+                    true when Gender == Gender.Male => config.maxMales,
+                    true when Gender == Gender.Female => config.maxFemales,
+                    false when Gender == Gender.Male => config.maxMalesYoung,
+                    false when Gender == Gender.Female => config.maxFemalesYoung,
+                    _ => config.maxTotal
+                };
+            }
+
+            public int CompareTo(AgeAndGender other)
+            {
+                if (ReferenceEquals(this, other))
+                {
+                    return 0;
+                }
+
+                if (ReferenceEquals(null, other))
+                {
+                    return 1;
+                }
+
+                switch (Adult)
+                {
+                    case true when !other.Adult:
+                        return -1;
+                    case false when other.Adult:
+                        return 1;
+                }
+
+                if (Adult == other.Adult)
+                {
+                    return Gender switch
+                    {
+                        Gender.Male when other.Gender == Gender.Female => -1,
+                        Gender.Female when other.Gender == Gender.Male => 1,
+                        _ => 0
+                    };
+                }
+
+                return 0;
+            }
+        }
+
+        public void TryCull(List<IGrouping<PawnKindDef, Pawn>> types)
+        {
+            foreach (IGrouping<PawnKindDef, Pawn> type in types)
+            {
+                AutoSlaughterConfig config = AutoSlaughterSettings.TryGetValue(type.Key);
+
+                if (config == null)
+                {
+                    config = new () { animal = type.Key.race };
+                    AutoSlaughterSettings.SetOrAdd(type.Key, config);
+
+                    // If we just created the config, there's no rules set, so skip eval
+                    continue;
+                }
+
+                var groupedByAgeAndGender = type
+                    .GroupBy(p => new {p.ageTracker.Adult, p.gender})
+                    .Select(group => new { AgeAndGender = new AgeAndGender(group.Key.Adult, group.Key.gender), Pawns = group.OrderByDescending(p => p.ageTracker.ageBiologicalTicksInt) })
+                    .OrderBy(g=>g.AgeAndGender).ToList();
+
+                bool culledThisCycle = Enumerable.Any(groupedByAgeAndGender, group => CullOldestOverLimit(group.AgeAndGender.CullValue(config), group.Pawns.ToList()));
+
+                if (!culledThisCycle) CullOldestOverLimit(config.maxTotal, type.ToList());
+            }
+        }
+
+        public void TryBreed(List<IGrouping<PawnKindDef, Pawn>> types)
+        {
+            foreach (IGrouping<PawnKindDef, Pawn> type in types)
+            {
+                bool males = type.Any(p => p.gender == Gender.Male);
+                List<Pawn> females = type.Where(p => p.gender != Gender.Male).ToList();
+
+                if (!females.Any())
+                {
+                    // no more females, reset
+                    BreedingProgress[type.Key] = 0f;
+                }
+
+                // no males, stop progress
+                if (!males)
+                {
+                    continue;
+                }
+
+                float gestationTicks = AnimalProductionUtility.GestationDaysEach(type.Key.race) * 60000 * PawnStoragesMod.settings.BreedingScale;
+
+                float progressPerCycle = Parent.TickInterval / gestationTicks;
+
+                BreedingProgress.TryAdd(type.Key, 0.0f);
+
+                BreedingProgress[type.Key] = Mathf.Clamp(BreedingProgress[type.Key] + progressPerCycle * females.Count, 0f, 1f);
+
+                if (!(BreedingProgress[type.Key] >= 1f)) continue;
+
+                if (Parent.BreedablePawns.Count >= PawnStoragesMod.settings.MaxPawnsInFarm) break;
+
+                BreedingProgress[type.Key] = 0f;
+                Pawn newPawn = PawnGenerator.GeneratePawn(
+                    new PawnGenerationRequest(
+                        type.Key,
+                        Faction.OfPlayer,
+                        allowDowned: true,
+                        forceNoIdeo: true,
+                        developmentalStages: DevelopmentalStage.Newborn
+                    ));
+
+                Parent.Notify_PawnBorn(newPawn);
+            }
+        }
+
         public override void CompTick()
         {
             base.CompTick();
@@ -88,106 +224,21 @@ namespace PawnStorages.Farm.Comps
             if (!PawnStoragesMod.settings.AllowNeedsDrop) return;
 
 
-            if (parent.IsHashIntervalTick(Parent.TickInterval))
+            if (!parent.IsHashIntervalTick(Parent.TickInterval))
             {
-                var types = (from p in Parent.AllPawns
-                    group p by p.kindDef
-                    into def
-                    select def).ToList();
+                return;
+            }
 
-                if (parent.IsHashIntervalTick(Parent.TickInterval * 4))
-                {
+            List<IGrouping<PawnKindDef, Pawn>> types = (from p in Parent.AllHealthyPawns
+                group p by p.kindDef
+                into def
+                select def).ToList();
 
-                    foreach (var type in types)
-                    {
-                        AutoSlaughterConfig config = AutoSlaughterSettings.FirstOrDefault(s => s.animal == type.Key.race);
+            TryCull(types);
 
-                        if (config != null)
-                        {
-                            // Only slaughter one per cycle
-                            var adultMales = type.Where(p => p.gender == Gender.Male && p.ageTracker.Adult).ToList();
-                            var adultFemales = type.Where(p => p.gender == Gender.Female && p.ageTracker.Adult).ToList();
-                            var youngMales = type.Where(p => p.gender == Gender.Male && !p.ageTracker.Adult).ToList();
-                            var youngFemales = type.Where(p => p.gender == Gender.Female && !p.ageTracker.Adult).ToList();
-
-                            if (config.maxMales > 0 && config.maxMales < adultMales.Count())
-                            {
-                                Pawn pawn = adultMales.OrderByDescending(p => p.ageTracker.ageBiologicalTicksInt).First();
-                                ExecutionInt(pawn);
-                                break;
-                            }
-                            else if (config.maxFemales > 0 && config.maxFemales < adultFemales.Count())
-                            {
-                                Pawn pawn = adultFemales.OrderByDescending(p => p.ageTracker.ageBiologicalTicksInt).First();
-                                ExecutionInt(pawn);
-                                break;
-                            }
-                            else if (config.maxMalesYoung > 0 && config.maxMalesYoung < youngMales.Count())
-                            {
-                                Pawn pawn = youngMales.OrderByDescending(p => p.ageTracker.ageBiologicalTicksInt).FirstOrDefault();
-                                ExecutionInt(pawn);
-                                break;
-                            }
-                            else if (config.maxFemalesYoung > 0 && config.maxFemalesYoung < youngFemales.Count())
-                            {
-                                Pawn pawn = youngFemales.OrderByDescending(p => p.ageTracker.ageBiologicalTicksInt).First();
-                                ExecutionInt(pawn);
-                                break;
-                            }
-                            else if (config.maxTotal > 0 && config.maxTotal < type.Count())
-                            {
-                                Pawn pawn = type.OrderByDescending(p => p.ageTracker.ageBiologicalTicksInt).First();
-                                ExecutionInt(pawn);
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (Parent.AllPawns.Count < PawnStoragesMod.settings.MaxPawnsInFarm)
-                {
-                    foreach (var type in types)
-                    {
-                        var males = type.Any(p => p.gender == Gender.Male);
-                        var females = type.Where(p => p.gender != Gender.Male).ToList();
-
-                        if (!females.Any())
-                        {
-                            // no more females, reset
-                            BreedingProgress[type.Key] = 0f;
-                        }
-
-                        // no males, stop progress
-                        if (!males)
-                        {
-                            continue;
-                        }
-
-                        var gestationTicks = AnimalProductionUtility.GestationDaysEach(type.Key.race) * 60000 * PawnStoragesMod.settings.BreedingScale;
-
-                        var progressPerCycle = Parent.TickInterval / gestationTicks;
-
-                        BreedingProgress.TryAdd(type.Key, 0.0f);
-
-                        BreedingProgress[type.Key] = Mathf.Clamp(BreedingProgress[type.Key] + progressPerCycle * females.Count, 0f, 1f);
-
-                        if (!(BreedingProgress[type.Key] >= 1f)) continue;
-
-                        if (Parent.BreedablePawns.Count >= PawnStoragesMod.settings.MaxPawnsInFarm) break;
-
-                        BreedingProgress[type.Key] = 0f;
-                        var newPawn = PawnGenerator.GeneratePawn(
-                            new PawnGenerationRequest(
-                                type.Key,
-                                Faction.OfPlayer,
-                                allowDowned: true,
-                                forceNoIdeo: true,
-                                developmentalStages: DevelopmentalStage.Newborn
-                            ));
-
-                        Parent.Notify_PawnBorn(newPawn);
-                    }
-                }
+            if (Parent.AllHealthyPawns.Count < PawnStoragesMod.settings.MaxPawnsInFarm)
+            {
+                TryBreed(types);
             }
         }
 
@@ -199,7 +250,7 @@ namespace PawnStorages.Farm.Comps
                 defaultLabel = "Make breeding progress 100%",
                 action = delegate
                 {
-                    foreach (var thing in BreedingProgress.Keys)
+                    foreach (PawnKindDef thing in BreedingProgress.Keys)
                     {
                         BreedingProgress[thing] = 1f;
                     }

@@ -46,7 +46,7 @@ namespace PawnStorages.Farm
 
         public void DenyAll()
         {
-            foreach (var allowedThingsKey in AllowedThings.Keys)
+            foreach (ThingDef allowedThingsKey in AllowedThings.Keys)
             {
                 AllowedThings[allowedThingsKey] = false;
             }
@@ -124,11 +124,6 @@ namespace PawnStorages.Farm
             pawnStorage.ReleaseSingle(Map, pawn, true, true);
         }
 
-        public void Release(Pawn pawn)
-        {
-            ReleasePawn(pawn);
-        }
-
         public bool HasSuggestiveSilos => true;
         public bool HasStoredPawns => true;
         public List<Pawn> StoredPawns => pawnStorage.GetDirectlyHeldThings().Select(p => p as Pawn).ToList();
@@ -137,7 +132,7 @@ namespace PawnStorages.Farm
 
         public void Notify_NutritionNotEmpty() => NutritionAvailable = true;
 
-        public List<Pawn> AllPawns
+        public List<Pawn> AllHealthyPawns
         {
             get
             {

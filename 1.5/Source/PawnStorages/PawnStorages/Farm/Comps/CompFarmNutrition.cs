@@ -89,7 +89,7 @@ namespace PawnStorages.Farm.Comps
 
                     // Need_Food.NeedInterval hardcodes 150 ticks, so adjust
                     float adjustedMalnutritionSeverityPerInterval =
-                        (foodNeeds.MalnutritionSeverityPerInterval / 150f) * Props.animalTickInterval;
+                        foodNeeds.MalnutritionSeverityPerInterval / 150f * Props.animalTickInterval;
 
                     if (foodNeeds.Starving)
                         HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, adjustedMalnutritionSeverityPerInterval);
