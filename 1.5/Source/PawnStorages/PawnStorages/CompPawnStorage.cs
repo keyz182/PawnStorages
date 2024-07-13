@@ -368,7 +368,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
     public override string CompInspectStringExtra()
     {
         StringBuilder sb = new(base.CompInspectStringExtra());
-        sb.AppendLine($"Stored: {innerContainer.Count}/{MaxStoredPawns()}");
+        sb.AppendLine("PS_StoredCapacity".Translate(innerContainer.Count, MaxStoredPawns()));
         sb.AppendLine();
         if (innerContainer?.Any<Pawn>() != true) return sb.ToString().TrimStart().TrimEnd();
         sb.AppendLine();
@@ -386,7 +386,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
             yield return new Command_Action
             {
                 defaultLabel = innerContainer.Count == 1
-                    ? "PS_Release".Translate(((Pawn) innerContainer.FirstOrDefault<Pawn>()).Name.ToStringShort)
+                    ? "PS_Release".Translate(innerContainer.FirstOrDefault<Pawn>()?.Name?.ToStringShort)
                     : "PS_ReleaseAll".Translate(),
                 action = delegate
                 {

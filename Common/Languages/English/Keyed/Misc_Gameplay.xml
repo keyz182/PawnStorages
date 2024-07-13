@@ -15,6 +15,7 @@
 	<PS_WorkOn>Work on {0}</PS_WorkOn>
 	<PS_Empty>(empty)</PS_Empty>
 	<PS_Filled>(filled)</PS_Filled>
+	<PS_StoredCapacity>Stored: {0} / {1}</PS_StoredCapacity>
 
 	<PS_StoredPawns>Stored Colonists:</PS_StoredPawns>
 	<PS_StoredAnimals>Stored Animals:</PS_StoredAnimals>
@@ -54,7 +55,7 @@
 	<PS_EjectAnimals>Eject animals</PS_EjectAnimals>
 
 	<PS_NutritionPerDay>Nutrition required per day: {0}</PS_NutritionPerDay>
-	<PS_NutritionStored>Nutrition stored: {0}/{1}</PS_NutritionStored>
+	<PS_NutritionStored>Nutrition stored: {0} / {1}</PS_NutritionStored>
 
 	<PS_PawnEjectedStarvationTitle>{0} starving!</PS_PawnEjectedStarvationTitle>
 	<PS_PawnEjectedStarvation>{0} ejected from {1} due to starvation!</PS_PawnEjectedStarvation>
