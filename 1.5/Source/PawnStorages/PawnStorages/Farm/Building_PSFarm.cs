@@ -168,6 +168,22 @@ namespace PawnStorages.Farm
 
         public void Notify_PawnBorn(Pawn newPawn)
         {
+            if(newPawn.Spawned)
+                newPawn.DeSpawn();
+
+            if (pawnStorage.innerContainer.Count >= pawnStorage.MaxStoredPawns())
+            {
+                Thing storageParent = pawnStorage.parent;
+
+                Messages.Message("PS_StorageFull".Translate(storageParent.LabelCap, newPawn.LabelCap), (Thing) newPawn, MessageTypeDefOf.NeutralEvent);
+
+                PawnComponentsUtility.AddComponentsForSpawn(newPawn);
+                pawnStorage.compAssignable?.TryUnassignPawn(newPawn);
+                GenDrop.TryDropSpawn(newPawn, storageParent.Position, storageParent.Map, ThingPlaceMode.Near, out Thing _);
+                FilthMaker.TryMakeFilth(storageParent.Position, storageParent.Map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
+                return;
+            }
+
             pawnStorage.StorePawn(newPawn, false);
         }
 

@@ -38,33 +38,6 @@ namespace PawnStorages.Farm.Comps
             return new Dialog_AutoSlaughter.AnimalCountRecord(total, male, maleYoung, female, femaleYoung, 0, 0);
         }
 
-        public void StorePawn(Pawn pawn, bool despawnFirst = true)
-        {
-            if(despawnFirst)
-                pawn.DeSpawn();
-
-            if (innerContainer.Count >= MaxStoredPawns())
-            {
-                Messages.Message("PS_StorageFull".Translate(parent.LabelCap, pawn.LabelCap), (Thing) pawn, MessageTypeDefOf.NeutralEvent);
-
-                PawnComponentsUtility.AddComponentsForSpawn(pawn);
-                compAssignable?.TryUnassignPawn(pawn);
-                GenDrop.TryDropSpawn(pawn, parent.Position, parent.Map, ThingPlaceMode.Near, out Thing _);
-                FilthMaker.TryMakeFilth(parent.Position, parent.Map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
-                return;
-            }
-            innerContainer.TryAdd(pawn);
-
-            parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
-
-            if (compAssignable != null && !compAssignable.AssignedPawns.Contains(pawn))
-            {
-                compAssignable.TryAssignPawn(pawn);
-            }
-
-            labelDirty = true;
-        }
-
         public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
         {
             foreach (FloatMenuOption floatMenuOption in base.CompFloatMenuOptions(selPawn))

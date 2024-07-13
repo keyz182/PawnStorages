@@ -14,17 +14,9 @@ namespace PawnStorages.Farm.Comps
 
         private float _storedNutrition = 0f;
 
-        private INutritionStoreAlternative AlternativeStore;
-        public bool HasAltStore => AlternativeStore != null;
+        private INutritionStoreAlternative AlternativeStore => (INutritionStoreAlternative) parent.AllComps.FirstOrDefault(c => c is INutritionStoreAlternative);
 
-        public void SetAlternativeStore(INutritionStoreAlternative store)
-        {
-            AlternativeStore = store;
-            if (_storedNutrition > 0f)
-            {
-                AlternativeStore.CurrentStored = _storedNutrition;
-            }
-        }
+        public bool HasAltStore => AlternativeStore != null;
 
         public float storedNutrition
         {
@@ -55,7 +47,6 @@ namespace PawnStorages.Farm.Comps
         {
             base.PostExposeData();
             Scribe_Values.Look(ref _storedNutrition, "storedNutrition");
-            Scribe_References.Look(ref AlternativeStore, "AlternativeStore");
         }
 
         public override void CompTick()

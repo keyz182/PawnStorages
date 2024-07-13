@@ -235,11 +235,7 @@ namespace PawnStorages.Farm.Comps
                 select def).ToList();
 
             TryCull(types);
-
-            if (Parent.AllHealthyPawns.Count < PawnStoragesMod.settings.MaxPawnsInFarm)
-            {
-                TryBreed(types);
-            }
+            TryBreed(types);
         }
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra()

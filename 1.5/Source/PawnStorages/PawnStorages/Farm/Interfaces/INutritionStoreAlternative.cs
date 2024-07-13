@@ -1,8 +1,8 @@
 ﻿using Verse;
 
-namespace PawnStorages.Farm.Comps;
+namespace PawnStorages.Farm.Interfaces;
 
-public interface INutritionStoreAlternative: ILoadReferenceable
+public interface INutritionStoreAlternative
 {
     public float MaxStoreSize
     {

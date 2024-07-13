@@ -17,13 +17,13 @@ public class CompPawnStorage : ThingComp, IThingHolder
     public const int TICKRATE = 60;
     public const int NEEDS_INTERVAL = 150;
 
-    protected CompAssignableToPawn_PawnStorage compAssignable;
-    protected bool labelDirty = true;
-    protected int chargesRemaining;
+    public CompAssignableToPawn_PawnStorage compAssignable;
+    public bool labelDirty = true;
+    public int chargesRemaining;
     public bool schedulingEnabled;
-    protected List<Pawn> storedPawns = []; // Deprecated, to remove in next major version
+    public List<Pawn> storedPawns = []; // Deprecated, to remove in next major version
     private Dictionary<int, int> pawnStoringTick = new();
-    protected string transformLabelCache;
+    public string transformLabelCache;
 
     public Rot4 Rotation = Rot4.North.Opposite;
 
@@ -117,7 +117,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
             }
             else
             {
-                transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";    
+                transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
             }
         }
 
@@ -251,7 +251,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         return true;
 
     }
-    
+
     public void TransferPawn(CompPawnStorage otherStore, Pawn pawn)
     {
         innerContainer.Remove(pawn);
@@ -261,20 +261,22 @@ public class CompPawnStorage : ThingComp, IThingHolder
         otherStore.labelDirty = true;
 
         otherStore.pawnStoringTick.SetOrAdd(pawn.thingIDNumber, Find.TickManager.TicksGame);
-        
+
         ApplyNeedsForStoredPeriodFor(pawn);
         Notify_ReleasedFromStorage(pawn);
     }
 
-    public void StorePawn(Pawn pawn)
+    public void StorePawn(Pawn pawn, bool effects = true)
     {
         Map pawnMap = pawn.Map;
-        if (Props.lightEffect) FleckMaker.ThrowLightningGlow(pawn.Position.ToVector3Shifted(), pawnMap, 0.5f);
-        if (Props.transformEffect) FleckMaker.ThrowExplosionCell(pawn.Position, pawnMap, FleckDefOf.ExplosionFlash, Color.white);
+        if (effects && Props.lightEffect) FleckMaker.ThrowLightningGlow(pawn.Position.ToVector3Shifted(), pawnMap, 0.5f);
+        if (effects && Props.transformEffect) FleckMaker.ThrowExplosionCell(pawn.Position, pawnMap, FleckDefOf.ExplosionFlash, Color.white);
 
         //Spawn the store effecter
-        Props.storeEffect?.Spawn(pawn.Position, pawnMap);
-        pawn.DeSpawn();
+        if(effects) Props.storeEffect?.Spawn(pawn.Position, pawnMap);
+        if (pawn.Spawned)
+            pawn.DeSpawn();
+
         innerContainer.TryAdd(pawn);
 
         pawnMap?.mapDrawer?.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
@@ -496,7 +498,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
             IntVec3 cell = CellFinder.RandomClosewalkCellNear(parent.Position, map, 18);
 
             bool pawnIsSelected = Find.Selector.IsSelected(pawn);
-            
+
             Notify_ReleasedFromStorage(pawn);
             if (pawnIsSelected)
                 Find.Selector.Select(pawn, false, false);
@@ -518,7 +520,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         compAssignable?.TryUnassignPawn(pawn);
         GenDrop.TryDropSpawn(pawn, at, map, ThingPlaceMode.Near, out Thing _);
         if (makeFilth) FilthMaker.TryMakeFilth(at, map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
-        
+
         if(!remove) return;
         Notify_ReleasedFromStorage(pawn);
         innerContainer.Remove(pawn);
