@@ -127,6 +127,7 @@
             <graphicClass>Graphic_Single</graphicClass>
             <drawSize>(3.9,3.9)</drawSize>
         </graphicData>
+        <drawerType>MapMeshAndRealTime</drawerType>
         <size>(3,3)</size>
         <thingCategories>
             <li>BuildingsProduction</li>
@@ -162,6 +163,9 @@
                 <storageStation>PS_BatteryFarm</storageStation>
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmNutrition">
+                <HasTip>false</HasTip>
+                <MainTex>Things/Building/Production/PS_BatteryFarm</MainTex>
+                <AltTex>Things/Building/Production/PS_BatteryFarmRustic</AltTex>
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmProducer">
             </li>
@@ -271,6 +275,14 @@
                 <storageStation>PS_BatteryFarm</storageStation>
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmNutrition">
+                <HasTip>true</HasTip>
+                <TipScale>5</TipScale>
+                <MainTex>Things/Building/Production/PS_BreedingDomes</MainTex>
+                <AltTex>Things/Building/Production/PS_BreedingDomesRustic</AltTex>
+                <Tip>Things/Building/Production/PS_BreedingDomesJustTheTip</Tip>
+                <SansTip>Things/Building/Production/PS_BreedingDomesNoTip</SansTip>
+                <AltTip>Things/Building/Production/PS_BreedingDomesJustTheTipRustic</AltTip>
+                <AltSansTip>Things/Building/Production/PS_BreedingDomesNoTipRustic</AltSansTip>
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmBreeder">
             </li>

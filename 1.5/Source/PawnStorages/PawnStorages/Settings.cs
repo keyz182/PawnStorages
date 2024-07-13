@@ -15,6 +15,8 @@ public class Settings : ModSettings
     public float MaxFarmStoredNutrition = 500f;
     public int TicksToAbsorbNutrients = 50;
     public int AnimalTickInterval = 250;
+    public bool SuggestiveSilo = false;
+    public bool RusticFarms = false;
 
     public void DoWindowContents(Rect wrect)
     {
@@ -29,10 +31,14 @@ public class Settings : ModSettings
         options.Gap();
         bool showStoredPawnsInBarBefore = ShowStoredPawnsInBar;
         options.CheckboxLabeled("PS_Settings_ShowStoredPawnsInBar".Translate(), ref ShowStoredPawnsInBar);
+        bool RusticFarmsBefore = RusticFarms;
+        options.CheckboxLabeled("PS_Settings_RusticFarms".Translate(), ref RusticFarms);
         if (showStoredPawnsInBarBefore != ShowStoredPawnsInBar)
         {
             Find.ColonistBar.MarkColonistsDirty();
         }
+        options.CheckboxLabeled("PS_Settings_SuggestiveSilo".Translate(), ref SuggestiveSilo);
+        options.Gap();
 
         options.Gap();
         options.Label("PS_Settings_Production_Scale".Translate(ProductionScale.ToString("0.00")));
@@ -65,6 +71,7 @@ public class Settings : ModSettings
             BreedingScale = 2f;
             MaxPawnsInFarm = 16;
             MaxFarmStoredNutrition = 500f;
+            RusticFarms = false;
         }
 
         options.End();
@@ -84,5 +91,7 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref ProductionScale, "ProductionScale", 0.5f);
         Scribe_Values.Look(ref BreedingScale, "BreedingScale", 2);
         Scribe_Values.Look(ref MaxPawnsInFarm, "MaxPawnsInFarm", 16);
+        Scribe_Values.Look(ref SuggestiveSilo, "SuggestiveSilo", false);
+        Scribe_Values.Look(ref RusticFarms, "RusticFarms", false);
     }
 }

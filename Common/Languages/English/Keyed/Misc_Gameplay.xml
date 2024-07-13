@@ -63,7 +63,7 @@
 	<PS_Settings_Max_Farm_Nutrition>The maximum amount of nutrition to store in a farm: {0}</PS_Settings_Max_Farm_Nutrition>
 	<PS_Settings_Ticks_To_Absorb_Nutrients>Tick interval to absorb nutrients from hoppers: {0}</PS_Settings_Ticks_To_Absorb_Nutrients>
 	<PS_Settings_Animal_Tick_Interval>Tick interval for stored animals: {0}</PS_Settings_Animal_Tick_Interval>
-
+    <PS_Settings_RusticFarms>Use rustic farm textures</PS_Settings_RusticFarms>
 	<PS_Rotate>Rotate</PS_Rotate>
 
 	<PS_FarmTab>Farming</PS_FarmTab>
