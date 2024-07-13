@@ -111,7 +111,7 @@ public class WorkGiver_Warden_TakeToStorage : WorkGiver_Warden
     {
         ThingWithComps existingAssigned = PawnStorages_GameComponent
             .CompAssignables.FirstOrDefault(c =>
-                c.parent is Building_PSFarm && c.assignedPawns.Contains(prisoner)
+                c.parent is Building_PSFarm farm && farm.IsBreeder == breeding && c.assignedPawns.Contains(prisoner)
             )
             ?.parent;
         if (existingAssigned != null)

@@ -12,6 +12,9 @@ namespace PawnStorages;
 
 public static class Utility
 {
+    // Shared state
+    public static List<ThingDef> animals;
+
     public static bool IsWall(this ThingDef def)
     {
         if (def.category != ThingCategory.Building) return false;
@@ -109,35 +112,40 @@ public static class Utility
         store.GetDirectlyHeldThings().Remove(pawn);
     }
 
-    public static bool CanRelease(CompPawnStorage store, Pawn releaser)
+    /**
+     * Return if the storage requires a station
+     * If it does, the out param station will have the selected station
+     */
+    public static bool CheckStation(CompPawnStorage store, Pawn releaser, out Thing station)
     {
-        if (store.Parent.def.EverHaulable && store.Parent.def.category == ThingCategory.Item &&
-            store.Props.storageStation != null)
-            return GenClosest.ClosestThingReachable(releaser.Position, releaser.Map,
+        if (store.RequiresStation())
+        {
+            station = GenClosest.ClosestThingReachable(releaser.Position, releaser.Map,
                 ThingRequest.ForDef(store.Props.storageStation), PathEndMode.InteractionCell,
                 TraverseParms.For(releaser),
-                9999f, x => releaser.CanReserve(x)) != null;
-        return true;
+                9999f, x => releaser.CanReserve(x) && (x.TryGetComp<CompPowerTrader>()?.PowerOn ?? true));
+            return true;
+        }
+
+        station = null;
+        return false;
     }
 
+    public static bool CanRelease(CompPawnStorage store, Pawn releaser) => CheckStation(store, releaser, out Thing _);
 
     public static Job ReleaseJob(CompPawnStorage store, Pawn releaser, Pawn toRelease)
     {
-        if (store.Parent.def.EverHaulable && store.Parent.def.category == ThingCategory.Item &&
-            store.Props.storageStation != null)
+        if (!CheckStation(store, releaser, out Thing station))
         {
-            Thing station = GenClosest.ClosestThingReachable(releaser.Position, releaser.Map,
-                ThingRequest.ForDef(store.Props.storageStation), PathEndMode.InteractionCell,
-                TraverseParms.For(releaser), 9999f, x => releaser.CanReserve(x));
-            Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, store.Parent, station, toRelease);
-            job.count = 1;
-            return job;
+            return JobMaker.MakeJob(PS_DefOf.PS_Release, store.Parent, null, toRelease);
         }
 
-        return JobMaker.MakeJob(PS_DefOf.PS_Release, store.Parent, null, toRelease);
-    }
+        if (station == null) return null;
+        Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, store.Parent, station, toRelease);
+        job.count = 1;
+        return job;
 
-    public static List<ThingDef> animals;
+    }
 
     public static bool CompPropertiesIsProducer(CompProperties c)
     {

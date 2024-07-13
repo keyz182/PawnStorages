@@ -16,8 +16,8 @@ public class ITab_Slaughter : ITab
     public const float LineHeight = 24f;
     private Vector2 scrollPos;
     private Rect viewRect;
-    private List<Rect> tmpMouseoverHighlightRects = new List<Rect>();
-    private List<Rect> tmpGroupRects = new List<Rect>();
+    private List<Rect> tmpMouseoverHighlightRects = [];
+    private List<Rect> tmpGroupRects = [];
 
     public CompFarmStorage compFarmStorage => SelThing.TryGetComp<CompFarmStorage>();
     public CompFarmBreeder compFarmBreeder => SelThing.TryGetComp<CompFarmBreeder>();
@@ -97,6 +97,7 @@ public class ITab_Slaughter : ITab
         DoMaxColumn(row, ref config.maxFemalesYoung, ref config.uiMaxFemalesYoungBuffer, animalCount.femaleYoung);
 
         Widgets.EndGroup();
+        return;
 
         void DrawCurrentCol(int val, int? limit)
         {
@@ -205,6 +206,7 @@ public class ITab_Slaughter : ITab
         GUI.color = Color.gray;
         Widgets.DrawLineHorizontal(rect2.x, (float) ( rect2.y + (double) rect2.height + 1.0), rect2.width);
         GUI.color = Color.white;
+        return;
 
         void AddCurrentAndMaxEntries(string headerKey, float extraWidthFirst, float extraWidthSecond)
         {
