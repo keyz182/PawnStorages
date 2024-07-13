@@ -116,8 +116,8 @@ namespace PawnStorages.Farm.Comps
         public override string CompInspectStringExtra()
         {
             StringBuilder sb = new();
+            sb.AppendLine($"Stored: {innerContainer.Count}/{MaxStoredPawns()}");
             if (innerContainer?.Any<Pawn>() != true) return sb.ToString().TrimStart().TrimEnd();
-            sb.AppendLine();
             sb.AppendLine("PS_StoredPawns".Translate());
             foreach (Pawn pawn in innerContainer)
             {

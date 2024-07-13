@@ -368,6 +368,8 @@ public class CompPawnStorage : ThingComp, IThingHolder
     public override string CompInspectStringExtra()
     {
         StringBuilder sb = new(base.CompInspectStringExtra());
+        sb.AppendLine($"Stored: {innerContainer.Count}/{MaxStoredPawns()}");
+        sb.AppendLine();
         if (innerContainer?.Any<Pawn>() != true) return sb.ToString().TrimStart().TrimEnd();
         sb.AppendLine();
         sb.AppendLine(PawnTypeLabel);

@@ -18,8 +18,6 @@ namespace PawnStorages.Farm.Comps
 
         public string Tip;
         public string SansTip;
-        public string AltTip;
-        public string AltSansTip;
 
         public static Dictionary<string, Material> MaterialCache = new Dictionary<string, Material>();
 
@@ -27,16 +25,7 @@ namespace PawnStorages.Farm.Comps
         {
             get
             {
-                string matPath = "";
-                if (!HasTip)
-                {
-                    matPath = PawnStoragesMod.settings.RusticFarms ? AltTex : MainTex;
-                }
-
-                else
-                {
-                    matPath = PawnStoragesMod.settings.RusticFarms ? AltSansTip : SansTip;
-                }
+                string matPath = !HasTip ? MainTex : SansTip;
 
                 if (MaterialCache.TryGetValue(matPath, out Material mat))
                     return mat;
@@ -54,14 +43,12 @@ namespace PawnStorages.Farm.Comps
         {
             get
             {
-                string matPath = PawnStoragesMod.settings.RusticFarms ? AltTip : Tip;
-
-                if (MaterialCache.TryGetValue(matPath, out Material mat))
+                if (MaterialCache.TryGetValue(Tip, out Material mat))
                     return mat;
 
-                mat = MaterialPool.MatFrom(matPath, ShaderDatabase.Transparent, Color.white);
+                mat = MaterialPool.MatFrom(Tip, ShaderDatabase.Transparent, Color.white);
 
-                MaterialCache[matPath] = mat;
+                MaterialCache[Tip] = mat;
 
                 return mat;
             }
