@@ -1,4 +1,6 @@
-﻿namespace PawnStorages.Farm.Comps;
+﻿using Verse;
+
+namespace PawnStorages.Farm.Interfaces;
 
 public interface INutritionStoreAlternative
 {

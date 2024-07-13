@@ -24,19 +24,18 @@ namespace PawnStorages.Farm.Comps
         public float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(animal =>
             SimplifiedPastureNutritionSimulator.NutritionConsumedPerDay(animal.def, animal.ageTracker.CurLifeStage));
 
-        public new void StorePawn(Pawn pawn)
+        public IEnumerable<PawnKindDef> HeldPawnTypes => innerContainer.innerList.Select(p => p.kindDef).Distinct();
+
+        public Dialog_AutoSlaughter.AnimalCountRecord CountForType(ThingDef def)
         {
-            pawn.DeSpawn();
-            innerContainer.TryAdd(pawn);
+            List<Pawn> pawns = innerContainer.innerList.Where(p => p.kindDef.race == def).ToList();
+            int total = pawns.Count;
+            int male = pawns.Count(p => p.gender == Gender.Male && p.ageTracker.Adult);
+            int maleYoung = pawns.Count(p => p.gender == Gender.Male && !p.ageTracker.Adult);
+            int female = pawns.Count(p => p.gender == Gender.Female && p.ageTracker.Adult);
+            int femaleYoung = pawns.Count(p => p.gender == Gender.Female && !p.ageTracker.Adult);
 
-            parent.Map.mapDrawer.MapMeshDirty(parent.Position, MapMeshFlagDefOf.Things);
-
-            if (compAssignable != null && !compAssignable.AssignedPawns.Contains(pawn))
-            {
-                compAssignable.TryAssignPawn(pawn);
-            }
-
-            labelDirty = true;
+            return new Dialog_AutoSlaughter.AnimalCountRecord(total, male, maleYoung, female, femaleYoung, 0, 0);
         }
 
         public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
@@ -90,7 +89,7 @@ namespace PawnStorages.Farm.Comps
                 return true;
             }
 
-            //EggLayer 
+            //EggLayer
             CompEggLayer eggLayer = animal.TryGetComp<CompEggLayer>();
             if (eggLayer is not { Active: true }) return false;
             resource = eggLayer.Props.eggUnfertilizedDef;
@@ -117,8 +116,8 @@ namespace PawnStorages.Farm.Comps
         public override string CompInspectStringExtra()
         {
             StringBuilder sb = new();
+            sb.AppendLine($"Stored: {innerContainer.Count}/{MaxStoredPawns()}");
             if (innerContainer?.Any<Pawn>() != true) return sb.ToString().TrimStart().TrimEnd();
-            sb.AppendLine();
             sb.AppendLine("PS_StoredPawns".Translate());
             foreach (Pawn pawn in innerContainer)
             {

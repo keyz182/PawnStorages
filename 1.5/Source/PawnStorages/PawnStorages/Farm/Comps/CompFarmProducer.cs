@@ -25,13 +25,9 @@ namespace PawnStorages.Farm.Comps
             base.CompTick();
 
             if (!PawnStoragesMod.settings.AllowNeedsDrop) return;
-            var pawnsToRemove = new List<Pawn>();
-
 
             if (parent.IsHashIntervalTick(Parent.TickInterval))
             {
-                var healthyPawns = new List<Pawn>();
-
                 foreach (Pawn pawn in Parent.ProducingPawns)
                 {
                     if (pawn.TryGetComp(out CompEggLayer compLayer) && pawn.gender != Gender.Male)

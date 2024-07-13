@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using RimWorld;
 using Verse;
 using Verse.AI;
 
@@ -27,7 +28,8 @@ public class JobDriver_Release : JobDriver
     {
         if (HasStation)
         {
-            this.FailOnDespawnedOrNull(TargetIndex.B);
+            this.FailOnDestroyedNullOrForbidden(TargetIndex.B);
+            this.FailOn(() => !(TargetB.Thing.TryGetComp<CompPowerTrader>()?.PowerOn ?? true));
             yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.ClosestTouch);
             yield return Toils_Haul.StartCarryThing(TargetIndex.A);
             yield return Toils_Goto.GotoThing(TargetIndex.B, PathEndMode.InteractionCell);

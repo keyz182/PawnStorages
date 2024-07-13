@@ -46,7 +46,7 @@ namespace PawnStorages.Farm
 
         public void DenyAll()
         {
-            foreach (var allowedThingsKey in AllowedThings.Keys)
+            foreach (ThingDef allowedThingsKey in AllowedThings.Keys)
             {
                 AllowedThings[allowedThingsKey] = false;
             }
@@ -132,6 +132,15 @@ namespace PawnStorages.Farm
 
         public void Notify_NutritionNotEmpty() => NutritionAvailable = true;
 
+        public List<Pawn> AllHealthyPawns
+        {
+            get
+            {
+                return StoredPawns.Select(p => p).Where(pawn => !pawn.health.Dead && !pawn.health.Downed)
+                        .ToList();
+            }
+        }
+
         public List<Pawn> BreedablePawns
         {
             get
@@ -159,7 +168,23 @@ namespace PawnStorages.Farm
 
         public void Notify_PawnBorn(Pawn newPawn)
         {
-            pawnStorage.StorePawn(newPawn);
+            if(newPawn.Spawned)
+                newPawn.DeSpawn();
+
+            if (pawnStorage.innerContainer.Count >= pawnStorage.MaxStoredPawns())
+            {
+                Thing storageParent = pawnStorage.parent;
+
+                Messages.Message("PS_StorageFull".Translate(storageParent.LabelCap, newPawn.LabelCap), (Thing) newPawn, MessageTypeDefOf.NeutralEvent);
+
+                PawnComponentsUtility.AddComponentsForSpawn(newPawn);
+                pawnStorage.compAssignable?.TryUnassignPawn(newPawn);
+                GenDrop.TryDropSpawn(newPawn, storageParent.Position, storageParent.Map, ThingPlaceMode.Near, out Thing _);
+                FilthMaker.TryMakeFilth(storageParent.Position, storageParent.Map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
+                return;
+            }
+
+            pawnStorage.StorePawn(newPawn, false);
         }
 
         public void GetChildHolders(List<IThingHolder> outChildren)

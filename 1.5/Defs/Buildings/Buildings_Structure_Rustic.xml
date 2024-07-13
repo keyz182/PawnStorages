@@ -2,132 +2,17 @@
 
 <Defs>
 
-    <!-- Wall Door-->
-    <ThingDef ParentName="DoorBase">
-        <defName>PS_PawnDoor</defName>
-        <label>pawn door</label>
-        <description>A door in the wall, where does it lead? We don't know!</description>
-        <thingClass>PawnStorages.Building_PawnStorage</thingClass>
-        <altitudeLayer>BuildingOnTop</altitudeLayer>
-        <passability>Standable</passability>
-        <pathCost>0</pathCost>
-        <rotatable>true</rotatable>
-        <clearBuildingArea>false</clearBuildingArea>
-        <fillPercent>0.50</fillPercent>
-        <holdsRoof>false</holdsRoof>
-        <building>
-            <isEdifice>false</isEdifice>
-        </building>
-        <statBases>
-            <WorkToBuild>850</WorkToBuild>
-        </statBases>
-        <graphicData>
-            <texPath>Things/Building/PawnHatch/PawnDoor_Open</texPath>
-            <graphicClass>Graphic_Single</graphicClass>
-            <damageData>
-                <enabled>false</enabled>
-            </damageData>
-        </graphicData>
-        <uiIconPath>Things/Building/Door/DoorSimple_MenuIcon</uiIconPath>
-        <costStuffCount>25</costStuffCount>
-        <comps>
-            <li Class="PawnStorages.CompProperties_PawnStorage">
-                <needsDrop>true</needsDrop>
-                <maxStoredPawns>9</maxStoredPawns>
-                <releaseOption>true</releaseOption>
-                <releaseAllOption>true</releaseAllOption>
-                <convertOption>true</convertOption>
-                <idleResearch>true</idleResearch>
-                <canBeScheduled>true</canBeScheduled>
-                <pawnRestIncreaseTick>0.00003</pawnRestIncreaseTick>
-            </li>
-            <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
-                <drawAssignmentOverlay>false</drawAssignmentOverlay>
-                <compClass>PawnStorages.CompAssignableToPawn_PawnStorage</compClass>
-            </li>
-        </comps>
-        <placeWorkers>
-            <li>PawnStorages.PlaceWorker_WallDoor</li>
-        </placeWorkers>
-        <modExtensions>
-            <li Class="PawnStorages.PSExtension">
-                <extraGraphicData>
-                    <texPath>Things/Building/PawnHatch/PawnDoor_Closed</texPath>
-                    <graphicClass>Graphic_Single</graphicClass>
-                    <damageData>
-                        <enabled>false</enabled>
-                    </damageData>
-                </extraGraphicData>
-            </li>
-        </modExtensions>
-    </ThingDef>
-    <ThingDef ParentName="DoorBase">
-        <defName>PS_PawnHatch</defName>
-        <label>pawn hatch</label>
-        <description>A hatch down the ground... where does it lead? We don't know!</description>
-        <thingClass>PawnStorages.Building_PawnStorage</thingClass>
-        <altitudeLayer>BuildingOnTop</altitudeLayer>
-        <passability>Standable</passability>
-        <pathCost>0</pathCost>
-        <rotatable>true</rotatable>
-        <clearBuildingArea>false</clearBuildingArea>
-        <fillPercent>0.50</fillPercent>
-        <holdsRoof>false</holdsRoof>
-        <building>
-            <isEdifice>false</isEdifice>
-        </building>
-        <statBases>
-            <WorkToBuild>850</WorkToBuild>
-        </statBases>
-        <graphicData>
-            <texPath>Things/Building/PawnHatch/PawnHatch_Open</texPath>
-            <graphicClass>Graphic_Single</graphicClass>
-            <damageData>
-                <enabled>false</enabled>
-            </damageData>
-        </graphicData>
-        <uiIconPath>Things/Building/Door/DoorSimple_MenuIcon</uiIconPath>
-        <costStuffCount>25</costStuffCount>
-        <comps>
-            <li Class="PawnStorages.CompProperties_PawnStorage">
-                <needsDrop>true</needsDrop>
-                <maxStoredPawns>9</maxStoredPawns>
-                <releaseOption>true</releaseOption>
-                <releaseAllOption>true</releaseAllOption>
-                <convertOption>true</convertOption>
-                <idleResearch>true</idleResearch>
-                <canBeScheduled>true</canBeScheduled>
-                <pawnRestIncreaseTick>0.00003</pawnRestIncreaseTick>
-            </li>
-            <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
-                <drawAssignmentOverlay>false</drawAssignmentOverlay>
-                <compClass>PawnStorages.CompAssignableToPawn_PawnStorage</compClass>
-            </li>
-        </comps>
-        <modExtensions>
-            <li Class="PawnStorages.PSExtension">
-                <extraGraphicData>
-                    <texPath>Things/Building/PawnHatch/PawnHatch_Closed</texPath>
-                    <graphicClass>Graphic_Single</graphicClass>
-                    <damageData>
-                        <enabled>false</enabled>
-                    </damageData>
-                </extraGraphicData>
-            </li>
-        </modExtensions>
-    </ThingDef>
     <ThingDef ParentName="BuildingBase">
         <minifiedDef>MinifiedThing</minifiedDef>
-        <defName>PS_BatteryFarm</defName>
-        <label>Battery Farm</label>
-        <description>A battery farm. For animals. Not batteries. \n\n Squeeze in up to 16 animals that give produce, keep them supplied with nutrition, and reap the rewards without the filth!</description>
+        <defName>PS_RusticFarm</defName>
+        <label>Rustic Farm</label>
+        <description>A rustic farm. \n\n Squeeze in up to 16 animals that give produce, keep them supplied with nutrition, and reap the rewards without the filth!</description>
         <thingClass>PawnStorages.Farm.Building_PSFarm</thingClass>
         <graphicData>
-            <texPath>Things/Building/Production/PS_BatteryFarm</texPath>
+            <texPath>Things/Building/Production/PS_RusticFarm</texPath>
             <graphicClass>Graphic_Single</graphicClass>
             <drawSize>(3.9,3.9)</drawSize>
         </graphicData>
-        <drawerType>MapMeshAndRealTime</drawerType>
         <size>(3,3)</size>
         <thingCategories>
             <li>BuildingsProduction</li>
@@ -164,22 +49,8 @@
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmNutrition">
                 <HasTip>false</HasTip>
-                <MainTex>Things/Building/Production/PS_BatteryFarm</MainTex>
-                <AltTex>Things/Building/Production/PS_BatteryFarmRustic</AltTex>
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmProducer">
-            </li>
-            <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_FarmResourceStorage">
-                <pipeNet>VNPE_NutrientPasteNet</pipeNet>
-                <barSize>(0.75, 0.20)</barSize>
-                <margin>0.05</margin>
-                <centerOffset>(0, 0, -0.35)</centerOffset>
-                <destroyOption>
-                    <filth>VNPE_Filth_Paste</filth>
-                    <ratio>1</ratio>
-                    <maxRadius>5</maxRadius>
-                </destroyOption>
-                <contentRequirePower>false</contentRequirePower>
             </li>
         </comps>
         <building>
@@ -220,7 +91,7 @@
         <placeWorkers>
             <li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
         </placeWorkers>
-        <uiIconPath>Things/Building/Production/PS_BatteryFarm</uiIconPath>
+        <uiIconPath>Things/Building/Production/PS_RusticFarm</uiIconPath>
         <uiIconScale>0.85</uiIconScale>
         <modExtensions>
             <li Class="PawnStorages.PSExtension" />
@@ -228,14 +99,14 @@
     </ThingDef>
     <ThingDef ParentName="BuildingBase">
         <minifiedDef>MinifiedThing</minifiedDef>
-        <defName>PS_BreedingFarm</defName>
-        <label>Breeding Domes</label>
-        <description>A breeding farm. \n\n Squeeze in up to 16 animals that mate, keep them supplied with nutrition, and reap the rewards without the filth!</description>
+        <defName>PS_BreedingFarmRustic</defName>
+        <label>Rustic Breeding Domes</label>
+        <description>A rustic breeding farm. \n\n Squeeze in up to 16 animals that mate, keep them supplied with nutrition, and reap the rewards without the filth!</description>
         <drawerType>MapMeshAndRealTime</drawerType>
         <!-- <drawerType>MapMeshOnly</drawerType> -->
         <thingClass>PawnStorages.Farm.Building_PSFarm</thingClass>
         <graphicData>
-            <texPath>Things/Building/Production/PS_BreedingDomes</texPath>
+            <texPath>Things/Building/Production/PS_BreedingDomesRustic</texPath>
             <graphicClass>Graphic_Single</graphicClass>
             <drawSize>(5,5)</drawSize>
         </graphicData>
@@ -277,9 +148,9 @@
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmNutrition">
                 <HasTip>true</HasTip>
                 <TipScale>5</TipScale>
-                <MainTex>Things/Building/Production/PS_BreedingDomes</MainTex>
-                <Tip>Things/Building/Production/PS_BreedingDomesJustTheTip</Tip>
-                <SansTip>Things/Building/Production/PS_BreedingDomesNoTip</SansTip>
+                <MainTex>Things/Building/Production/PS_BreedingDomesRustic</MainTex>
+                <Tip>Things/Building/Production/PS_BreedingDomesJustTheTipRustic</Tip>
+                <SansTip>Things/Building/Production/PS_BreedingDomesNoTipRustic</SansTip>
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmBreeder">
             </li>
@@ -334,7 +205,7 @@
         <placeWorkers>
             <li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
         </placeWorkers>
-        <uiIconPath>Things/Building/Production/PS_BreedingDomes</uiIconPath>
+        <uiIconPath>Things/Building/Production/PS_BreedingDomesRustic</uiIconPath>
         <uiIconScale>0.85</uiIconScale>
         <modExtensions>
             <li Class="PawnStorages.PSExtension" />

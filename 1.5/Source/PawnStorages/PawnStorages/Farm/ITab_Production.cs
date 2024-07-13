@@ -100,8 +100,9 @@ namespace PawnStorages.Farm
             alternate = false;
             float num = 0.0f;
             List<Pawn> removed = [];
-            foreach (Pawn pawn in compFarmStorage.GetDirectlyHeldThings())
+            foreach (Thing thing in compFarmStorage.GetDirectlyHeldThings())
             {
+                Pawn pawn = (Pawn)thing;
                 if (DrawLine(num, scrollViewRect.width, pawn))
                 {
                     removed.Add(pawn);

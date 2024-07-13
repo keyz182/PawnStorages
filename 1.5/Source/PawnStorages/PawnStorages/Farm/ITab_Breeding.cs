@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using PawnStorages.Farm.Comps;
 using RimWorld;
@@ -68,7 +69,7 @@ namespace PawnStorages.Farm
             alternate = false;
             float num = 0.0f;
 
-            foreach (var f in compFarmBreeder.BreedingProgress)
+            foreach (KeyValuePair<PawnKindDef, float> f in compFarmBreeder.BreedingProgress)
             {
                 DrawLine(num, scrollViewRect.width, f.Key, f.Value);
 

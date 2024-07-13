@@ -73,7 +73,7 @@
             <ReleaseFolder Include="../../../../Release/**" />
             <ReleaseFolder Condition=" '$(Configuration)' == 'Debug' " Include="../../../../1.*/Assemblies/*.pdb;../../../../Compatibility/**/*.pdb" />
         </ItemGroup>
-        <RemoveDir Condition="Exists('$(SteamModsPath)')" Directories="$(SteamModsPath)/$(ModName)" ContinueOnError="true"/>
-        <Copy Condition="Exists('$(SteamModsPath)')" SourceFiles="@(ReleaseFolder)" DestinationFiles="@(ReleaseFolder->'$(SteamModsPath)/$(ModName)/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+        <RemoveDir Condition="Exists('$(SteamModsPath)') And !Exists('$(SteamModsPath)/PawnStorages')" Directories="$(SteamModsPath)/$(ModName)" ContinueOnError="true"/>
+        <Copy Condition="Exists('$(SteamModsPath)') And !Exists('$(SteamModsPath)/PawnStorages')" SourceFiles="@(ReleaseFolder)" DestinationFiles="@(ReleaseFolder->'$(SteamModsPath)/$(ModName)/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     </Target>
 </Project>

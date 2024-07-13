@@ -14,17 +14,11 @@ namespace PawnStorages.Farm.Comps
 
         private float _storedNutrition = 0f;
 
-        private INutritionStoreAlternative AlternativeStore;
-        public bool HasAltStore => AlternativeStore != null;
+        private INutritionStoreAlternative AlternativeStore => (INutritionStoreAlternative) parent.AllComps.FirstOrDefault(c => c is INutritionStoreAlternative);
 
-        public void SetAlternativeStore(INutritionStoreAlternative store)
-        {
-            AlternativeStore = store;
-            if (_storedNutrition > 0f)
-            {
-                AlternativeStore.CurrentStored = _storedNutrition;
-            }
-        } 
+        public bool doesBreeding => parent.GetComp<CompFarmBreeder>() != null;
+
+        public bool HasAltStore => AlternativeStore != null;
 
         public float storedNutrition
         {
@@ -45,11 +39,6 @@ namespace PawnStorages.Farm.Comps
         private List<IntVec3> cachedAdjCellsCardinal;
 
         public CompProperties_FarmNutrition Props => props as CompProperties_FarmNutrition;
-
-        static CompFarmNutrition()
-        {
-            _material = MaterialPool.MatFrom("Things/Building/Production/PS_JustTheTip", ShaderDatabase.Transparent, Color.white);
-        }
 
         public override void PostExposeData()
         {
@@ -81,20 +70,20 @@ namespace PawnStorages.Farm.Comps
                     Need_Food foodNeeds = pawn.needs?.food;
                     if (foodNeeds == null)
                         continue;
-                
+
                     foodNeeds.CurLevel -= foodNeeds.FoodFallPerTick * Props.animalTickInterval;
                     if (!foodNeeds.Starving)
                         foodNeeds.lastNonStarvingTick = Find.TickManager.TicksGame;
 
                     // Need_Food.NeedInterval hardcodes 150 ticks, so adjust
                     float adjustedMalnutritionSeverityPerInterval =
-                        (foodNeeds.MalnutritionSeverityPerInterval / 150f) * Props.animalTickInterval;
+                        foodNeeds.MalnutritionSeverityPerInterval / 150f * Props.animalTickInterval;
 
                     if (foodNeeds.Starving)
                         HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, adjustedMalnutritionSeverityPerInterval);
                     else
                         HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, -adjustedMalnutritionSeverityPerInterval);
-                    
+
                     if (pawn.health.hediffSet.TryGetHediff(HediffDefOf.Malnutrition, out Hediff malnutritionHediff) && malnutritionHediff.Severity >= 0.75f)
                     {
                         Parent.ReleasePawn(pawn);
@@ -273,26 +262,23 @@ namespace PawnStorages.Farm.Comps
             };
         }
 
-        private static Material _material;
-        private const float Scale = 2.997f;
-        private const float StartOffset = 0.5f;
-        private const int Layer = 0;
-
         public override void PostDraw()
         {
-            base.PostDraw();
-            if (!Parent.HasSuggestiveSilos || !PawnStoragesMod.settings.SuggestiveSilo) return;
+            ((Graphic_Single) parent.Graphic).mat = Props.MainTexture;
 
-            float filled = Mathf.Clamp(storedNutrition / MaxNutrition, 0f, 1f);
+            base.PostDraw();
+
+            if (!doesBreeding || !PawnStoragesMod.settings.SuggestiveSilo)
+                return;
+
+            float filled = (storedNutrition / Props.maxNutrition) * 0.6f;
 
             Vector3 pos = parent.DrawPos;
-            pos.z += StartOffset;
             pos.z += filled;
             pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
-            pos.x += 0.003f;
 
-            Matrix4x4 matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0.0f, 0f, 0.0f), new Vector3(Scale, 1f, Scale));
-            Graphics.DrawMesh(MeshPool.plane10, matrix, _material, Layer);
+            Matrix4x4 matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0.0f, 0f, 0.0f), new Vector3(Props.TipScale, 1f, Props.TipScale));
+            Graphics.DrawMesh(MeshPool.plane10, matrix, Props.TipTexture, 0);
         }
     }
 }

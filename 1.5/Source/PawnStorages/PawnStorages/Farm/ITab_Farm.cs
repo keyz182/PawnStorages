@@ -32,20 +32,20 @@ namespace PawnStorages.Farm
             Rect menuRect = new Rect(0.0f, 20f, tabRect.width, tabRect.height - 20f);
             Widgets.DrawMenuSection(menuRect);
             float num1 = menuRect.width - 2f;
-            Rect buttonRect = new Rect(menuRect.x + 3f, menuRect.y + 3f, (float)((double)num1 / 2.0 - 3.0 - 1.5), 24f);
-            if (Widgets.ButtonText(buttonRect, (string)"ClearAll".Translate()))
+            Rect buttonRect = new Rect(menuRect.x + 3f, menuRect.y + 3f, (float)(num1 / 2.0 - 3.0 - 1.5), 24f);
+            if (Widgets.ButtonText(buttonRect, "ClearAll".Translate()))
             {
                 Parent.DenyAll();
                 SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
             }
 
-            if (Widgets.ButtonText(new Rect(buttonRect.xMax + 3f, buttonRect.y, buttonRect.width, 24f), (string)"AllowAll".Translate()))
+            if (Widgets.ButtonText(new Rect(buttonRect.xMax + 3f, buttonRect.y, buttonRect.width, 24f), "AllowAll".Translate()))
             {
                 Parent.AllowAll();
                 SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
             }
 
-            Rect searchWidgetRect = new Rect(menuRect.x + 3f, menuRect.yMin + 26f, (float)((double)tabRect.width - 16.0 - 6.0), 24f);
+            Rect searchWidgetRect = new Rect(menuRect.x + 3f, menuRect.yMin + 26f, (float)(tabRect.width - 16.0 - 6.0), 24f);
             QuickSearchWidget.OnGUI(searchWidgetRect);
 
             float totalHeight = Parent.AllowableThing.Count * (LineHeight + 2f);
@@ -72,12 +72,12 @@ namespace PawnStorages.Farm
                 allowable = Parent.AllowableThing;
             }
 
-            foreach (var tDef in allowable)
+            foreach (ThingDef tDef in allowable)
             {
-                var iconWidth = 20f;
-                Widgets.DefIcon(new Rect(5f, num, iconWidth, LineHeight), (Def)tDef, drawPlaceholder: true);
+                float iconWidth = 20f;
+                Widgets.DefIcon(new Rect(5f, num, iconWidth, LineHeight), tDef, drawPlaceholder: true);
 
-                var labelX = iconWidth + 2f + 5f;
+                float labelX = iconWidth + 2f + 5f;
                 Rect labelLeft = new Rect(labelX, num, viewRect.width - 26f - labelX - 5f, LineHeight);
 
 
@@ -85,11 +85,11 @@ namespace PawnStorages.Farm
                 if (!tDef.DescriptionDetailed.NullOrEmpty())
                 {
                     if (Mouse.IsOver(labelLeft))
-                        GUI.DrawTexture(labelLeft, (Texture)TexUI.HighlightTex);
+                        GUI.DrawTexture(labelLeft, TexUI.HighlightTex);
                     TooltipHandler.TipRegion(labelLeft, (TipSignal)tDef.DescriptionDetailed);
                 }
 
-                var label = (string)tDef.LabelCap;
+                string label = tDef.LabelCap;
                 Text.Anchor = TextAnchor.MiddleLeft;
                 GUI.color = Color.white;
 

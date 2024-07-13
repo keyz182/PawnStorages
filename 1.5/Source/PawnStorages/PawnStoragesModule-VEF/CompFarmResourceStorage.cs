@@ -1,5 +1,7 @@
 ﻿
 using PawnStorages.Farm.Comps;
+using PawnStorages.Farm.Interfaces;
+using Verse;
 
 namespace PawnStorages.VEF;
 
@@ -18,13 +20,6 @@ public class CompFarmResourceStorage : PipeSystem.CompResourceStorage, INutritio
             else
                 AddResource(toStore);
         }
-    }
-
-    public override void PostSpawnSetup(bool respawningAfterLoad)
-    {
-        base.PostSpawnSetup(respawningAfterLoad);
-        CompFarmNutrition nutrition = parent.GetComp<CompFarmNutrition>();
-        nutrition?.SetAlternativeStore(this);
     }
 
     public override void CompTick()

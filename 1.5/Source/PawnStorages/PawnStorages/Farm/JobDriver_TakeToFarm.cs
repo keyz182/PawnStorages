@@ -66,7 +66,7 @@ public class JobDriver_TakeToFarm : JobDriver
             takee.stances.CancelBusyStanceHard();
             if (takee.Downed)
             {
-                var comp = storage.TryGetComp<CompFarmStorage>();
+                CompFarmStorage comp = storage.TryGetComp<CompFarmStorage>();
                 if (comp.CanStore)
                     comp.StorePawn(takee);
             }
