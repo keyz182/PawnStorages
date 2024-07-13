@@ -91,7 +91,7 @@ public static class Utility
                 cell = intVec;
                 break;
             }
-        
+
         GenSpawn.Spawn(pawn, cell, map);
 
         //Spawn the release effecter
@@ -100,7 +100,7 @@ public static class Utility
         if (store.Props.lightEffect) FleckMaker.ThrowLightningGlow(cell.ToVector3Shifted(), map, 0.5f);
         if (store.Props.transformEffect)
             FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
-        store.Parent.Map.mapDrawer.MapMeshDirty(store.Parent.Position, MapMeshFlagDefOf.Things);
+        map.mapDrawer.MapMeshDirty(store.Parent.Position, MapMeshFlagDefOf.Things);
 
         store.SetLabelDirty();
         store.ApplyNeedsForStoredPeriodFor(pawn);
