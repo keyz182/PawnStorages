@@ -131,7 +131,7 @@ public static class Utility
         return false;
     }
 
-    public static bool CanRelease(CompPawnStorage store, Pawn releaser) => CheckStation(store, releaser, out Thing _);
+    public static bool CanRelease(CompPawnStorage store, Pawn releaser) => !CheckStation(store, releaser, out Thing station) || station != null;
 
     public static Job ReleaseJob(CompPawnStorage store, Pawn releaser, Pawn toRelease)
     {

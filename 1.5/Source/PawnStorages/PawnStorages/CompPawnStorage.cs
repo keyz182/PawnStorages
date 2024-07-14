@@ -369,9 +369,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
     {
         StringBuilder sb = new(base.CompInspectStringExtra());
         sb.AppendLine("PS_StoredCapacity".Translate(innerContainer.Count, MaxStoredPawns()));
-        sb.AppendLine();
         if (innerContainer?.Any<Pawn>() != true) return sb.ToString().TrimStart().TrimEnd();
-        sb.AppendLine();
         sb.AppendLine(PawnTypeLabel);
         foreach (Pawn pawn in innerContainer) sb.AppendLine($"    - {pawn.LabelCap}");
 
