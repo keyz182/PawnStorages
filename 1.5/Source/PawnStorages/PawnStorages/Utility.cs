@@ -1,12 +1,9 @@
-﻿using System;
-using PawnStorages.Farm;
-using RimWorld;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.AI;
-using PawnStorages.Farm.Comps;
 
 namespace PawnStorages;
 
@@ -144,7 +141,6 @@ public static class Utility
         Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, store.Parent, station, toRelease);
         job.count = 1;
         return job;
-
     }
 
     public static bool CompPropertiesIsProducer(CompProperties c)
@@ -156,20 +152,11 @@ public static class Utility
     {
         return td.category == ThingCategory.Pawn && td.thingCategories != null &&
                td.thingCategories.Contains(ThingCategoryDefOf.Animals) &&
-               (
-                   (IsProducer &&
-                    (td.comps?.Any((Predicate<CompProperties>)(CompPropertiesIsProducer)) ?? false)
-                    ||
-                    (!IsProducer)
-                   ));
+               (IsProducer && (td.comps?.Any(CompPropertiesIsProducer) ?? false) || !IsProducer);
     }
 
     public static List<ThingDef> Animals(bool IsProducer)
     {
-        if (Utility.animals == null)
-        {
-            Utility.animals = DefDatabase<ThingDef>.AllDefs.Where<ThingDef>(td => ValidateThingDef(td, IsProducer)).ToList();
-        }
-        return Utility.animals;
+        return animals ??= DefDatabase<ThingDef>.AllDefs.Where(td => ValidateThingDef(td, IsProducer)).ToList();
     }
 }

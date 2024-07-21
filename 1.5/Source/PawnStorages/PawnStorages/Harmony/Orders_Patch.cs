@@ -84,7 +84,7 @@ public static class OrdersPatch
                 }
                 else
                 {
-                    Pawn pTarg = (Pawn)dest.Thing;
+                    Pawn pTarg = (Pawn) dest.Thing;
                     bool notArresting = pTarg.Faction == null || (pTarg.Faction == Faction.OfPlayer || pTarg.Faction.Hidden) && !pTarg.IsQuestLodger();
 
                     bool anyStorage = false;
@@ -95,11 +95,13 @@ public static class OrdersPatch
                         anyStorage = true;
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(
                             new FloatMenuOption(
-                                (notArresting ? "PS_TakeToStorageFloatMenu" : "PS_CaptureToStorageFloatMenu").Translate((NamedArgument)pTarg.LabelCap, (NamedArgument) storage.parent.LabelNoParenthesisCap),
+                                (notArresting ? "PS_TakeToStorageFloatMenu" : "PS_CaptureToStorageFloatMenu").Translate((NamedArgument) pTarg.LabelCap,
+                                    (NamedArgument) storage.parent.LabelNoParenthesisCap),
                                 () =>
                                 {
                                     ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageGeneral(pTarg, assign: true, preferredStorage: storage);
-                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorage, (LocalTargetInfo)(Thing)pTarg, (LocalTargetInfo)(Thing)building);
+                                    Job job = JobMaker.MakeJob(notArresting ? PS_DefOf.PS_TakeToPawnStorage : PS_DefOf.PS_CaptureInPawnStorage,
+                                        (LocalTargetInfo) (Thing) pTarg, (LocalTargetInfo) (Thing) building);
                                     job.count = 1;
                                     pawn.jobs.TryTakeOrderedJob(job);
                                     if (notArresting)
@@ -108,7 +110,7 @@ public static class OrdersPatch
                                 },
                                 MenuOptionPriority.High,
                                 revalidateClickTarget: pTarg), pawn,
-                            (LocalTargetInfo)(Thing)pTarg));
+                            (LocalTargetInfo) (Thing) pTarg));
                     }
 
                     foreach (CompPawnStorage comp in pawn.inventory.GetDirectlyHeldThings()
@@ -124,10 +126,10 @@ public static class OrdersPatch
                         anyStorage = true;
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(
                             new FloatMenuOption(
-                                "PS_CaptureToStorageFloatMenu".Translate((NamedArgument)pTarg.LabelCap, (NamedArgument) comp.parent.LabelNoParenthesisCap),
+                                "PS_CaptureToStorageFloatMenu".Translate((NamedArgument) pTarg.LabelCap, (NamedArgument) comp.parent.LabelNoParenthesisCap),
                                 () =>
                                 {
-                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorageItem, (LocalTargetInfo)(Thing)pTarg, (LocalTargetInfo)(Thing)comp.Parent);
+                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorageItem, (LocalTargetInfo) (Thing) pTarg, (LocalTargetInfo) (Thing) comp.Parent);
                                     job.count = 1;
                                     pawn.jobs.TryTakeOrderedJob(job);
                                     if (notArresting)
@@ -136,13 +138,13 @@ public static class OrdersPatch
                                 },
                                 MenuOptionPriority.High,
                                 revalidateClickTarget: pTarg), pawn,
-                            (LocalTargetInfo)(Thing)pTarg));
+                            (LocalTargetInfo) (Thing) pTarg));
                     }
 
                     if (!anyStorage)
                     {
                         opts.Add(new FloatMenuOption(
-                            "PS_NoPrisonerStorage".Translate((NamedArgument)dest.Thing.Label),
+                            "PS_NoPrisonerStorage".Translate((NamedArgument) dest.Thing.Label),
                             null));
                     }
                 }
@@ -154,7 +156,7 @@ public static class OrdersPatch
                              true))
                 {
                     Thing casket = localTargetInfo.Thing;
-                    TaggedString label = "PlaceIn".Translate((NamedArgument)(Thing)carriedPawn, (NamedArgument)casket);
+                    TaggedString label = "PlaceIn".Translate((NamedArgument) (Thing) carriedPawn, (NamedArgument) casket);
                     Action action = () =>
                     {
                         localTargetInfo.Thing.TryGetComp<CompPawnStorage>()?.TryAssignPawn(carriedPawn);
@@ -168,7 +170,7 @@ public static class OrdersPatch
                         pawn.jobs.TryTakeOrderedJob(job);
                     };
                     opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(label, action), pawn,
-                        (LocalTargetInfo)casket));
+                        (LocalTargetInfo) casket));
                 }
             }
 
@@ -179,25 +181,26 @@ public static class OrdersPatch
                 if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
                 {
                     opts.Add(new FloatMenuOption(
-                        "PS_CannotStore".Translate((NamedArgument)localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
+                        "PS_CannotStore".Translate((NamedArgument) localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
                 }
                 else
                 {
-                    Pawn pTarg = (Pawn)localTargetInfo.Thing;
+                    Pawn pTarg = (Pawn) localTargetInfo.Thing;
 
                     bool anyStorage = false;
-                    foreach (CompAssignableToPawn_PawnStorage storage in WorkGiver_Warden_TakeToStorage.GetPossibleStorages(pTarg).GroupBy(s => s.parent.def).Select(sGroup => sGroup.FirstOrDefault()))
+                    foreach (CompAssignableToPawn_PawnStorage storage in WorkGiver_Warden_TakeToStorage.GetPossibleStorages(pTarg).GroupBy(s => s.parent.def)
+                                 .Select(sGroup => sGroup.FirstOrDefault()))
                     {
                         if (storage == null) continue;
                         anyStorage = true;
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
-                            "PS_StoreEntity".Translate((NamedArgument)localTargetInfo.Thing.Label,
-                                (NamedArgument)storage.parent.LabelNoParenthesisCap),
+                            "PS_StoreEntity".Translate((NamedArgument) localTargetInfo.Thing.Label,
+                                (NamedArgument) storage.parent.LabelNoParenthesisCap),
                             () =>
                             {
                                 ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageGeneral(pTarg, assign: true, preferredStorage: storage);
                                 Job job = JobMaker.MakeJob(pTarg.Faction == Faction.OfPlayer ? PS_DefOf.PS_CaptureAnimalInPawnStorage : PS_DefOf.PS_CaptureEntityInPawnStorage,
-                                    localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                    localTargetInfo, (LocalTargetInfo) (Thing) building);
                                 job.count = 1;
                                 pawn.jobs.TryTakeOrderedJob(job);
                             }), pawn, localTargetInfo));
@@ -217,22 +220,22 @@ public static class OrdersPatch
                         anyStorage = true;
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(
                             new FloatMenuOption(
-                                "PS_CaptureToStorageFloatMenu".Translate((NamedArgument)pTarg.LabelCap, (NamedArgument) comp.parent.LabelNoParenthesisCap),
+                                "PS_CaptureToStorageFloatMenu".Translate((NamedArgument) pTarg.LabelCap, (NamedArgument) comp.parent.LabelNoParenthesisCap),
                                 () =>
                                 {
-                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorageItem, (LocalTargetInfo)(Thing)pTarg, (LocalTargetInfo)(Thing)comp.Parent);
+                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorageItem, (LocalTargetInfo) (Thing) pTarg, (LocalTargetInfo) (Thing) comp.Parent);
                                     job.count = 1;
                                     pawn.jobs.TryTakeOrderedJob(job);
                                 },
                                 MenuOptionPriority.High,
                                 revalidateClickTarget: pTarg), pawn,
-                            (LocalTargetInfo)(Thing)pTarg));
+                            (LocalTargetInfo) (Thing) pTarg));
                     }
 
                     if (!anyStorage)
                     {
                         opts.Add(new FloatMenuOption(
-                            "PS_NoEntityStore".Translate((NamedArgument)localTargetInfo.Thing.Label),
+                            "PS_NoEntityStore".Translate((NamedArgument) localTargetInfo.Thing.Label),
                             null));
                     }
                 }
@@ -245,21 +248,21 @@ public static class OrdersPatch
                 if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
                 {
                     opts.Add(new FloatMenuOption(
-                        "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
+                        "PS_NoFarm".Translate((NamedArgument) localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
                 }
                 else
                 {
-                    Pawn pTarg = (Pawn)localTargetInfo.Thing;
+                    Pawn pTarg = (Pawn) localTargetInfo.Thing;
                     ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(pTarg, assign: false);
 
                     if (building != null)
                     {
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
-                            "PS_FarmAnimal".Translate((NamedArgument)localTargetInfo.Thing.Label,
-                                (NamedArgument)building.LabelCap),
+                            "PS_FarmAnimal".Translate((NamedArgument) localTargetInfo.Thing.Label,
+                                (NamedArgument) building.LabelCap),
                             () =>
                             {
-                                Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureAnimalToFarm, localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureAnimalToFarm, localTargetInfo, (LocalTargetInfo) (Thing) building);
                                 job.count = 1;
                                 pawn.jobs.TryTakeOrderedJob(job);
                             }), pawn, localTargetInfo));
@@ -267,7 +270,7 @@ public static class OrdersPatch
                     else
                     {
                         opts.Add(new FloatMenuOption(
-                            "PS_NoFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
+                            "PS_NoFarm".Translate((NamedArgument) localTargetInfo.Thing.Label),
                             null));
                     }
                 }
@@ -281,21 +284,21 @@ public static class OrdersPatch
                 if (!pawn.CanReach(localTargetInfo, PathEndMode.OnCell, Danger.Deadly))
                 {
                     opts.Add(new FloatMenuOption(
-                        "PS_NoBreedingFarm".Translate((NamedArgument)localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
+                        "PS_NoBreedingFarm".Translate((NamedArgument) localTargetInfo.Thing.Label) + ": " + "NoPath".Translate().CapitalizeFirst(), null));
                 }
                 else
                 {
-                    Pawn pTarg = (Pawn)localTargetInfo.Thing;
+                    Pawn pTarg = (Pawn) localTargetInfo.Thing;
                     ThingWithComps building = WorkGiver_Warden_TakeToStorage.GetStorageForFarmAnimal(pTarg, assign: false, true);
 
                     if (building != null)
                     {
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
-                            "PS_BreedAnimal".Translate((NamedArgument)localTargetInfo.Thing.Label,
-                                (NamedArgument)building.LabelCap),
+                            "PS_BreedAnimal".Translate((NamedArgument) localTargetInfo.Thing.Label,
+                                (NamedArgument) building.LabelCap),
                             () =>
                             {
-                                Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureAnimalToFarm, localTargetInfo, (LocalTargetInfo)(Thing)building);
+                                Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureAnimalToFarm, localTargetInfo, (LocalTargetInfo) (Thing) building);
                                 job.count = 1;
                                 pawn.jobs.TryTakeOrderedJob(job);
                             }), pawn, localTargetInfo));
@@ -303,7 +306,7 @@ public static class OrdersPatch
                     else
                     {
                         opts.Add(new FloatMenuOption(
-                            "PS_NoBreedingFarm".Translate((NamedArgument)localTargetInfo.Thing.Label),
+                            "PS_NoBreedingFarm".Translate((NamedArgument) localTargetInfo.Thing.Label),
                             null));
                     }
                 }

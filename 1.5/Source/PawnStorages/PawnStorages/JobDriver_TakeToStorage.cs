@@ -21,12 +21,7 @@ public class JobDriver_TakeToStorage : JobDriver
         {
             if (Takee.RaceProps.Humanlike && job.def != JobDefOf.Arrest && !Takee.IsPrisonerOfColony)
             {
-                if (Takee.ageTracker.CurLifeStage.alwaysDowned)
-                {
-                    return HealthAIUtility.ShouldSeekMedicalRest(Takee);
-                }
-
-                return true;
+                return !Takee.ageTracker.CurLifeStage.alwaysDowned || HealthAIUtility.ShouldSeekMedicalRest(Takee);
             }
 
             return false;
@@ -39,14 +34,15 @@ public class JobDriver_TakeToStorage : JobDriver
 
     public override string GetReport()
     {
-        if (job.def == JobDefOf.Rescue && !TakeeRescued)
+        if (job.def != JobDefOf.Rescue || TakeeRescued)
         {
-            if(Storage.TryGetComp<CompAssignableToPawn_PawnStorage>()?.Props.drawAsFrozenInCarbonite ?? false)
-                return "PS_TakingToPlastinite".Translate(Takee.Label, Storage.Label);
-            return "PS_TakingToStorage".Translate(Takee.Label, Storage.Label);
+            return base.GetReport();
         }
 
-        return base.GetReport();
+        if(Storage.TryGetComp<CompAssignableToPawn_PawnStorage>()?.Props.drawAsFrozenInCarbonite ?? false)
+            return "PS_TakingToPlastinite".Translate(Takee.Label, Storage.Label);
+        return "PS_TakingToStorage".Translate(Takee.Label, Storage.Label);
+
     }
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)
