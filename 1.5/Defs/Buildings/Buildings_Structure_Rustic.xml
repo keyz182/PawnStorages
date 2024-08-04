@@ -211,4 +211,78 @@
             <li Class="PawnStorages.PSExtension" />
         </modExtensions>
     </ThingDef>
+
+
+    <ThingDef ParentName="BuildingBase">
+        <defName>PS_FarmHopper</defName>
+        <label>farm hopper</label>
+        <description>Holds feed stock for farms.</description>
+        <thingClass>Building_Storage</thingClass>
+        <graphicData>
+            <texPath>Things/Building/Production/Hopper</texPath>
+            <graphicClass>Graphic_Multi</graphicClass>
+            <damageData>
+                <rect>(0.05,0.1,0.9,0.9)</rect>
+                <cornerTL>Damage/Corner</cornerTL>
+                <cornerTR>Damage/Corner</cornerTR>
+            </damageData>
+            <color>(139, 69, 19)</color>
+        </graphicData>
+        <altitudeLayer>Building</altitudeLayer>
+        <passability>PassThroughOnly</passability>
+        <fillPercent>0.5</fillPercent>
+        <pathCost>42</pathCost>
+        <canOverlapZones>false</canOverlapZones>
+        <building>
+            <isHopper>true</isHopper>
+            <storageGroupTag>Hopper</storageGroupTag>
+            <blueprintClass>Blueprint_Storage</blueprintClass>
+            <fixedStorageSettings>
+                <priority>Important</priority>
+                <filter>
+                    <categories>
+                        <li>Foods</li>
+                    </categories>
+                </filter>
+            </fixedStorageSettings>
+            <defaultStorageSettings>
+                <priority>Important</priority>
+                <filter>
+                    <categories>
+                        <li>FoodRaw</li>
+                    </categories>
+                </filter>
+            </defaultStorageSettings>
+            <buildingTags>
+                <li>Production</li>
+            </buildingTags>
+        </building>
+        <inspectorTabs>
+            <li>ITab_Storage</li>
+        </inspectorTabs>
+        <castEdgeShadows>true</castEdgeShadows>
+        <statBases>
+            <WorkToBuild>300</WorkToBuild>
+            <MaxHitPoints>100</MaxHitPoints>
+            <Flammability>0.5</Flammability>
+        </statBases>
+        <costList>
+            <WoodLog>15</WoodLog>
+        </costList>
+        <tickerType>Never</tickerType>
+        <rotatable>true</rotatable>
+        <neverMultiSelect>true</neverMultiSelect>
+        <designationCategory>Production</designationCategory>
+        <uiOrder>2140</uiOrder>
+        <surfaceType>Item</surfaceType>
+        <placeWorkers>
+            <li>PlaceWorker_NextToHopperAccepter</li>
+        </placeWorkers>
+        <constructEffect>ConstructMetal</constructEffect>
+        <researchPrerequisites />
+        <uiIconPath>Things/Building/Production/Hopper_MenuIcon</uiIconPath>
+        <uiIconScale>0.85</uiIconScale>
+        <uiIconColor>(139, 69, 19</uiIconColor>
+    </ThingDef>
+
 </Defs>

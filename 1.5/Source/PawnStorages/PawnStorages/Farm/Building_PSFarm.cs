@@ -19,6 +19,7 @@ namespace PawnStorages.Farm
         protected Dictionary<ThingDef, bool> allowedThings;
 
         public Dictionary<ThingDef, bool> AllowedThings => allowedThings;
+        public HashSet<ThingDef> AllowedThingDefs => [..allowedThings.Keys];
 
         public bool Allowed(ThingDef potentialDef)
         {
@@ -38,7 +39,7 @@ namespace PawnStorages.Farm
 
         public void AllowAll()
         {
-            foreach (ThingDef allowedThingsKey in AllowedThings.Keys)
+            foreach (ThingDef allowedThingsKey in AllowedThingDefs)
             {
                 AllowedThings[allowedThingsKey] = true;
             }
@@ -46,7 +47,7 @@ namespace PawnStorages.Farm
 
         public void DenyAll()
         {
-            foreach (ThingDef allowedThingsKey in AllowedThings.Keys)
+            foreach (ThingDef allowedThingsKey in AllowedThingDefs)
             {
                 AllowedThings[allowedThingsKey] = false;
             }
@@ -70,7 +71,7 @@ namespace PawnStorages.Farm
 
             allowedThings ??= new Dictionary<ThingDef, bool>();
 
-            foreach (ThingDef thingDef in AllowableThing.Where(t => !allowedThings.Keys.Contains(t)))
+            foreach (ThingDef thingDef in AllowableThing.Where(t => !AllowedThingDefs.Contains(t)))
             {
                 AllowedThings[thingDef] = true;
             }
@@ -80,9 +81,10 @@ namespace PawnStorages.Farm
         {
             foreach (Gizmo gizmo in base.GetGizmos())
                 yield return gizmo;
-            Designator_Build allowedDesignator = BuildCopyCommandUtility.FindAllowedDesignator(ThingDefOf.Hopper);
-            if (allowedDesignator != null)
-                yield return allowedDesignator;
+            Designator_Build allowedHopperDesignator = BuildCopyCommandUtility.FindAllowedDesignator(ThingDefOf.Hopper);
+            Designator_Build allowedFarmHopperDesignator = BuildCopyCommandUtility.FindAllowedDesignator(PS_DefOf.PS_FarmHopper);
+            if (allowedHopperDesignator != null) yield return allowedHopperDesignator;
+            if (allowedFarmHopperDesignator != null) yield return allowedFarmHopperDesignator;
             foreach (Thing thing in (IEnumerable<Thing>)StoredPawns)
             {
                 Gizmo gizmo;

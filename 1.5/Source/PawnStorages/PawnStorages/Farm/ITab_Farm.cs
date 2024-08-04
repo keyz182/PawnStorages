@@ -24,7 +24,7 @@ public class ITab_Farm : ITab
 
     protected const float LineHeight = 20f;
     protected Vector2 ScrollPosition = Vector2.zero;
-    protected QuickSearchWidget QuickSearchWidget = new QuickSearchWidget();
+    protected QuickSearchWidget QuickSearchWidget = new();
 
     public override void FillTab()
     {
@@ -47,12 +47,12 @@ public class ITab_Farm : ITab
             SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
         }
 
-        Rect searchWidgetRect = new Rect(menuRect.x + 3f, menuRect.yMin + 26f, (float)(tabRect.width - 16.0 - 6.0), 24f);
+        Rect searchWidgetRect = new(menuRect.x + 3f, menuRect.yMin + 26f, (float)(tabRect.width - 16.0 - 6.0), 24f);
         QuickSearchWidget.OnGUI(searchWidgetRect);
 
         float totalHeight = Parent.AllowableThing.Count * (LineHeight + 2f);
 
-        Rect viewRect = new Rect(0.0f, 0.0f, menuRect.width - 20f, totalHeight);
+        Rect viewRect = new(0.0f, 0.0f, menuRect.width - 20f, totalHeight);
 
         menuRect.yMin += 52f;
         menuRect.yMax -= 6f;
@@ -82,7 +82,7 @@ public class ITab_Farm : ITab
             Widgets.DefIcon(new Rect(5f, num, iconWidth, LineHeight), tDef, drawPlaceholder: true);
 
             float labelX = iconWidth + 2f + 5f;
-            Rect labelLeft = new Rect(labelX, num, viewRect.width - 26f - labelX - 5f, LineHeight);
+            Rect labelLeft = new(labelX, num, viewRect.width - 26f - labelX - 5f, LineHeight);
 
 
             Widgets.DrawHighlightIfMouseover(labelLeft);

@@ -208,13 +208,17 @@ public class CompPawnStorage : ThingComp, IThingHolder
                                    pawn.CurJobDef != PS_DefOf.PS_Enter &&
                                    pawn.health.State == PawnHealthState.Mobile &&
                                    !pawn.CurJob.restUntilHealed &&
+                                   !pawn.Drafted &&
                                    !HealthAIUtility.ShouldSeekMedicalRest(pawn):
                         {
                             Job job = EnterJob(pawn);
                             pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
                             break;
                         }
-                    case false when innerContainer.Contains(pawn) && pawn.timetable?.CurrentAssignment is { } assignmentDef && assignmentDef != PS_DefOf.PS_Home:
+                    case false when innerContainer.Contains(pawn) &&
+                                    pawn.timetable?.CurrentAssignment is { } assignmentDef &&
+                                    assignmentDef != PS_DefOf.PS_Home &&
+                                    ShouldWake(pawn):
                         ReleasePawn(pawn, parent.Position, parent.Map);
                         break;
                 }
@@ -223,6 +227,18 @@ public class CompPawnStorage : ThingComp, IThingHolder
     }
 
     //Funcs
+    public bool ShouldWake(Pawn pawn)
+    {
+        if (pawn.needs?.rest is not { } restNeed) return true;
+        if (pawn.timetable?.CurrentAssignment == TimeAssignmentDefOf.Sleep) return false;
+        int storedAtTick = pawnStoringTick.TryGetValue(pawn.thingIDNumber, -1);
+        if (storedAtTick < 0) pawnStoringTick.Add(pawn.thingIDNumber, storedAtTick = Find.TickManager.TicksGame);
+        int ticksStored = Find.TickManager.TicksGame - storedAtTick;
+        float restLevel = restNeed.CurLevel + Props.pawnRestIncreaseTick * ticksStored;
+        if (pawn.timetable?.CurrentAssignment == TimeAssignmentDefOf.Anything && restLevel < Need_Rest.DefaultNaturalWakeThreshold) return false;
+        return restLevel > Need_Rest.CanWakeThreshold;
+    }
+
     public void ReleasePawn(Pawn pawn, IntVec3 cell, Map map)
     {
         Utility.ReleasePawn(this, pawn, cell, map);
@@ -242,6 +258,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         int ticksStored = Mathf.Max(0, Find.TickManager.TicksGame - storedAtTick - NEEDS_INTERVAL);
         if (Props.pawnRestIncreaseTick != 0 && pawn.needs?.rest is { } restNeed)
         {
+            restNeed.lastRestTick = Find.TickManager.TicksGame;
             restNeed.CurLevel += Props.pawnRestIncreaseTick * ticksStored;
             int periodsStored = Math.Max(ticksStored / NEEDS_INTERVAL, 1);
             IEnumerable<Hediff_Injury> hds = pawn.health.tmpHediffInjuries.TakeRandom(Math.Min(pawn.health.tmpHediffInjuries.Count, periodsStored)).ToList();
@@ -257,8 +274,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
         if (!Props.needsDrop) return;
 
-        CompFarmNutrition nutritionComp;
-        nutritionComp = parent.TryGetComp<CompFarmNutrition>();
+        CompFarmNutrition nutritionComp = parent.TryGetComp<CompFarmNutrition>();
         foreach (Need need in pawn.needs?.AllNeeds ?? [])
         {
             switch (need)

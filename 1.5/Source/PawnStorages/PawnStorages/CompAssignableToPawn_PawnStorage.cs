@@ -15,14 +15,14 @@ public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
         get
         {
             if(Props.colonyAnimalsOnly) return !parent.Spawned
-                ? Enumerable.Empty<Pawn>()
+                ? []
                 : parent.Map.mapPawns.SpawnedColonyAnimals.OrderByDescending(p => CanAssignTo(p).Accepted);
-            return !parent.Spawned ? Enumerable.Empty<Pawn>() : OwnerType switch
+            return !parent.Spawned ? [] : OwnerType switch
             {
                 BedOwnerType.Colonist => parent.Map.mapPawns.FreeColonists.OrderByDescending(p => CanAssignTo(p).Accepted),
                 BedOwnerType.Prisoner => parent.Map.mapPawns.PrisonersOfColony.OrderByDescending(p => CanAssignTo(p).Accepted),
                 BedOwnerType.Slave => parent.Map.mapPawns.SlavesOfColonySpawned.OrderByDescending(p => CanAssignTo(p).Accepted),
-                _ => Enumerable.Empty<Pawn>()
+                _ => []
             };
         }
     }

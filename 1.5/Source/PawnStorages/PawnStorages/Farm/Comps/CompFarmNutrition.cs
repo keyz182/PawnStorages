@@ -185,6 +185,8 @@ namespace PawnStorages.Farm.Comps
             return true;
         }
 
+        public virtual bool ValidFeedstock(ThingDef def) => def.IsNutritionGivingIngestible && def.ingestible.preferability != FoodPreferability.Undefined;
+
         public virtual Thing FindFeedInAnyHopper()
         {
             for (int index1 = 0; index1 < AdjCellsCardinalInBounds.Count; ++index1)
@@ -194,7 +196,7 @@ namespace PawnStorages.Farm.Comps
                 List<Thing> thingList = AdjCellsCardinalInBounds[index1].GetThingList(parent.Map);
                 foreach (Thing maybeHopper in thingList)
                 {
-                    if (Building_NutrientPasteDispenser.IsAcceptableFeedstock(maybeHopper.def))
+                    if (ValidFeedstock(maybeHopper.def))
                         feedInAnyHopper = maybeHopper;
                     if (maybeHopper.IsHopper())
                         hopper = maybeHopper;
