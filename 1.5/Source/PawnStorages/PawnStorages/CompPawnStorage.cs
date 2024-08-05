@@ -111,14 +111,9 @@ public class CompPawnStorage : ThingComp, IThingHolder
         }
         else
         {
-            if (Props.MaxStoredPawns == 1)
-            {
-                transformLabelCache = $"{base.TransformLabel(label)} ({innerContainer.innerList.First().Name})";
-            }
-            else
-            {
-                transformLabelCache = $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
-            }
+            transformLabelCache = Props.MaxStoredPawns == 1
+                ? $"{base.TransformLabel(label)} ({innerContainer.innerList.First().Name})"
+                : $"{base.TransformLabel(label)} {"PS_Filled".Translate()}";
         }
 
         labelDirty = false;
@@ -514,7 +509,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
     {
         map ??= parent.Map;
 
-        foreach (Pawn pawn in innerContainer)
+        foreach (Pawn pawn in GetDirectlyHeldPawnsDefensiveCopy())
         {
             ReleaseSingle(map, pawn, false);
         }
@@ -525,28 +520,23 @@ public class CompPawnStorage : ThingComp, IThingHolder
     public void ReleaseContentsAt(Map map, IntVec3 at)
     {
         map ??= parent.Map;
-
-        for (var i = 0; i < innerContainer.Count; i++)
-            ReleaseSingleAt(map, innerContainer.innerList[i], at, false, true);
+        foreach (Pawn pawn in GetDirectlyHeldPawnsDefensiveCopy())
+        {
+            ReleaseSingleAt(map, pawn, at, false, true);
+        }
         innerContainer.Clear();
     }
 
     public void EjectContents(Map map)
     {
         map ??= parent.Map;
-        EffecterDef flightEffecterDef = DefDatabase<EffecterDef>.GetNamed("JumpFlightEffect", false);
-        SoundDef landingSound = DefDatabase<SoundDef>.GetNamed("Longjump_Land", false);
 
-        foreach (Pawn pawn in innerContainer)
+        foreach (Pawn pawn in GetDirectlyHeldPawnsDefensiveCopy())
         {
             PawnComponentsUtility.AddComponentsForSpawn(pawn);
             compAssignable.TryUnassignPawn(pawn);
             GenDrop.TryDropSpawn(pawn, parent.Position, map, ThingPlaceMode.Near, out Thing _);
-
-            IntVec3 cell = CellFinder.RandomClosewalkCellNear(parent.Position, map, 18);
-
             bool pawnIsSelected = Find.Selector.IsSelected(pawn);
-
             Notify_ReleasedFromStorage(pawn);
             if (pawnIsSelected)
                 Find.Selector.Select(pawn, false, false);
@@ -585,6 +575,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
     }
 
     public ThingOwner<Pawn> GetDirectlyHeldPawns() => innerContainer;
+    public List<Pawn> GetDirectlyHeldPawnsDefensiveCopy() => [..innerContainer.InnerListForReading];
 
     public void Notify_ReleasedFromStorage(Pawn pawn)
     {

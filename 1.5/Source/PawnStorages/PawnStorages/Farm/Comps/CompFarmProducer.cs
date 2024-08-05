@@ -56,7 +56,8 @@ namespace PawnStorages.Farm.Comps
         {
             if (!layer.Active) return;
             float eggReadyIncrement = (float)(1f / ((double)layer.Props.eggLayIntervalDays * 60000f));
-            eggReadyIncrement *= PawnUtility.BodyResourceGrowthSpeed(layer.parent as Pawn);
+            if (layer.parent is not Pawn layingPawn) return;
+            eggReadyIncrement *= PawnUtility.BodyResourceGrowthSpeed(layingPawn);
             // we're not doing this every tick so bump the progress
             eggReadyIncrement *= tickInterval;
             eggReadyIncrement *= PawnStoragesMod.settings.ProductionScale;
@@ -64,10 +65,25 @@ namespace PawnStorages.Farm.Comps
             layer.eggProgress = Mathf.Clamp(layer.eggProgress, 0f, 1f);
 
             if (!(layer.eggProgress >= 1f)) return;
-            Thing thing = layer.ProduceEgg();
-            if (thing != null)
+            Thing egg = null;
+            if (layer.Props.eggFertilizedDef != null &&
+                layer.Props.eggFertilizationCountMax > 0 &&
+                Parent.ProducingPawns.Find(p => p.kindDef == layingPawn.kindDef) is {} fertilizer &&
+                (layer.Props.eggUnfertilizedDef == null || Rand.Bool)) // Flip a coin to see if fertilised unless there is no unfertilised option
             {
-                DaysProduce.Add(thing);
+                layer.Fertilize(fertilizer);
+                egg = layer.ProduceEgg();
+            }
+
+            // if there was no fertilised def, or we lost the coin flip, make an unfertilised egg if possible
+            if (egg == null && layer.Props.eggUnfertilizedDef != null)
+            {
+                egg = layer.ProduceEgg();
+            }
+
+            if (egg != null)
+            {
+                DaysProduce.Add(egg);
             }
         }
 
