@@ -122,8 +122,8 @@ namespace PawnStorages.Farm.Comps
             foreach (Pawn pawn in innerContainer)
             {
                 sb.AppendLine(pawn.needs.food.Starving
-                    ? $"    - {pawn.LabelCap} [Starving!]"
-                    : $"    - {pawn.LabelCap}");
+                    ? $"    - {pawn.LabelCap} ({pawn.gender.GetLabel()}) [Starving!]"
+                    : $"    - {pawn.LabelCap} ({pawn.gender.GetLabel()})");
             }
 
             return sb.ToString().TrimStart().TrimEnd();

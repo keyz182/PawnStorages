@@ -250,7 +250,8 @@ public class CompPawnStorage : ThingComp, IThingHolder
         if (storedAtTick <= 0 || !PawnStoragesMod.settings.AllowNeedsDrop) return;
 
         // We drop one tick interval to make sure we don't boost need drops from being at home, the slight reduction can be seen as a benefit of being at home.
-        int ticksStored = Mathf.Max(0, Find.TickManager.TicksGame - storedAtTick - NEEDS_INTERVAL);
+        int actuallyStoredTicks = Find.TickManager.TicksGame - storedAtTick;
+        int ticksStored = Mathf.Max(0, actuallyStoredTicks - NEEDS_INTERVAL);
         if (Props.pawnRestIncreaseTick != 0 && pawn.needs?.rest is { } restNeed)
         {
             restNeed.lastRestTick = Find.TickManager.TicksGame;
@@ -270,6 +271,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         if (!Props.needsDrop) return;
 
         CompFarmNutrition nutritionComp = parent.TryGetComp<CompFarmNutrition>();
+        if (nutritionComp == null) pawn.ageTracker?.AgeTickMothballed(actuallyStoredTicks); // this comp has already taken care of age so only apply if there isn't one
         foreach (Need need in pawn.needs?.AllNeeds ?? [])
         {
             switch (need)
