@@ -15,6 +15,14 @@ namespace PawnStorages.Farm.Comps
 
         public Dictionary<PawnKindDef, AutoSlaughterConfig> AutoSlaughterSettings = new();
 
+        public Dictionary<PawnKindDef, AutoSlaughterConfig> GetOrPopulateAutoSlaughterSettings()
+        {
+            if (!AutoSlaughterSettings.NullOrEmpty()) return AutoSlaughterSettings;
+            AutoSlaughterSettings = new Dictionary<PawnKindDef, AutoSlaughterConfig>();
+            TryPopulateMissingAnimals();
+            return AutoSlaughterSettings;
+        }
+
         private void TryPopulateMissingAnimals()
         {
             foreach (PawnKindDef allDef in DefDatabase<PawnKindDef>.AllDefs)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using PawnStorages.Farm.Comps;
 using RimWorld;
@@ -11,25 +12,29 @@ namespace PawnStorages.Farm;
 
 public class ITab_Slaughter : ITab
 {
-    private static readonly Vector2 WinSize = new(800f, 480f);
+    private static readonly Vector2 WinSize = new(860f, 480f);
     public readonly ThingFilterUI.UIState ThingFilterState = new();
     public const float LineHeight = 24f;
     private Vector2 scrollPos;
     private Rect viewRect;
     private List<Rect> tmpMouseoverHighlightRects = [];
     private List<Rect> tmpGroupRects = [];
+    private QuickSearchWidget QuickSearchWidget = new();
 
     public CompFarmStorage compFarmStorage => SelThing.TryGetComp<CompFarmStorage>();
     public CompFarmBreeder compFarmBreeder => SelThing.TryGetComp<CompFarmBreeder>();
 
-    public Dictionary<PawnKindDef,AutoSlaughterConfig> AutoSlaughterSettings => compFarmBreeder.AutoSlaughterSettings;
+    public Dictionary<PawnKindDef,AutoSlaughterConfig> AutoSlaughterSettings => compFarmBreeder.GetOrPopulateAutoSlaughterSettings();
+
+    private List<PawnKindDef> _orderedSettingsCache;
 
     public override void OnOpen()
     {
-        compFarmBreeder.AutoSlaughterSettings = compFarmBreeder.AutoSlaughterSettings
+        _orderedSettingsCache = AutoSlaughterSettings
             .OrderByDescending(c => compFarmStorage.CountForType(c.Value.animal).total)
             .ThenBy(c => c.Value.animal.label)
-            .ToDictionary(c=> c.Key, d=> d.Value);
+            .Select(s => s.Key)
+            .ToList();
     }
 
     public ITab_Slaughter()
@@ -77,7 +82,7 @@ public class ITab_Slaughter : ITab
         Color color = GUI.color;
         Dialog_AutoSlaughter.AnimalCountRecord animalCount = compFarmStorage.CountForType(config.animal);
 
-        float labelWidth = 60f;
+        float labelWidth = 120f;
         Widgets.BeginGroup(rowRect);
         WidgetRow row = new WidgetRow(0.0f, 0.0f);
         row.DefIcon(config.animal);
@@ -141,7 +146,7 @@ public class ITab_Slaughter : ITab
 
     private void DoAnimalHeader(Rect rect1, Rect rect2)
     {
-        float labelWidth = 60f;
+        float labelWidth = 120f;
         Widgets.BeginGroup(new Rect(rect1.x, rect1.y, rect1.width, (float) (rect1.height + (double) rect2.height + 1.0)));
         int num = 0;
         foreach (Rect tmpGroupRect in tmpGroupRects)
@@ -226,15 +231,21 @@ public class ITab_Slaughter : ITab
     {
         if (compFarmBreeder == null) return;
 
-        Widgets.Label(new Rect(5.0f, 0.0f, WinSize.x, 30f), "Breeding Animals");
+        Widgets.Label(new Rect(5.0f, 0.0f, WinSize.x, 30f), "PS_BreedingTab_TopLabel".Translate());
 
-        Rect tabRect = new Rect(0.0f, 30.0f, WinSize.x, WinSize.y - 30f).ContractedBy(10f);
+        Rect searchRect = new(0.0f, 30.0f, WinSize.x - 10, 25f);
+        QuickSearchWidget.OnGUI(searchRect);
+        Rect tabRect = new Rect(0.0f, 55.0f, WinSize.x, WinSize.y - 55f).ContractedBy(10f);
+
+        List<PawnKindDef> filteredKinds = QuickSearchWidget.filter.Active
+            ? _orderedSettingsCache.Where(kind => QuickSearchWidget.filter.Matches(kind.LabelCap.ToString().ToLower())).ToList()
+            : _orderedSettingsCache;
 
         Rect insetRect = new (tabRect);
         insetRect.yMax -= Window.CloseButSize.y;
         insetRect.yMin += 8f;
         Listing_Standard listingStandard = new (insetRect,  () => scrollPos) { ColumnWidth = (float) ( tabRect.width - 16.0 - 4.0) };
-        viewRect = new Rect(0.0f, 0.0f, insetRect.width - 16f, 30f * (AutoSlaughterSettings.Count + 1));
+        viewRect = new Rect(0.0f, 0.0f, insetRect.width - 16f, 30f * (filteredKinds.Count + 2));
         Rect other = insetRect with { x = scrollPos.x, y = scrollPos.y };
         Widgets.BeginScrollView(insetRect, ref scrollPos, viewRect);
         listingStandard.Begin(viewRect);
@@ -242,11 +253,11 @@ public class ITab_Slaughter : ITab
         listingStandard.Gap(6f);
 
         int row = 0;
-        foreach (KeyValuePair<PawnKindDef, AutoSlaughterConfig> item in AutoSlaughterSettings)
+        foreach (PawnKindDef kind in filteredKinds)
         {
             Rect rowRect = listingStandard.GetRect(24f);
-            if (rowRect.Overlaps(other))
-                DrawLine(rowRect, item.Value, row++);
+            if (AutoSlaughterSettings.TryGetValue(kind) is {} autoSlaughterConfig && (rowRect.Overlaps(other) || row == 0))
+                DrawLine(rowRect, autoSlaughterConfig, row++);
             listingStandard.Gap(6f);
         }
         listingStandard.End();

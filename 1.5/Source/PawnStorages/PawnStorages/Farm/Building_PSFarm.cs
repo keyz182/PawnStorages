@@ -97,7 +97,7 @@ namespace PawnStorages.Farm
         {
             StringBuilder stringBuilder = new();
             stringBuilder.AppendLine(base.GetInspectString());
-            stringBuilder.AppendLine("PS_NutritionPerDay".Translate(pawnStorage.NutritionRequiredPerDay()));
+            stringBuilder.AppendLine("PS_NutritionPerDay".Translate(pawnStorage.NutritionRequiredPerDay().ToStringDecimalIfSmall()));
             if (!FarmNutrition.HasAltStore)
                 stringBuilder.AppendLine("PS_NutritionStored".Translate(FarmNutrition.storedNutrition, FarmNutrition.MaxNutrition));
             return stringBuilder.ToString().Trim();

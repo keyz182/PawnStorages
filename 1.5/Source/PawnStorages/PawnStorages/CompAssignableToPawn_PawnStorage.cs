@@ -14,16 +14,25 @@ public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
     {
         get
         {
-            if(Props.colonyAnimalsOnly) return !parent.Spawned
+            if (Props.colonyAnimalsOnly)
+                return !parent.Spawned
+                    ? []
+                    : parent.Map.mapPawns.SpawnedColonyAnimals.OrderByDescending(p => CanAssignTo(p).Accepted);
+            return !parent.Spawned
                 ? []
-                : parent.Map.mapPawns.SpawnedColonyAnimals.OrderByDescending(p => CanAssignTo(p).Accepted);
-            return !parent.Spawned ? [] : OwnerType switch
-            {
-                BedOwnerType.Colonist => parent.Map.mapPawns.FreeColonists.OrderByDescending(p => CanAssignTo(p).Accepted),
-                BedOwnerType.Prisoner => parent.Map.mapPawns.PrisonersOfColony.OrderByDescending(p => CanAssignTo(p).Accepted),
-                BedOwnerType.Slave => parent.Map.mapPawns.SlavesOfColonySpawned.OrderByDescending(p => CanAssignTo(p).Accepted),
-                _ => []
-            };
+                : OwnerType switch
+                {
+                    BedOwnerType.Colonist => parent.Map?.mapPawns is {} pawns ? Enumerable.Empty<Pawn>()
+                        .ConcatIfNotNull(pawns.FreeColonists)
+                        .ConcatIfNotNull(pawns.SpawnedColonyAnimals)
+                        .ConcatIfNotNull(pawns.SpawnedShamblers)
+                        .ConcatIfNotNull(pawns.SpawnedColonyMechs)
+                        .ConcatIfNotNull(pawns.SpawnedColonyMutants)
+                        .OrderByDescending(p => CanAssignTo(p).Accepted) : [],
+                    BedOwnerType.Prisoner => parent.Map.mapPawns.PrisonersOfColony.OrderByDescending(p => CanAssignTo(p).Accepted),
+                    BedOwnerType.Slave => parent.Map.mapPawns.SlavesOfColonySpawned.OrderByDescending(p => CanAssignTo(p).Accepted),
+                    _ => []
+                };
         }
     }
 
@@ -64,6 +73,11 @@ public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
         base.TryAssignPawn(pawn);
     }
 
+    /**
+     * This is used to decide if on reinstalling pawn assignments should be kept.
+     * We keep any assignment where the pawn is alive to try and avoid leaks
+     */
+    public override bool CanSetUninstallAssignedPawn(Pawn pawn) => !pawn.Dead;
 
     public override void PostExposeData()
     {

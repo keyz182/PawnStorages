@@ -74,11 +74,22 @@ public class JobDriver_TakeToStorage : JobDriver
 
             return false;
         });
-        Toil goToTakee = Toils_Goto.GotoThing(TakeeIndex, PathEndMode.ClosestTouch).FailOnDespawnedNullOrForbidden(TakeeIndex).FailOnDespawnedNullOrForbidden(StorageIndex)
+
+        Log.Message($"{PawnStorageAssigned.Label}");
+        Log.Message($"{job.def == JobDefOf.Arrest && !Takee.CanBeArrestedBy(pawn)}");
+        Log.Message($"{!pawn.CanReach(PawnStorageAssigned, PathEndMode.ClosestTouch, Danger.Deadly)}");
+        Log.Message($"{(job.def == JobDefOf.Rescue || job.def == JobDefOf.Capture) && !Takee.Downed}");
+
+        Toil goToTakee = Toils_Goto.GotoThing(TakeeIndex, PathEndMode.ClosestTouch)
+            .FailOnDespawnedNullOrForbidden(TakeeIndex)
+            .FailOnDespawnedNullOrForbidden(StorageIndex)
             .FailOn(() => job.def == JobDefOf.Arrest && !Takee.CanBeArrestedBy(pawn))
-            .FailOn(() => !pawn.CanReach(PawnStorageAssigned, PathEndMode.OnCell, Danger.Deadly))
+            .FailOn(() => !pawn.CanReach(PawnStorageAssigned, PathEndMode.ClosestTouch, Danger.Deadly))
             .FailOn(() => (job.def == JobDefOf.Rescue || job.def == JobDefOf.Capture) && !Takee.Downed)
             .FailOnSomeonePhysicallyInteracting(TargetIndex.A);
+
+
+
         Toil checkArrestResistance = ToilMaker.MakeToil();
         checkArrestResistance.initAction = delegate
         {
@@ -159,7 +170,7 @@ public class JobDriver_TakeToStorage : JobDriver
         toil.initAction = delegate
         {
             IntVec3 position = storage.Position;
-            taker.carryTracker.TryDropCarriedThing(position, ThingPlaceMode.Direct, out Thing _);
+            taker.carryTracker.TryDropCarriedThing(position, ThingPlaceMode.Near, out Thing _);
             takee.Notify_Teleported(false);
             takee.stances.CancelBusyStanceHard();
             if (takee.Downed)
