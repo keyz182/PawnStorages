@@ -66,12 +66,15 @@ namespace PawnStorages.Farm.Comps
             Scribe_Collections.Look(ref breedingProgress, "breedingProgress", LookMode.Def);
 
             Scribe_Collections.Look(ref AutoSlaughterSettings, "AutoSlaughterSettings", LookMode.Def, LookMode.Deep);
+            Scribe_Collections.Look(ref AutoSlaughterCullOrder, "AutoSlaughterCullOrder", LookMode.Def, LookMode.Deep);
             if (Scribe.mode != LoadSaveMode.PostLoadInit)
                 return;
             AutoSlaughterSettings ??= new Dictionary<PawnKindDef, AutoSlaughterConfig>();
+            AutoSlaughterCullOrder ??= new Dictionary<PawnKindDef, AutoSlaughterCullOrder>();
             if (AutoSlaughterSettings.RemoveAll(x => x.Value.animal == null || x.Value.animal.IsCorpse) != 0)
                 Log.Warning("Some auto-slaughter configs had null animals after loading.");
             TryPopulateMissingAnimals();
+            GetOrPopulateAutoSlaughterCullOrder();
         }
 
         public void ExecutionInt(
