@@ -7,8 +7,8 @@ public class AutoSlaughterCullOrder: IExposable
     public bool AllAscending = false;
     public bool AdultMaleAscending = false;
     public bool AdultFemaleAscending = false;
-    public bool ChildMaleAscending = false;
-    public bool ChildFemaleAscending = false;
+    public bool ChildMaleAscending = true;
+    public bool ChildFemaleAscending = true;
 
     public bool IsAscending(bool adult, Gender gender)
     {
