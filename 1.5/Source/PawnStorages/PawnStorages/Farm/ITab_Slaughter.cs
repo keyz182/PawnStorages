@@ -12,7 +12,7 @@ namespace PawnStorages.Farm;
 
 public class ITab_Slaughter : ITab
 {
-    private static readonly Vector2 WinSize = new(860f, 480f);
+    private static readonly Vector2 WinSize = new(940f, 480f);
     public readonly ThingFilterUI.UIState ThingFilterState = new();
     public const float LineHeight = 24f;
     private Vector2 scrollPos;
@@ -25,6 +25,7 @@ public class ITab_Slaughter : ITab
     public CompFarmBreeder compFarmBreeder => SelThing.TryGetComp<CompFarmBreeder>();
 
     public Dictionary<PawnKindDef,AutoSlaughterConfig> AutoSlaughterSettings => compFarmBreeder.GetOrPopulateAutoSlaughterSettings();
+    public Dictionary<PawnKindDef,AutoSlaughterCullOrder> CullOrder => compFarmBreeder.GetOrPopulateAutoSlaughterCullOrder();
 
     private List<PawnKindDef> _orderedSettingsCache;
 
@@ -75,12 +76,27 @@ public class ITab_Slaughter : ITab
         }
     }
 
-    public void DrawLine(Rect rowRect, AutoSlaughterConfig config, int index)
+    public void DoAgeOrderColumn(WidgetRow row, ref bool ascending)
+    {
+        Texture2D tex = ascending ? PSContent.PS_ArrowUp : PSContent.PS_ArrowDown;
+        float width = (float) ((60.0 - 68.0) / 2.0);
+        row.Gap(width);
+        if (row.ButtonIconWithBG(tex, 8f, "PS_AutoSlaughterTooltipDirection".Translate()))
+        {
+            SoundDefOf.Click.PlayOneShotOnCamera();
+            ascending = !ascending;
+        }
+
+        row.Gap(width);
+    }
+
+    public void DrawLine(Rect rowRect, AutoSlaughterConfig config, int index, PawnKindDef kind)
     {
         if (index % 2 == 1)
             Widgets.DrawLightHighlight(rowRect);
         Color color = GUI.color;
         Dialog_AutoSlaughter.AnimalCountRecord animalCount = compFarmStorage.CountForType(config.animal);
+        AutoSlaughterCullOrder order = CullOrder[kind];
 
         float labelWidth = 120f;
         Widgets.BeginGroup(rowRect);
@@ -92,14 +108,23 @@ public class ITab_Slaughter : ITab
         GUI.color = color;
         DrawCurrentCol(animalCount.total, config.maxTotal);
         DoMaxColumn(row, ref config.maxTotal, ref config.uiMaxTotalBuffer, animalCount.total);
+        DoAgeOrderColumn(row, ref order.AllAscending);
+
         DrawCurrentCol(animalCount.male, config.maxMales);
         DoMaxColumn(row, ref config.maxMales, ref config.uiMaxMalesBuffer, animalCount.male);
+        DoAgeOrderColumn(row, ref order.AdultMaleAscending);
+
         DrawCurrentCol(animalCount.maleYoung, config.maxMalesYoung);
         DoMaxColumn(row, ref config.maxMalesYoung, ref config.uiMaxMalesYoungBuffer, animalCount.maleYoung);
+        DoAgeOrderColumn(row, ref order.ChildMaleAscending);
+
         DrawCurrentCol(animalCount.female, config.maxFemales);
         DoMaxColumn(row, ref config.maxFemales, ref config.uiMaxFemalesBuffer, animalCount.female);
+        DoAgeOrderColumn(row, ref order.AdultFemaleAscending);
+
         DrawCurrentCol(animalCount.femaleYoung, config.maxFemalesYoung);
         DoMaxColumn(row, ref config.maxFemalesYoung, ref config.uiMaxFemalesYoungBuffer, animalCount.femaleYoung);
+        DoAgeOrderColumn(row, ref order.ChildFemaleAscending);
 
         Widgets.EndGroup();
         return;
@@ -197,15 +222,15 @@ public class ITab_Slaughter : ITab
         widgetRow.Label(string.Empty, 24f);
         widgetRow.Label( "AutoSlaugtherHeaderColLabel".Translate(), labelWidth,  "AutoSlaugtherHeaderTooltipLabel".Translate());
         widgetRow.Label( "AutoSlaugtherHeaderColCurrent".Translate(), 60f,  "AutoSlaugtherHeaderTooltipCurrentTotal".Translate());
-        widgetRow.Label( "AutoSlaugtherHeaderColMax".Translate(), 56f,  "AutoSlaugtherHeaderTooltipMaxTotal".Translate());
+        widgetRow.Label( "AutoSlaugtherHeaderColMax".Translate(), 84f,  "AutoSlaugtherHeaderTooltipMaxTotal".Translate());
         widgetRow.Label( "AutoSlaugtherHeaderColCurrent".Translate(), 60f,  "AutoSlaugtherHeaderTooltipCurrentMales".Translate());
-        widgetRow.Label( "AutoSlaugtherHeaderColMax".Translate(), 56f,  "AutoSlaugtherHeaderTooltipMaxMales".Translate());
+        widgetRow.Label( "AutoSlaugtherHeaderColMax".Translate(), 84f,  "AutoSlaugtherHeaderTooltipMaxMales".Translate());
         widgetRow.Label( "AutoSlaugtherHeaderColCurrent".Translate(), 60f,  "AutoSlaughterHeaderTooltipCurrentMalesYoung".Translate());
-        widgetRow.Label( "AutoSlaugtherHeaderColMax".Translate(), 56f,  "AutoSlaughterHeaderTooltipMaxMalesYoung".Translate());
+        widgetRow.Label( "AutoSlaugtherHeaderColMax".Translate(), 84f,  "AutoSlaughterHeaderTooltipMaxMalesYoung".Translate());
         widgetRow.Label( "AutoSlaugtherHeaderColCurrent".Translate(), 60f,  "AutoSlaugtherHeaderTooltipCurrentFemales".Translate());
-        widgetRow.Label( "AutoSlaugtherHeaderColMax".Translate(), 56f,  "AutoSlaugtherHeaderTooltipMaxFemales".Translate());
+        widgetRow.Label( "AutoSlaugtherHeaderColMax".Translate(), 84f,  "AutoSlaugtherHeaderTooltipMaxFemales".Translate());
         widgetRow.Label( "AutoSlaugtherHeaderColCurrent".Translate(), 60f,  "AutoSlaugtherHeaderTooltipCurrentFemalesYoung".Translate());
-        widgetRow.Label( "AutoSlaugtherHeaderColMax".Translate(), 56f,  "AutoSlaughterHeaderTooltipMaxFemalesYoung".Translate());
+        widgetRow.Label( "AutoSlaugtherHeaderColMax".Translate(), 84f,  "AutoSlaughterHeaderTooltipMaxFemalesYoung".Translate());
         Text.Anchor = anchor2;
         Widgets.EndGroup();
         GUI.color = Color.gray;
@@ -219,7 +244,7 @@ public class ITab_Slaughter : ITab
             row.Label(string.Empty, 60f + extraWidthFirst);
             tmpMouseoverHighlightRects.Add(new Rect(startX, rect1.height, row.FinalX - startX, rect2.height));
             float finalX = row.FinalX;
-            row.Label(string.Empty, 56f + extraWidthSecond);
+            row.Label(string.Empty, 84f + extraWidthSecond);
             tmpMouseoverHighlightRects.Add(new Rect(finalX, rect1.height, row.FinalX - finalX, rect2.height));
             Rect lblRect = new (startX, 0.0f, row.FinalX - startX, rect2.height);
             Widgets.Label(lblRect, headerKey.Translate());
@@ -257,7 +282,7 @@ public class ITab_Slaughter : ITab
         {
             Rect rowRect = listingStandard.GetRect(24f);
             if (AutoSlaughterSettings.TryGetValue(kind) is {} autoSlaughterConfig && (rowRect.Overlaps(other) || row == 0))
-                DrawLine(rowRect, autoSlaughterConfig, row++);
+                DrawLine(rowRect, autoSlaughterConfig, row++, kind);
             listingStandard.Gap(6f);
         }
         listingStandard.End();
