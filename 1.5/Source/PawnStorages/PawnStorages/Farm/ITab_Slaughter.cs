@@ -12,7 +12,7 @@ namespace PawnStorages.Farm;
 
 public class ITab_Slaughter : ITab
 {
-    private static readonly Vector2 WinSize = new(940f, 480f);
+    private static readonly Vector2 WinSize = new(940f, 500f);
     public readonly ThingFilterUI.UIState ThingFilterState = new();
     private Vector2 scrollPos;
     private Rect viewRect;
@@ -23,7 +23,7 @@ public class ITab_Slaughter : ITab
     public const float LineHeight = 24f;
     public const float CurrWidth = 60f;
     public const float MaxWidth = 84f;
-    public const float LabelWidth = 120f;
+    public const float LabelWidth = 124f;
     public const float GapWidth = 4f;
 
     public CompFarmStorage compFarmStorage => SelThing.TryGetComp<CompFarmStorage>();
@@ -80,10 +80,10 @@ public class ITab_Slaughter : ITab
         }
     }
 
-    public void DoAgeOrderColumn(WidgetRow row, ref bool ascending)
+    public void DoAgeOrderColumn(WidgetRow row, ref bool ascending, int val)
     {
         Texture2D tex = ascending ? PSContent.PS_ArrowUp : PSContent.PS_ArrowDown;
-        row.Gap(-GapWidth);
+        row.Gap(val == -1 ? GapWidth : GapWidth*2 + 4);
         if (row.ButtonIconWithBG(tex, 8f, "PS_AutoSlaughterTooltipDirection".Translate()))
         {
             SoundDefOf.Click.PlayOneShotOnCamera();
@@ -110,23 +110,23 @@ public class ITab_Slaughter : ITab
         GUI.color = color;
         DrawCurrentCol(animalCount.total, config.maxTotal);
         DoMaxColumn(row, ref config.maxTotal, ref config.uiMaxTotalBuffer, animalCount.total);
-        DoAgeOrderColumn(row, ref order.AllAscending);
+        DoAgeOrderColumn(row, ref order.AllAscending, config.maxTotal);
 
         DrawCurrentCol(animalCount.male, config.maxMales);
         DoMaxColumn(row, ref config.maxMales, ref config.uiMaxMalesBuffer, animalCount.male);
-        DoAgeOrderColumn(row, ref order.AdultMaleAscending);
+        DoAgeOrderColumn(row, ref order.AdultMaleAscending, config.maxMales);
 
         DrawCurrentCol(animalCount.maleYoung, config.maxMalesYoung);
         DoMaxColumn(row, ref config.maxMalesYoung, ref config.uiMaxMalesYoungBuffer, animalCount.maleYoung);
-        DoAgeOrderColumn(row, ref order.ChildMaleAscending);
+        DoAgeOrderColumn(row, ref order.ChildMaleAscending, config.maxMalesYoung);
 
         DrawCurrentCol(animalCount.female, config.maxFemales);
         DoMaxColumn(row, ref config.maxFemales, ref config.uiMaxFemalesBuffer, animalCount.female);
-        DoAgeOrderColumn(row, ref order.AdultFemaleAscending);
+        DoAgeOrderColumn(row, ref order.AdultFemaleAscending, config.maxFemales);
 
         DrawCurrentCol(animalCount.femaleYoung, config.maxFemalesYoung);
         DoMaxColumn(row, ref config.maxFemalesYoung, ref config.uiMaxFemalesYoungBuffer, animalCount.femaleYoung);
-        DoAgeOrderColumn(row, ref order.ChildFemaleAscending);
+        DoAgeOrderColumn(row, ref order.ChildFemaleAscending, config.maxFemalesYoung);
 
         Widgets.EndGroup();
         return;
@@ -146,7 +146,7 @@ public class ITab_Slaughter : ITab
             int anchor = (int) Text.Anchor;
             Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = colColour;
-            row.Label(val.ToString(), 60f);
+            row.Label(val.ToString(), 56f);
             Text.Anchor = (TextAnchor) anchor;
             GUI.color = startColor;
         }
