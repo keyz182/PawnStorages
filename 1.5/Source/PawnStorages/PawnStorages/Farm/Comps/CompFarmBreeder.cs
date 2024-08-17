@@ -23,6 +23,20 @@ namespace PawnStorages.Farm.Comps
             return AutoSlaughterSettings;
         }
 
+        public Dictionary<PawnKindDef, AutoSlaughterCullOrder> AutoSlaughterCullOrder = new();
+
+        public Dictionary<PawnKindDef, AutoSlaughterCullOrder> GetOrPopulateAutoSlaughterCullOrder()
+        {
+            if (!AutoSlaughterCullOrder.NullOrEmpty()) return AutoSlaughterCullOrder;
+            AutoSlaughterCullOrder = new Dictionary<PawnKindDef, AutoSlaughterCullOrder>();
+            foreach (PawnKindDef allDef in DefDatabase<PawnKindDef>.AllDefs.Where(d=> d.race != null && d.race.race.Animal && d.race.race.wildness < 1 && !d.race.race.Dryad && !d.race.IsCorpse && !AutoSlaughterCullOrder.ContainsKey(d)))
+            {
+                AutoSlaughterCullOrder.Add(allDef, new AutoSlaughterCullOrder());
+            }
+
+            return AutoSlaughterCullOrder;
+        }
+
         private void TryPopulateMissingAnimals()
         {
             foreach (PawnKindDef allDef in DefDatabase<PawnKindDef>.AllDefs)
@@ -52,12 +66,15 @@ namespace PawnStorages.Farm.Comps
             Scribe_Collections.Look(ref breedingProgress, "breedingProgress", LookMode.Def);
 
             Scribe_Collections.Look(ref AutoSlaughterSettings, "AutoSlaughterSettings", LookMode.Def, LookMode.Deep);
+            Scribe_Collections.Look(ref AutoSlaughterCullOrder, "AutoSlaughterCullOrder", LookMode.Def, LookMode.Deep);
             if (Scribe.mode != LoadSaveMode.PostLoadInit)
                 return;
             AutoSlaughterSettings ??= new Dictionary<PawnKindDef, AutoSlaughterConfig>();
+            AutoSlaughterCullOrder ??= new Dictionary<PawnKindDef, AutoSlaughterCullOrder>();
             if (AutoSlaughterSettings.RemoveAll(x => x.Value.animal == null || x.Value.animal.IsCorpse) != 0)
                 Log.Warning("Some auto-slaughter configs had null animals after loading.");
             TryPopulateMissingAnimals();
+            GetOrPopulateAutoSlaughterCullOrder();
         }
 
         public void ExecutionInt(
@@ -81,7 +98,7 @@ namespace PawnStorages.Farm.Comps
             SoundDefOf.Execute_Cut.PlayOneShot((SoundInfo) (Thing) victim);
         }
 
-        public bool CullOldestOverLimit(int max, List<Pawn> pawns)
+        public bool CullFirstOverLimit(int max, List<Pawn> pawns)
         {
             if (max <= 0 || max >= pawns.Count)
             {
@@ -113,15 +130,17 @@ namespace PawnStorages.Farm.Comps
                     .Select(group => new
                     {
                         FarmAnimalCharacteristics = new FarmAnimalCharacteristics(group.Key.Adult, group.Key.gender),
-                        Pawns = group.OrderByDescending(p => p.ageTracker.ageBiologicalTicksInt)
+                        Pawns = GetOrPopulateAutoSlaughterCullOrder()[type.Key].IsAscending(group.Key.Adult, group.Key.gender)
+                            ? group.OrderBy(p => p.ageTracker.ageBiologicalTicksInt)
+                            : group.OrderByDescending(p => p.ageTracker.ageBiologicalTicksInt)
                     })
                     .OrderBy(g => g.FarmAnimalCharacteristics).ToList();
 
                 bool culledThisCycle = Enumerable.Any(groupedByAgeAndGender,
-                    group => CullOldestOverLimit(group.FarmAnimalCharacteristics.CullValue(config),
+                    group => CullFirstOverLimit(group.FarmAnimalCharacteristics.CullValue(config),
                         group.Pawns.ToList()));
 
-                if (!culledThisCycle) CullOldestOverLimit(config.maxTotal, type.ToList());
+                if (!culledThisCycle) CullFirstOverLimit(config.maxTotal, type.ToList());
             }
         }
 
