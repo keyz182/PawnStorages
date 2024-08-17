@@ -58,20 +58,15 @@ namespace PawnStorages.Farm
 
             if (NeedsDrop)
             {
-                if (pawn.needs.food.Starving)
-                {
-                    label.Append(" (Starving!)");
-                }
-
-                Widgets.Label(new Rect(55f, position, width - 90f, 20f), label.ToString());
+                Widgets.Label(new Rect(55f, position, width - 90f, 20f),
+                    (pawn.needs?.food?.Starving ?? false ? "PS_FarmTab_NameStarving" : "PS_FarmTab_Name").Translate(pawn.LabelShort));
 
                 if (compFarmProducer != null)
                 {
                     Widgets.Label(new Rect(55f, position + 20f, width - 90f, 20f),
-                        $"Nutrition: {Mathf.CeilToInt(pawn.needs.food.CurLevelPercentage)}%");
-                    if (pawn.gender != Gender.Male)
-                        Widgets.Label(new Rect(55f, position + 40f, width - 90f, 20f),
-                            $"Progress: {Mathf.CeilToInt(PawnFullness(pawn) * 100)}%");
+                        "PS_FarmTab_Nutrition".Translate((pawn.needs?.food?.CurLevelPercentage ?? 0f).ToStringPercent()));
+                    Widgets.Label(new Rect(55f, position + 40f, width - 90f, 20f),
+                        "PS_FarmTab_Fullness".Translate(PawnFullness(pawn).ToStringPercent(), pawn.gender.GetLabel(animal: true)));
                 }
             }
 
@@ -85,7 +80,7 @@ namespace PawnStorages.Farm
             if (compFarmStorage == null) return;
             if (compFarmStorage.GetDirectlyHeldThings().Count <= 0) return;
 
-            Widgets.Label(new Rect(5.0f, 0.0f, WinSize.x, 30f), "Farm Animals");
+            Widgets.Label(new Rect(5.0f, 0.0f, WinSize.x, 30f), "PS_FarmTab_TopLabel".Translate());
 
             Rect tabRect = new Rect(0.0f, 30.0f, WinSize.x, WinSize.y - 30f).ContractedBy(10f);
             Rect scrollViewRect = new Rect(tabRect);
@@ -102,7 +97,7 @@ namespace PawnStorages.Farm
             List<Pawn> removed = [];
             foreach (Thing thing in compFarmStorage.GetDirectlyHeldThings())
             {
-                Pawn pawn = (Pawn)thing;
+                Pawn pawn = (Pawn) thing;
                 if (DrawLine(num, scrollViewRect.width, pawn))
                 {
                     removed.Add(pawn);

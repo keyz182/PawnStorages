@@ -30,13 +30,13 @@ namespace PawnStorages.Farm.Comps
             {
                 foreach (Pawn pawn in Parent.ProducingPawns)
                 {
-                    if (pawn.TryGetComp(out CompEggLayer compLayer) && pawn.gender != Gender.Male)
+                    if (pawn.TryGetComp(out CompEggLayer compLayer) && (pawn.gender == Gender.Female || !compLayer.Props.eggLayFemaleOnly))
                     {
                         EggLayerTick(compLayer, Parent.TickInterval);
                     }
 
                     if (pawn.TryGetComp(out CompHasGatherableBodyResource compGatherable) &&
-                        pawn.gender != Gender.Male)
+                        pawn.gender == Gender.Female || compGatherable is not CompMilkable milkable || !milkable.Props.milkFemaleOnly)
                     {
                         GatherableTick(compGatherable, Parent.TickInterval);
                     }
