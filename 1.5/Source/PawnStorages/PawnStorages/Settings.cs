@@ -19,6 +19,8 @@ public class Settings : ModSettings
     public bool SuggestiveSilo = false;
     public bool RusticFarms = false;
 
+    public const float GapHeight = 8f;
+
     public void DoWindowContents(Rect wrect)
     {
         Listing_Standard options = new();
@@ -26,45 +28,42 @@ public class Settings : ModSettings
 
         options.CheckboxLabeled("PS_Settings_AllowNeedsDrop".Translate(), ref AllowNeedsDrop);
         if (ModsConfig.anomalyActive) options.CheckboxLabeled("PS_Settings_SpecialReleaseAll".Translate(), ref SpecialReleaseAll);
-        options.Gap();
+        options.Gap(GapHeight);
         options.Label("PS_Settings_Advanced".Translate());
         ForcedPawn = options.TextEntryLabeled("PS_Settings_ForceNextPawnStatue".Translate(), ForcedPawn);
-        options.Gap();
+        options.Gap(GapHeight);
         bool showStoredPawnsInBarBefore = ShowStoredPawnsInBar;
         options.CheckboxLabeled("PS_Settings_ShowStoredPawnsInBar".Translate(), ref ShowStoredPawnsInBar);
-        bool RusticFarmsBefore = RusticFarms;
         options.CheckboxLabeled("PS_Settings_RusticFarms".Translate(), ref RusticFarms);
         if (showStoredPawnsInBarBefore != ShowStoredPawnsInBar)
         {
             Find.ColonistBar.MarkColonistsDirty();
         }
         options.CheckboxLabeled("PS_Settings_SuggestiveSilo".Translate(), ref SuggestiveSilo);
-        options.Gap();
-
-        options.Gap();
+        options.Gap(GapHeight);
         options.Label("PS_Settings_Production_Scale".Translate(ProductionScale.ToString("0.00")));
         ProductionScale = options.Slider(ProductionScale, 0f, 10f);
-        options.Gap();
+        options.Gap(GapHeight);
         options.Label("PS_Settings_Breeding_Scale".Translate(BreedingScale.ToString("0.00")));
         BreedingScale = options.Slider(BreedingScale, 0f, 10f);
-        options.Gap();
+        options.Gap(GapHeight);
         options.Label("PS_Settings_Max_Farm".Translate(MaxPawnsInFarm));
         options.IntAdjuster(ref MaxPawnsInFarm, 1, 1);
-        options.Gap();
+        options.Gap(GapHeight);
         options.Label("PS_Settings_Max_Farm_Nutrition".Translate(MaxFarmStoredNutrition));
         MaxFarmStoredNutrition = options.Slider(MaxFarmStoredNutrition, 0f, 500f);
-        options.Gap();
+        options.Gap(GapHeight);
         options.Label("PS_Settings_Ticks_To_Absorb_Nutrients".Translate(TicksToAbsorbNutrients));
         options.IntAdjuster(ref TicksToAbsorbNutrients, 1, 1);
-        options.Gap();
+        options.Gap(GapHeight);
         options.Label("PS_Settings_Animal_Tick_Interval".Translate(AnimalTickInterval));
         options.IntAdjuster(ref AnimalTickInterval, 1, 1);
-        options.Gap();
+        options.Gap(GapHeight);
         options.Label("PS_Settings_Farm_ProductionsPerDay".Translate(ProductionsPerDay));
         options.IntAdjuster(ref ProductionsPerDay, 1, 1);
-        options.Gap();
+        options.Gap(GapHeight);
 
-        options.Gap();
+        options.Gap(GapHeight);
         if (options.ButtonText("PS_Reset".Translate()))
         {
             AllowNeedsDrop = true;

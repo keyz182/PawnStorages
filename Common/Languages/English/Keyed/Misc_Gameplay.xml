@@ -68,6 +68,7 @@
 	<PS_Settings_Max_Farm_Nutrition>The maximum amount of nutrition to store in a farm: {0}</PS_Settings_Max_Farm_Nutrition>
 	<PS_Settings_Ticks_To_Absorb_Nutrients>Tick interval to absorb nutrients from hoppers: {0}</PS_Settings_Ticks_To_Absorb_Nutrients>
 	<PS_Settings_Animal_Tick_Interval>Tick interval for stored animals: {0}</PS_Settings_Animal_Tick_Interval>
+	<PS_Settings_Farm_ProductionsPerDay>Number of times to eject farms produce per day: {0}</PS_Settings_Farm_ProductionsPerDay>
     <PS_Settings_RusticFarms>Use rustic farm textures</PS_Settings_RusticFarms>
 	<PS_Rotate>Rotate</PS_Rotate>
 
@@ -92,7 +93,7 @@
     <PS_FarmTab_Fullness>Progress: {0} - {1}</PS_FarmTab_Fullness>
 
     <PS_Farm_NothingToProduce>Nothing to produce</PS_Farm_NothingToProduce>
-    <PS_Farm_ProduceNow>Eject produce now: {0} items</PS_Farm_ProduceNow>
+    <PS_Farm_ProduceNow>Eject produce: {0} batches</PS_Farm_ProduceNow>
 
     <PS_StorageFull>Storage {0} is full, so {1} was ejected</PS_StorageFull>
 </LanguageData>
