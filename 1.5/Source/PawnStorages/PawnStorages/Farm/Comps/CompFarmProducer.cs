@@ -10,7 +10,6 @@ namespace PawnStorages.Farm.Comps
     {
         public IProductionParent Parent => parent as IProductionParent;
 
-
         protected List<Thing> DaysProduce = new();
         public bool ProduceNow = false;
 
@@ -115,6 +114,14 @@ namespace PawnStorages.Farm.Comps
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
+            yield return new Command_Action
+            {
+                defaultLabel = "PS_Farm_ProduceNow".Translate(),
+                action = delegate { ProduceNow = true; },
+                icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll"),
+                disabled = DaysProduce.Count <= 0,
+                disabledReason = "PS_Farm_NothingToProduce".Translate()
+            };
             if (!DebugSettings.ShowDevGizmos) yield break;
             yield return new Command_Action
             {
@@ -136,12 +143,6 @@ namespace PawnStorages.Farm.Comps
                         }
                     }
                 },
-                icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
-            };
-            yield return new Command_Action
-            {
-                defaultLabel = "Produce on next tick",
-                action = delegate { ProduceNow = true; },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
         }
