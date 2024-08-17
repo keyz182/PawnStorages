@@ -37,7 +37,7 @@ namespace PawnStorages.Farm.Comps
                     }
 
                     if (pawn.TryGetComp(out CompHasGatherableBodyResource compGatherable) &&
-                        pawn.gender == Gender.Female || compGatherable is not CompMilkable milkable || !milkable.Props.milkFemaleOnly)
+                        (pawn.gender == Gender.Female || compGatherable is not CompMilkable milkable || !milkable.Props.milkFemaleOnly))
                     {
                         GatherableTick(compGatherable, Parent.TickInterval);
                     }
