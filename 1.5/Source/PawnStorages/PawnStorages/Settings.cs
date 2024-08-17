@@ -15,6 +15,7 @@ public class Settings : ModSettings
     public float MaxFarmStoredNutrition = 500f;
     public int TicksToAbsorbNutrients = 50;
     public int AnimalTickInterval = 250;
+    public int ProductionsPerDay = 1;
     public bool SuggestiveSilo = false;
     public bool RusticFarms = false;
 
@@ -59,6 +60,9 @@ public class Settings : ModSettings
         options.Label("PS_Settings_Animal_Tick_Interval".Translate(AnimalTickInterval));
         options.IntAdjuster(ref AnimalTickInterval, 1, 1);
         options.Gap();
+        options.Label("PS_Settings_Farm_ProductionsPerDay".Translate(ProductionsPerDay));
+        options.IntAdjuster(ref ProductionsPerDay, 1, 1);
+        options.Gap();
 
         options.Gap();
         if (options.ButtonText("PS_Reset".Translate()))
@@ -91,6 +95,7 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref ProductionScale, "ProductionScale", 0.5f);
         Scribe_Values.Look(ref BreedingScale, "BreedingScale", 2);
         Scribe_Values.Look(ref MaxPawnsInFarm, "MaxPawnsInFarm", 16);
+        Scribe_Values.Look(ref ProductionsPerDay, "ProductionsPerDay", 1);
         Scribe_Values.Look(ref SuggestiveSilo, "SuggestiveSilo", false);
         Scribe_Values.Look(ref RusticFarms, "RusticFarms", false);
     }

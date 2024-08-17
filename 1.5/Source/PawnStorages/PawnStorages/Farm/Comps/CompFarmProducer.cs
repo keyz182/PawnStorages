@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using PawnStorages.Farm.Interfaces;
 using RimWorld;
 using UnityEngine;
@@ -42,13 +44,11 @@ namespace PawnStorages.Farm.Comps
                 }
             }
 
-            if (!ProduceNow && (!parent.IsHashIntervalTick(60000) || DaysProduce.Count <= 0 || !Parent.IsActive)) return;
-            foreach (Thing thing in DaysProduce)
-            {
-                GenPlace.TryPlaceThing(thing, parent.Position, parent.Map, ThingPlaceMode.Near);
-            }
-
+            if (!ProduceNow && (!parent.IsHashIntervalTick(60000 / Math.Max(PawnStoragesMod.settings.ProductionsPerDay, 1)) || DaysProduce.Count <= 0 || !Parent.IsActive)) return;
+            List<Thing> failedToPlace = [];
+            failedToPlace.AddRange(DaysProduce.Where(thing => !GenPlace.TryPlaceThing(thing, parent.Position, parent.Map, ThingPlaceMode.Near)));
             DaysProduce.Clear();
+            DaysProduce.AddRange(failedToPlace);
         }
 
         public void EggLayerTick(CompEggLayer layer, int tickInterval = 1)
