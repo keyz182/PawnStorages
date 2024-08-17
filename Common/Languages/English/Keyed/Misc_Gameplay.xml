@@ -83,6 +83,7 @@
     <PS_AutoSlaughterLevel>Auto Slaughter</PS_AutoSlaughterLevel>
     <PS_AutoSlaughterDesc>Auto Slaughter set to {0}</PS_AutoSlaughterDesc>
     <PS_BreedingTab_TopLabel>Breeding Animals</PS_BreedingTab_TopLabel>
+    <PS_AutoSlaughterTooltipDirection>Set the slaughter order from oldest to youngest, or youngest to oldest.</PS_AutoSlaughterTooltipDirection>
 
     <PS_FarmTab_TopLabel>Farm Animals</PS_FarmTab_TopLabel>
     <PS_FarmTab_Name>{0}</PS_FarmTab_Name>
