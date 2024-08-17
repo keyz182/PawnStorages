@@ -15,7 +15,7 @@
         <makesAlert>false</makesAlert>
         <everCurableByItem>false</everCurableByItem>
         <comps>
-            <li Class="HediffCompProperties_GiveAbility">
+            <li Class="PawnStorages.HediffCompProperties_GiveAbilitySafe">
                 <abilityDefs>
                     <li>PS_ReturnToSphere</li>
                 </abilityDefs>

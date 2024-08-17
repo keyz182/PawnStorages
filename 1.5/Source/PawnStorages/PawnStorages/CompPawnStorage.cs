@@ -300,7 +300,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
     public void TransferPawn(CompPawnStorage otherStore, Pawn pawn)
     {
         innerContainer.Remove(pawn);
-        otherStore.innerContainer.TryAdd(pawn);
+        otherStore.innerContainer.TryAddOrTransfer(pawn);
         if (otherStore.compAssignable != null && !otherStore.compAssignable.AssignedPawns.Contains(pawn)) otherStore.compAssignable.TryAssignPawn(pawn);
         labelDirty = true;
         otherStore.labelDirty = true;

@@ -218,7 +218,7 @@ namespace PawnStorages.Farm.Comps
                 defaultLabel = "Make breeding progress 100%",
                 action = delegate
                 {
-                    foreach (PawnKindDef thing in BreedingProgress.Keys)
+                    foreach (PawnKindDef thing in BreedingProgress.Keys.ToList())
                     {
                         BreedingProgress[thing] = 1f;
                     }
