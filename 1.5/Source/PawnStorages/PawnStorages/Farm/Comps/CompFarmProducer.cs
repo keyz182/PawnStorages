@@ -116,11 +116,11 @@ namespace PawnStorages.Farm.Comps
         {
             yield return new Command_Action
             {
-                defaultLabel = "PS_Farm_ProduceNow".Translate(DaysProduce.Count),
+                defaultLabel = "PS_ProduceNow".Translate(DaysProduce.Count),
                 action = delegate { ProduceNow = true; },
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll"),
                 disabled = DaysProduce.Count <= 0,
-                disabledReason = "PS_Farm_NothingToProduce".Translate()
+                disabledReason = "PS_NothingToProduce".Translate()
             };
             if (!DebugSettings.ShowDevGizmos) yield break;
             yield return new Command_Action
