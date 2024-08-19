@@ -65,12 +65,12 @@ public class ITab_Bills : ITab
             }
         }
 
-        // mouseoverBill = SelFactory.BillStack.DoListing(new Rect(0.0f, 0.0f, WinSize.x, WinSize.y).ContractedBy(10f), RecipeOptionsMaker, ref scrollPosition, ref viewHeight);
+        mouseoverBill = SelFactory.BillStack.DoListing(new Rect(0.0f, 0.0f, WinSize.x, WinSize.y).ContractedBy(10f), RecipeOptionsMaker, ref scrollPosition, ref viewHeight);
         return;
 
         List<FloatMenuOption> RecipeOptionsMaker()
         {
-            List<FloatMenuOption> list = SelFactory.def.AllRecipes.Where(recipeDef => recipeDef.AvailableNow)
+            List<FloatMenuOption> list = SelFactory.AllRecipesUnfiltered.Where(recipeDef => recipeDef.AvailableNow)
                 .Select(recipe => new FloatMenuOption(recipe.LabelCap, delegate
                 {
                     Bill bill2 = recipe.MakeNewBill();
@@ -82,12 +82,12 @@ public class ITab_Bills : ITab
             return list.Any() ? list : [new FloatMenuOption("NoneBrackets".Translate(), null, MenuOptionPriority.Default, null, null, 0f, null, null)];
         }
     }
-    // private Bill mouseoverBill;
-    // public override void TabUpdate()
-    // {
-    //     if (mouseoverBill == null)
-    //         return;
-    //     mouseoverBill.TryDrawIngredientSearchRadiusOnMap(SelFactory.Position);
-    //     mouseoverBill = null;
-    // }
+    private Bill mouseoverBill;
+    public override void TabUpdate()
+    {
+        if (mouseoverBill == null)
+            return;
+        mouseoverBill.TryDrawIngredientSearchRadiusOnMap(SelFactory.Position);
+        mouseoverBill = null;
+    }
 }
