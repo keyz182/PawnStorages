@@ -22,6 +22,7 @@ public static class PS_DefOf
     public static ThingDef PS_PawnStatue;
     public static ThingDef PS_BatteryFarm;
     public static ThingDef PS_FarmHopper;
+    public static ThingDef PS_FactoryHopper;
 
     //Misc
     public static RecipeDef PS_MakePawnStorageDisc;

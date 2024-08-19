@@ -39,7 +39,7 @@ public class CompPawnStorageNutrition : ThingComp
         set => _targetNutritionLevel = value;
     }
 
-    public float MaxNutrition => HasAltStore ? AlternativeStore.MaxStoreSize : Props.maxNutrition;
+    public float MaxNutrition => HasAltStore ? AlternativeStore.MaxStoreSize : Props.MaxNutrition;
 
     private List<IntVec3> cachedAdjCellsCardinal;
 
@@ -58,7 +58,7 @@ public class CompPawnStorageNutrition : ThingComp
 
         if (!PawnStoragesMod.settings.AllowNeedsDrop) return;
 
-        if (parent.IsHashIntervalTick(Props.ticksToAbsorbNutrients) && Parent.IsActive)
+        if (parent.IsHashIntervalTick(Props.TicksToAbsorbNutrients) && Parent.IsActive)
         {
             if (storedNutrition <= TargetNutritionLevel)
             {
@@ -66,7 +66,7 @@ public class CompPawnStorageNutrition : ThingComp
             }
         }
 
-        if (parent.IsHashIntervalTick(Props.pawnTickInterval) && Parent.HasStoredPawns)
+        if (parent.IsHashIntervalTick(Props.PawnTickInterval) && Parent.HasStoredPawns)
         {
             foreach (Pawn pawn in Parent.StoredPawns)
             {
@@ -77,14 +77,12 @@ public class CompPawnStorageNutrition : ThingComp
                 if (foodNeeds == null)
                     continue;
 
-                foodNeeds.CurLevel -= foodNeeds.FoodFallPerTick * Props.pawnTickInterval;
-                if (!foodNeeds.Starving)
+                foodNeeds.CurLevel -= foodNeeds.FoodFallPerTick * Props.PawnTickInterval;                if (!foodNeeds.Starving)
                     foodNeeds.lastNonStarvingTick = Find.TickManager.TicksGame;
 
                 // Need_Food.NeedInterval hardcodes 150 ticks, so adjust
                 float adjustedMalnutritionSeverityPerInterval =
-                    foodNeeds.MalnutritionSeverityPerInterval / 150f * Props.pawnTickInterval;
-
+                    foodNeeds.MalnutritionSeverityPerInterval / 150f * Props.PawnTickInterval;
                 if (foodNeeds.Starving)
                     HealthUtility.AdjustSeverity(pawn, HediffDefOf.Malnutrition, adjustedMalnutritionSeverityPerInterval);
                 else
@@ -147,8 +145,7 @@ public class CompPawnStorageNutrition : ThingComp
 
     public void EmulateScaledPawnAgeTick(Pawn pawn)
     {
-        int interval = Props.pawnTickInterval;
-
+        int interval = Props.PawnTickInterval;
         int ageBioYears = pawn.ageTracker.AgeBiologicalYears;
 
         if (pawn.ageTracker.lifeStageChange)
@@ -169,7 +166,7 @@ public class CompPawnStorageNutrition : ThingComp
 
     public List<IntVec3> AdjCellsCardinalInBounds =>
         cachedAdjCellsCardinal ??= GenAdj.CellsAdjacentCardinal(parent)
-            .Where(c => GenGrid.InBounds((IntVec3)c, parent.Map))
+            .Where(c => c.InBounds(parent.Map))
             .ToList();
 
     public bool TryAbsorbNutritionFromHopper(float nutrition)

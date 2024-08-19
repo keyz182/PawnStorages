@@ -29,7 +29,7 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
     public bool IsBreeder => FarmBreeder != null;
     public bool IsProducer => FarmProducer != null;
 
-    public bool IsFull => pawnStorage.IsFull;
+    public bool IsFull => pawnStorage?.IsFull ?? true;
 
     public override void ExposeData()
     {
@@ -128,7 +128,7 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
 
     public bool HasSuggestiveSilos => true;
     public bool HasStoredPawns => true;
-    public List<Pawn> StoredPawns => pawnStorage.GetDirectlyHeldThings().Select(p => p as Pawn).ToList();
+    public List<Pawn> StoredPawns => pawnStorage?.GetDirectlyHeldThings()?.Select(p => p as Pawn).ToList() ?? [];
 
     public void Notify_NutritionEmpty() => NutritionAvailable = false;
 

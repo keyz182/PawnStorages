@@ -576,6 +576,9 @@ public class CompPawnStorage : ThingComp, IThingHolder
         return innerContainer ??= new ThingOwner<Pawn>(this);
     }
 
+    public float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(pawn =>
+        SimplifiedPastureNutritionSimulator.NutritionConsumedPerDay(pawn.def, pawn.ageTracker.CurLifeStage));
+
     public ThingOwner<Pawn> GetDirectlyHeldPawns() => innerContainer;
     public List<Pawn> GetDirectlyHeldPawnsDefensiveCopy() => [..innerContainer.InnerListForReading];
 

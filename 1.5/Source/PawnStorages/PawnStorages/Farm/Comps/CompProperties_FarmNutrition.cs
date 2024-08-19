@@ -7,7 +7,7 @@ namespace PawnStorages.Farm.Comps;
 public class CompProperties_FarmNutrition : CompProperties_PawnStorageNutrition
 {
     // production
-    public int animalTickInterval => PawnStoragesMod.settings.AnimalTickInterval;
+    public int animalTickInterval => PawnTickInterval;
 
     public bool HasTip;
     public float TipScale;
@@ -17,7 +17,7 @@ public class CompProperties_FarmNutrition : CompProperties_PawnStorageNutrition
     public string Tip;
     public string SansTip;
 
-    public static Dictionary<string, Material> MaterialCache = new Dictionary<string, Material>();
+    public static Dictionary<string, Material> MaterialCache = new();
 
     public Material MainTexture
     {
