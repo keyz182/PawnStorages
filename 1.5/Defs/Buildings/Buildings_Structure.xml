@@ -450,6 +450,10 @@
         <modExtensions>
             <li Class="PawnStorages.PSExtension" />
         </modExtensions>
+        <researchPrerequisites>
+            <li>Electricity</li>
+        </researchPrerequisites>
+        <techLevel>Industrial</techLevel>
     </ThingDef>
 
     <ThingDef ParentName="BuildingBase">
@@ -527,5 +531,6 @@
         <uiIconPath>Things/Building/Production/Hopper_MenuIcon</uiIconPath>
         <uiIconScale>0.85</uiIconScale>
         <uiIconColor>(70, 70, 75)</uiIconColor>
+        <techLevel>Industrial</techLevel>
     </ThingDef>
 </Defs>
