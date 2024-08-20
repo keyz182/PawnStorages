@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using HarmonyLib;
-using PawnStorages.Farm.Comps;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -271,7 +270,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
         if (!Props.needsDrop) return;
 
-        CompFarmNutrition nutritionComp = parent.TryGetComp<CompFarmNutrition>();
+        CompPawnStorageNutrition nutritionComp = parent.TryGetComp<CompPawnStorageNutrition>();
         if (nutritionComp == null) pawn.ageTracker?.AgeTickMothballed(actuallyStoredTicks); // this comp has already taken care of age so only apply if there isn't one
         foreach (Need need in pawn.needs?.AllNeeds ?? [])
         {
@@ -516,7 +515,8 @@ public class CompPawnStorage : ThingComp, IThingHolder
                 {
                     Find.WindowStack.Add(new FloatMenu(GetDirectlyHeldPawnsDefensiveCopy().Select(p => new FloatMenuOption("PS_Release".Translate(p.LabelCap),
                         delegate { ReleaseSingle(parent.Map, p, false); })).ToList()));
-                }
+                },
+                icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
     }
 

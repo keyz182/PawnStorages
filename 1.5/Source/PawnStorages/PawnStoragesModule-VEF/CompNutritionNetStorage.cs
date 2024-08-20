@@ -1,11 +1,11 @@
-﻿using PawnStorages.Farm.Interfaces;
+﻿using PawnStorages.Interfaces;
 using PipeSystem;
 
 namespace PawnStorages.VEF;
 
 public class CompNutritionNetStorage : CompResourceStorage, INutritionStoreAlternative
 {
-    public virtual CompProperties_NutritionNetStorage CompProps => (CompProperties_NutritionNetStorage)props;
+    public virtual CompProperties_NutritionNetStorage CompProps => (CompProperties_NutritionNetStorage) props;
 
     public float MaxStoreSize { get => AmountCanAccept; }
 

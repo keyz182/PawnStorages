@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using PawnStorages.Farm.Interfaces;
 using Verse;
 
-namespace PawnStorages.Farm.Interfaces
+namespace PawnStorages.Interfaces
 {
     public interface INutritionStorageParent : IActive, IPawnRelease
     {

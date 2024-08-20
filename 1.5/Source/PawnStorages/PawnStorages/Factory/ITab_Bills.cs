@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using LudeonTK;
 using RimWorld;
@@ -72,17 +71,20 @@ public class ITab_Bills : ITab
         {
             List<FloatMenuOption> list = SelFactory.AllRecipesUnfiltered.Where(recipeDef => recipeDef.AvailableNow)
                 .Select(recipe => new FloatMenuOption(recipe.LabelCap, delegate
-                {
-                    Bill bill2 = recipe.MakeNewBill();
-                    SelFactory.BillStack.AddBill(bill2);
-                    if (recipe.conceptLearned != null) PlayerKnowledgeDatabase.KnowledgeDemonstrated(recipe.conceptLearned, KnowledgeAmount.Total);
-                    if (TutorSystem.TutorialMode) TutorSystem.Notify_Event((EventPack) "AddBill-" + recipe.LabelCap);
-                }, MenuOptionPriority.Default, null, null, 29f, billOptionRect => Widgets.InfoCardButton(billOptionRect.x + 5f, billOptionRect.y + (billOptionRect.height - 24f) / 2f, recipe), null))
+                    {
+                        Bill bill2 = recipe.MakeNewBill();
+                        SelFactory.BillStack.AddBill(bill2);
+                        if (recipe.conceptLearned != null) PlayerKnowledgeDatabase.KnowledgeDemonstrated(recipe.conceptLearned, KnowledgeAmount.Total);
+                        if (TutorSystem.TutorialMode) TutorSystem.Notify_Event((EventPack) "AddBill-" + recipe.LabelCap);
+                    }, MenuOptionPriority.Default, null, null, 29f,
+                    billOptionRect => Widgets.InfoCardButton(billOptionRect.x + 5f, billOptionRect.y + (billOptionRect.height - 24f) / 2f, recipe), null))
                 .ToList();
             return list.Any() ? list : [new FloatMenuOption("NoneBrackets".Translate(), null, MenuOptionPriority.Default, null, null, 0f, null, null)];
         }
     }
+
     private Bill mouseoverBill;
+
     public override void TabUpdate()
     {
         if (mouseoverBill == null)
