@@ -8,19 +8,29 @@ using Enumerable = System.Linq.Enumerable;
 
 namespace PawnStorages.Factory;
 
-public class Building_PSFactory : Building, IStoreSettingsParent, INutritionStorageParent, IProductionParent
+public class Building_PSFactory : Building, IStoreSettingsParent, INutritionStorageParent, IProductionParent, IBillGiver
 {
     public CompPawnStorage pawnStorage;
     public CompPawnStorageNutrition pawnStorageNutrition;
     public CompFactoryProducer factoryProducer;
-    private StorageSettings allowedNutritionSettings;
+    public BillStack billStack;
+    public StorageSettings allowedNutritionSettings;
 
     protected Dictionary<ThingDef, bool> allowedThings;
 
     public Dictionary<ThingDef, bool> AllowedThings => allowedThings;
     public HashSet<ThingDef> AllowedThingDefs => [..allowedThings.Keys];
 
-    public BillStack BillStack => factoryProducer.BillStack;
+    public bool CurrentlyUsableForBills() => false;
+    public bool UsableForBillsAfterFueling() => false;
+
+    public void Notify_BillDeleted(Bill bill) => factoryProducer?.Notify_BillDeleted(bill);
+
+    public BillStack BillStack => billStack;
+    public Bill CurrentBill => factoryProducer?.CurrentBill;
+    public IEnumerable<IntVec3> IngredientStackCells => [];
+
+    public Building_PSFactory() => billStack = new BillStack(this);
 
     public bool Allowed(ThingDef potentialDef)
     {
@@ -33,8 +43,9 @@ public class Building_PSFactory : Building, IStoreSettingsParent, INutritionStor
 
     public override void ExposeData()
     {
-        Scribe_Collections.Look(ref allowedThings, "allowedThings", LookMode.Def);
         base.ExposeData();
+        Scribe_Collections.Look(ref allowedThings, "allowedThings", LookMode.Def);
+        Scribe_Deep.Look(ref billStack, "billStack", this);
     }
 
     public void AllowAll()
@@ -82,7 +93,9 @@ public class Building_PSFactory : Building, IStoreSettingsParent, INutritionStor
         foreach (Gizmo gizmo in base.GetGizmos())
             yield return gizmo;
         Designator_Build allowedFactoryHopperDesignator = BuildCopyCommandUtility.FindAllowedDesignator(PS_DefOf.PS_FactoryHopper);
+        Designator_Build allowedHopperDesignator = BuildCopyCommandUtility.FindAllowedDesignator(ThingDefOf.Hopper);
         if (allowedFactoryHopperDesignator != null) yield return allowedFactoryHopperDesignator;
+        if (allowedHopperDesignator != null) yield return allowedHopperDesignator;
         foreach (Thing thing in (IEnumerable<Thing>) StoredPawns)
         {
             Gizmo gizmo;
@@ -157,7 +170,7 @@ public class Building_PSFactory : Building, IStoreSettingsParent, INutritionStor
             List<RecipeDef> defsListForReading = DefDatabase<RecipeDef>.AllDefsListForReading;
             foreach (RecipeDef t in defsListForReading)
             {
-                if (t.recipeUsers != null) allRecipesCached.Add(t);
+                if (t.recipeUsers != null && !t.IsSurgery) allRecipesCached.Add(t);
             }
 
             return allRecipesCached;

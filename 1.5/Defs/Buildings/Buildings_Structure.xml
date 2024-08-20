@@ -383,13 +383,14 @@
             <li Class="PawnStorages.CompProperties_PawnStorage">
                 <maxStoredPawns>24</maxStoredPawns>
                 <needsDrop>true</needsDrop>
-                <releaseOption>true</releaseOption>
+                <selfReleaseOption>true</selfReleaseOption>
                 <releaseAllOption>true</releaseAllOption>
-                <convertOption>false</convertOption>
+                <convertOption>true</convertOption>
                 <appendOfName>true</appendOfName>
                 <lightEffect>true</lightEffect>
                 <allowNonColonist>true</allowNonColonist>
                 <canBeScheduled>true</canBeScheduled>
+                <canBeRotated>false</canBeRotated>
             </li>
             <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_NutritionNetStorage">
                 <storageCapacity>250</storageCapacity>
@@ -492,6 +493,7 @@
                 <filter>
                     <categories>
                         <li>ResourcesRaw</li>
+                        <li>Leathers</li>
                     </categories>
                 </filter>
             </defaultStorageSettings>

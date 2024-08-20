@@ -88,7 +88,8 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public override void PostDestroy(DestroyMode mode, Map previousMap)
     {
-        foreach (Pawn pawn in innerContainer.InnerListForReading)
+        List<Pawn> innerContainerInnerListForReading = innerContainer.InnerListForReading.ToList();
+        foreach (Pawn pawn in innerContainerInnerListForReading)
         {
             GenSpawn.Spawn(pawn, parent.Position, previousMap);
         }
@@ -169,7 +170,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
                 {
                     if (requiresStation)
                     {
-                        yield return new FloatMenuOption((station == null ? "PS_NoStationForRelease": "PS_StationButNoRelease")
+                        yield return new FloatMenuOption((station == null ? "PS_NoStationForRelease" : "PS_StationButNoRelease")
                             .Translate(Props.storageStation.label, pawn.LabelCap), null);
                     }
                     else
@@ -484,18 +485,19 @@ public class CompPawnStorage : ThingComp, IThingHolder
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
 
-        yield return new Command_Toggle
-        {
-            defaultLabel = "PS_Rotate".Translate(),
-            toggleAction = () =>
+        if (Props.canBeRotated)
+            yield return new Command_Toggle
             {
-                Rotation.Rotate(RotationDirection.Clockwise);
-                this.SetLabelDirty();
-                this.parent.Map.mapDrawer.MapMeshDirty(this.parent.Position, (ulong) MapMeshFlagDefOf.Things);
-            },
-            isActive = () => true,
-            icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
-        };
+                defaultLabel = "PS_Rotate".Translate(),
+                toggleAction = () =>
+                {
+                    Rotation.Rotate(RotationDirection.Clockwise);
+                    SetLabelDirty();
+                    parent.Map.mapDrawer.MapMeshDirty(parent.Position, (ulong) MapMeshFlagDefOf.Things);
+                },
+                isActive = () => true,
+                icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
+            };
 
         if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
 
@@ -505,6 +507,17 @@ public class CompPawnStorage : ThingComp, IThingHolder
             if ((gizmo = Building.SelectContainedItemGizmo(parent, pawn)) != null)
                 yield return gizmo;
         }
+
+        if (Props.selfReleaseOption && innerContainer.InnerListForReading.Any())
+            yield return new Command_Action
+            {
+                defaultLabel = "PS_Release".Translate(),
+                action = delegate
+                {
+                    Find.WindowStack.Add(new FloatMenu(GetDirectlyHeldPawnsDefensiveCopy().Select(p => new FloatMenuOption("PS_Release".Translate(p.LabelCap),
+                        delegate { ReleaseSingle(parent.Map, p, false); })).ToList()));
+                }
+            };
     }
 
     public void ReleaseContents(Map map)
@@ -526,6 +539,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         {
             ReleaseSingleAt(map, pawn, at, false, true);
         }
+
         innerContainer.Clear();
     }
 
