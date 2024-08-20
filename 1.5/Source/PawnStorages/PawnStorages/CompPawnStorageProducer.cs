@@ -5,7 +5,7 @@ using Verse;
 
 namespace PawnStorages;
 
-public class CompPawnStorageProducer : ThingComp
+public class CompPawnStorageProducer : ThingComp, IActive
 {
     public IProductionParent Parent => parent as IProductionParent;
 
@@ -29,4 +29,6 @@ public class CompPawnStorageProducer : ThingComp
             disabledReason = "PS_NothingToProduce".Translate()
         };
     }
+
+    public virtual bool IsActive => true;
 }

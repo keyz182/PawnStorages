@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace PawnStorages.Factory;
@@ -11,6 +12,8 @@ public class CompFactoryProducer : CompPawnStorageProducer
 {
     public float storedWork = 0f;
     public Bill currentBill;
+    public bool shouldBeActive = true;
+
     private List<IntVec3> cachedAdjCellsCardinal;
 
     public List<IntVec3> AdjCellsCardinalInBounds =>
@@ -33,9 +36,9 @@ public class CompFactoryProducer : CompPawnStorageProducer
     {
         base.CompTick();
 
-        if (!PawnStoragesMod.settings.AllowNeedsDrop) return;
+        if (!shouldBeActive || !PawnStoragesMod.settings.AllowNeedsDrop) return;
 
-        if (parent.IsHashIntervalTick(Parent.TickInterval) && Parent.ProducingPawns is {} parentProducingPawns && parentProducingPawns.Any())
+        if (parent.IsHashIntervalTick(Parent.TickInterval) && Parent.ProducingPawns is { } parentProducingPawns && parentProducingPawns.Any())
         {
             if (CurrentBill == null) TryPickNextBill();
             if (CurrentBill != null) storedWork += parentProducingPawns.Count * Parent.TickInterval;
@@ -57,10 +60,9 @@ public class CompFactoryProducer : CompPawnStorageProducer
     public bool TryFinishBill(Bill bill, Pawn billForeman)
     {
         List<Thing> chosenIngredients = SelectedIngredientsFor(bill)?.Select(pair => pair.Key.SplitOff(pair.Value)).ToList() ?? [];
-        Log.Message($"Chosen ingredients: {chosenIngredients.Count}");
         if (chosenIngredients.Count == 0)
         {
-            if (TryPickNextBill() is {} newBill && storedWork >= newBill.GetWorkAmount())
+            if (TryPickNextBill() is { } newBill && storedWork >= newBill.GetWorkAmount())
             {
                 bill = newBill;
                 chosenIngredients = SelectedIngredientsFor(bill)?.Select(pair => pair.Key.SplitOff(pair.Value)).ToList() ?? [];
@@ -74,7 +76,6 @@ public class CompFactoryProducer : CompPawnStorageProducer
         bill.Notify_IterationCompleted(billForeman, chosenIngredients);
         ConsumeIngredients(chosenIngredients, bill.recipe, parent.Map);
         return true;
-
     }
 
     public Building_PSFactory ParentFactory => parent as Building_PSFactory;
@@ -90,9 +91,6 @@ public class CompFactoryProducer : CompPawnStorageProducer
         Dictionary<IngredientCount, bool> done = [];
         foreach (IngredientCount ingredientCount in ingredientList) done.Add(ingredientCount, false);
 
-        Log.Message("Ingredients: " + ingredientList.Count);
-        Log.Message("AdjCellsCardinalInBounds: " + AdjCellsCardinalInBounds.Count);
-
         foreach (IntVec3 cellsCardinalInBound in AdjCellsCardinalInBounds)
         {
             Map map = parent.Map;
@@ -101,7 +99,6 @@ public class CompFactoryProducer : CompPawnStorageProducer
             {
                 foreach (IngredientCount ingredientCount in ingredientList)
                 {
-                    Log.Message($"Checking {ingredientCount.CountRequiredOfFor(potentialInputItemThing.def, bill.recipe)} of {potentialInputItemThing.def.label}, allowed : {ingredientCount.filter.Allows(potentialInputItemThing)}");
                     if (done[ingredientCount] || !ingredientCount.filter.Allows(potentialInputItemThing)) continue;
                     int countSoFarForIngredient = countSoFar.GetWithFallback(ingredientCount, 0);
                     int required = ingredientCount.CountRequiredOfFor(potentialInputItemThing.def, bill.recipe);
@@ -119,14 +116,11 @@ public class CompFactoryProducer : CompPawnStorageProducer
             }
         }
 
-        done.ToList().ForEach(p => Log.Message($"{p.Key.filter.Summary} satisfied: {p.Value}"));
-
         return done.Any(pair => !pair.Value) ? [] : reserved;
     }
 
     public static Thing CalculateDominantIngredient(List<Thing> ingredients, RecipeDef recipeDef)
     {
-        Log.Message($"Calculating dominant ingredient with {ingredients.Count} ingredients");
         if (recipeDef.productHasIngredientStuff)
             return ingredients[0];
         return recipeDef.products.Any(x => x.thingDef.MadeFromStuff) || recipeDef.unfinishedThingDef is { MadeFromStuff: true }
@@ -144,16 +138,6 @@ public class CompFactoryProducer : CompPawnStorageProducer
     public Bill TryPickNextBill()
     {
         CurrentBill = ParentFactory?.BillStack?.bills?.FirstOrDefault(b => b.ShouldDoNow() && SelectedIngredientsFor(b).Any());
-        if (CurrentBill == null)
-        {
-            Log.Message("No valid bill");
-            foreach (Bill billStackBill in ParentFactory?.BillStack?.bills ?? [])
-            {
-                Log.Message($"Bill: {billStackBill.Label}");
-                Log.Message($"ShouldDoNow: {billStackBill.ShouldDoNow()}");
-                Log.Message($"SelectedIngredientsFor: {SelectedIngredientsFor(billStackBill).Any()}");
-            }
-        }
         return CurrentBill;
     }
 
@@ -162,5 +146,26 @@ public class CompFactoryProducer : CompPawnStorageProducer
         StringBuilder sb = new(base.CompInspectStringExtra());
         sb.Append("PS_WorkProgress".Translate(storedWork, CurrentBill?.GetWorkAmount() ?? 0f));
         return sb.ToString();
+    }
+
+    public override bool IsActive => shouldBeActive;
+
+    public override void PostExposeData()
+    {
+        base.PostExposeData();
+        Scribe_Values.Look(ref storedWork, "storedWork");
+        Scribe_Values.Look(ref shouldBeActive, "shouldBeActive", true);
+    }
+
+    public override IEnumerable<Gizmo> CompGetGizmosExtra()
+    {
+        foreach (Gizmo gizmo in base.CompGetGizmosExtra() ?? []) yield return gizmo;
+        yield return new Command_Toggle
+        {
+            defaultLabel = "Enabled".Translate(),
+            toggleAction = delegate { shouldBeActive = !shouldBeActive; },
+            icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll"),
+            isActive = () => shouldBeActive
+        };
     }
 }

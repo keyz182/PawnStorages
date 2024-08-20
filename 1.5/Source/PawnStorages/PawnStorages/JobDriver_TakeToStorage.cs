@@ -75,11 +75,6 @@ public class JobDriver_TakeToStorage : JobDriver
             return false;
         });
 
-        Log.Message($"{PawnStorageAssigned.Label}");
-        Log.Message($"{job.def == JobDefOf.Arrest && !Takee.CanBeArrestedBy(pawn)}");
-        Log.Message($"{!pawn.CanReach(PawnStorageAssigned, PathEndMode.ClosestTouch, Danger.Deadly)}");
-        Log.Message($"{(job.def == JobDefOf.Rescue || job.def == JobDefOf.Capture) && !Takee.Downed}");
-
         Toil goToTakee = Toils_Goto.GotoThing(TakeeIndex, PathEndMode.ClosestTouch)
             .FailOnDespawnedNullOrForbidden(TakeeIndex)
             .FailOnDespawnedNullOrForbidden(StorageIndex)
