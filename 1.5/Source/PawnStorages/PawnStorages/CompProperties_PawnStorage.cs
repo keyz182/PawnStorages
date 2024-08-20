@@ -27,6 +27,8 @@ public class CompProperties_PawnStorage : CompProperties
 
     public EffecterDef storeEffect;
     public bool transformEffect;
+    public bool canBeRotated = true;
+    public bool selfReleaseOption;
 
     public virtual int MaxStoredPawns => maxStoredPawns;
 

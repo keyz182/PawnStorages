@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using HarmonyLib;
-using PawnStorages.Farm.Comps;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -88,7 +87,8 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public override void PostDestroy(DestroyMode mode, Map previousMap)
     {
-        foreach (Pawn pawn in innerContainer.InnerListForReading)
+        List<Pawn> innerContainerInnerListForReading = innerContainer.InnerListForReading.ToList();
+        foreach (Pawn pawn in innerContainerInnerListForReading)
         {
             GenSpawn.Spawn(pawn, parent.Position, previousMap);
         }
@@ -169,7 +169,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
                 {
                     if (requiresStation)
                     {
-                        yield return new FloatMenuOption((station == null ? "PS_NoStationForRelease": "PS_StationButNoRelease")
+                        yield return new FloatMenuOption((station == null ? "PS_NoStationForRelease" : "PS_StationButNoRelease")
                             .Translate(Props.storageStation.label, pawn.LabelCap), null);
                     }
                     else
@@ -270,7 +270,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
         if (!Props.needsDrop) return;
 
-        CompFarmNutrition nutritionComp = parent.TryGetComp<CompFarmNutrition>();
+        CompPawnStorageNutrition nutritionComp = parent.TryGetComp<CompPawnStorageNutrition>();
         if (nutritionComp == null) pawn.ageTracker?.AgeTickMothballed(actuallyStoredTicks); // this comp has already taken care of age so only apply if there isn't one
         foreach (Need need in pawn.needs?.AllNeeds ?? [])
         {
@@ -484,18 +484,19 @@ public class CompPawnStorage : ThingComp, IThingHolder
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
             };
 
-        yield return new Command_Toggle
-        {
-            defaultLabel = "PS_Rotate".Translate(),
-            toggleAction = () =>
+        if (Props.canBeRotated)
+            yield return new Command_Toggle
             {
-                Rotation.Rotate(RotationDirection.Clockwise);
-                this.SetLabelDirty();
-                this.parent.Map.mapDrawer.MapMeshDirty(this.parent.Position, (ulong) MapMeshFlagDefOf.Things);
-            },
-            isActive = () => true,
-            icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
-        };
+                defaultLabel = "PS_Rotate".Translate(),
+                toggleAction = () =>
+                {
+                    Rotation.Rotate(RotationDirection.Clockwise);
+                    SetLabelDirty();
+                    parent.Map.mapDrawer.MapMeshDirty(parent.Position, (ulong) MapMeshFlagDefOf.Things);
+                },
+                isActive = () => true,
+                icon = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rotate")
+            };
 
         if (Props.allowNonColonist && compAssignable != null) yield return new Command_SetPawnStorageOwnerType(compAssignable);
 
@@ -505,6 +506,18 @@ public class CompPawnStorage : ThingComp, IThingHolder
             if ((gizmo = Building.SelectContainedItemGizmo(parent, pawn)) != null)
                 yield return gizmo;
         }
+
+        if (Props.selfReleaseOption && innerContainer.InnerListForReading.Any())
+            yield return new Command_Action
+            {
+                defaultLabel = "PS_Release".Translate(),
+                action = delegate
+                {
+                    Find.WindowStack.Add(new FloatMenu(GetDirectlyHeldPawnsDefensiveCopy().Select(p => new FloatMenuOption("PS_Release".Translate(p.LabelCap),
+                        delegate { ReleaseSingle(parent.Map, p, false); })).ToList()));
+                },
+                icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
+            };
     }
 
     public void ReleaseContents(Map map)
@@ -526,6 +539,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         {
             ReleaseSingleAt(map, pawn, at, false, true);
         }
+
         innerContainer.Clear();
     }
 
@@ -575,6 +589,9 @@ public class CompPawnStorage : ThingComp, IThingHolder
     {
         return innerContainer ??= new ThingOwner<Pawn>(this);
     }
+
+    public float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(pawn =>
+        SimplifiedPastureNutritionSimulator.NutritionConsumedPerDay(pawn.def, pawn.ageTracker.CurLifeStage));
 
     public ThingOwner<Pawn> GetDirectlyHeldPawns() => innerContainer;
     public List<Pawn> GetDirectlyHeldPawnsDefensiveCopy() => [..innerContainer.InnerListForReading];

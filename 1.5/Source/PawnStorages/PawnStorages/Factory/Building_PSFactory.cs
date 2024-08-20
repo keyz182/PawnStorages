@@ -1,41 +1,50 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PawnStorages.Farm.Comps;
-using PawnStorages.Farm.Interfaces;
 using PawnStorages.Interfaces;
 using RimWorld;
 using Verse;
 
-namespace PawnStorages.Farm;
+namespace PawnStorages.Factory;
 
-public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorageParent, IBreederParent, IProductionParent, IFarmTabParent
+public class Building_PSFactory : Building, IStoreSettingsParent, INutritionStorageParent, IProductionParent, IBillGiver
 {
-    public CompFarmStorage pawnStorage;
-    public CompFarmNutrition FarmNutrition;
-    public CompFarmBreeder FarmBreeder;
-    public CompFarmProducer FarmProducer;
-    private StorageSettings allowedNutritionSettings;
+    public CompPawnStorage pawnStorage;
+    public CompPawnStorageNutrition pawnStorageNutrition;
+    public CompFactoryProducer factoryProducer;
+    public BillStack billStack;
+    public StorageSettings allowedNutritionSettings;
 
     protected Dictionary<ThingDef, bool> allowedThings;
 
     public Dictionary<ThingDef, bool> AllowedThings => allowedThings;
     public HashSet<ThingDef> AllowedThingDefs => [..allowedThings.Keys];
 
+    public bool CurrentlyUsableForBills() => false;
+    public bool UsableForBillsAfterFueling() => false;
+
+    public void Notify_BillDeleted(Bill bill) => factoryProducer?.Notify_BillDeleted(bill);
+
+    public BillStack BillStack => billStack;
+    public Bill CurrentBill => factoryProducer?.CurrentBill;
+    public IEnumerable<IntVec3> IngredientStackCells => [];
+
+    public Building_PSFactory() => billStack = new BillStack(this);
+
     public bool Allowed(ThingDef potentialDef)
     {
         return allowedThings.GetValueOrDefault(potentialDef, false);
     }
 
-    public bool IsBreeder => FarmBreeder != null;
-    public bool IsProducer => FarmProducer != null;
+    public bool IsProducer => factoryProducer != null;
 
     public bool IsFull => pawnStorage?.IsFull ?? true;
 
     public override void ExposeData()
     {
-        Scribe_Collections.Look(ref allowedThings, "allowedThings", LookMode.Def);
         base.ExposeData();
+        Scribe_Collections.Look(ref allowedThings, "allowedThings", LookMode.Def);
+        Scribe_Deep.Look(ref billStack, "billStack", this);
     }
 
     public void AllowAll()
@@ -55,15 +64,15 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
     }
 
     public bool NutritionAvailable = true;
+    private List<RecipeDef> allRecipesCached;
 
     public List<ThingDef> AllowableThing => Utility.Animals(IsProducer);
 
     public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
-        pawnStorage = GetComp<CompFarmStorage>();
-        FarmNutrition = GetComp<CompFarmNutrition>();
-        FarmBreeder = GetComp<CompFarmBreeder>();
-        FarmProducer = GetComp<CompFarmProducer>();
+        pawnStorage = GetComp<CompPawnStorage>();
+        pawnStorageNutrition = GetComp<CompPawnStorageNutrition>();
+        factoryProducer = GetComp<CompFactoryProducer>();
         base.SpawnSetup(map, respawningAfterLoad);
         allowedNutritionSettings = new StorageSettings(this);
         if (def.building.defaultStorageSettings == null)
@@ -82,11 +91,11 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
     {
         foreach (Gizmo gizmo in base.GetGizmos())
             yield return gizmo;
+        Designator_Build allowedFactoryHopperDesignator = BuildCopyCommandUtility.FindAllowedDesignator(PS_DefOf.PS_FactoryHopper);
         Designator_Build allowedHopperDesignator = BuildCopyCommandUtility.FindAllowedDesignator(ThingDefOf.Hopper);
-        Designator_Build allowedFarmHopperDesignator = BuildCopyCommandUtility.FindAllowedDesignator(PS_DefOf.PS_FarmHopper);
+        if (allowedFactoryHopperDesignator != null) yield return allowedFactoryHopperDesignator;
         if (allowedHopperDesignator != null) yield return allowedHopperDesignator;
-        if (allowedFarmHopperDesignator != null) yield return allowedFarmHopperDesignator;
-        foreach (Thing thing in (IEnumerable<Thing>)StoredPawns)
+        foreach (Thing thing in (IEnumerable<Thing>) StoredPawns)
         {
             Gizmo gizmo;
             if ((gizmo = SelectContainedItemGizmo(thing, thing)) != null)
@@ -98,9 +107,10 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
     {
         StringBuilder stringBuilder = new();
         stringBuilder.AppendLine(base.GetInspectString());
+        stringBuilder.AppendLine("PS_CurrentBill".Translate(factoryProducer.CurrentBill?.LabelCap ?? "PS_NoBill".Translate()));
         stringBuilder.AppendLine("PS_NutritionPerDay".Translate(pawnStorage.NutritionRequiredPerDay().ToStringDecimalIfSmall()));
-        if (!FarmNutrition.HasAltStore)
-            stringBuilder.AppendLine("PS_NutritionStored".Translate(FarmNutrition.storedNutrition, FarmNutrition.MaxNutrition));
+        if (!pawnStorageNutrition.HasAltStore)
+            stringBuilder.AppendLine("PS_NutritionStored".Translate(pawnStorageNutrition.storedNutrition, pawnStorageNutrition.MaxNutrition));
         return stringBuilder.ToString().Trim();
     }
 
@@ -127,7 +137,8 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
         pawnStorage.ReleaseSingle(Map, pawn, true, true);
     }
 
-    public bool HasSuggestiveSilos => true;
+    public bool HasSuggestiveSilos => false;
+
     public bool HasStoredPawns => true;
     public List<Pawn> StoredPawns => pawnStorage?.GetDirectlyHeldThings()?.Select(p => p as Pawn).ToList() ?? [];
 
@@ -135,63 +146,33 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
 
     public void Notify_NutritionNotEmpty() => NutritionAvailable = true;
 
-    public List<Pawn> AllHealthyPawns
-    {
-        get
-        {
-            return StoredPawns.Select(p => p).Where(pawn => !pawn.health.Dead && !pawn.health.Downed)
-                .ToList();
-        }
-    }
+    public List<Pawn> AllHealthyPawns => StoredPawns.Select(p => p).Where(pawn => !pawn.health.Dead && !pawn.health.Downed).ToList();
 
-    public List<Pawn> BreedablePawns
-    {
-        get
-        {
-            return !IsBreeder
-                ? []
-                : StoredPawns.Select(p => p).Where(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed)
-                    .ToList();
-        }
-    }
-
-    public List<Pawn> ProducingPawns
-    {
-        get
-        {
-            return !IsProducer
-                ? []
-                : StoredPawns.Select(p => p)
-                    .Where(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed)
-                    .ToList();
-        }
-    }
+    public List<Pawn> ProducingPawns =>
+        !IsProducer
+            ? []
+            : StoredPawns.Select(p => p).Where(pawn => pawn.ageTracker.Adult && !pawn.health.Dead && !pawn.health.Downed).ToList();
 
     public int TickInterval => 250;
-
-    public void Notify_PawnBorn(Pawn newPawn)
-    {
-        if(newPawn.Spawned)
-            newPawn.DeSpawn();
-
-        if (pawnStorage.innerContainer.Count >= pawnStorage.MaxStoredPawns())
-        {
-            Thing storageParent = pawnStorage.parent;
-
-            Messages.Message("PS_StorageFull".Translate(storageParent.LabelCap, newPawn.LabelCap), (Thing) newPawn, MessageTypeDefOf.NeutralEvent);
-
-            PawnComponentsUtility.AddComponentsForSpawn(newPawn);
-            pawnStorage.compAssignable?.TryUnassignPawn(newPawn);
-            GenDrop.TryDropSpawn(newPawn, storageParent.Position, storageParent.Map, ThingPlaceMode.Near, out Thing _);
-            FilthMaker.TryMakeFilth(storageParent.Position, storageParent.Map, ThingDefOf.Filth_Slime, new IntRange(3, 6).RandomInRange);
-            return;
-        }
-
-        pawnStorage.StorePawn(newPawn, false);
-    }
 
     public void GetChildHolders(List<IThingHolder> outChildren)
     {
         ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, pawnStorage.GetDirectlyHeldThings());
+    }
+
+    public List<RecipeDef> AllRecipesUnfiltered
+    {
+        get
+        {
+            if (allRecipesCached != null) return allRecipesCached;
+            allRecipesCached = [];
+            List<RecipeDef> defsListForReading = DefDatabase<RecipeDef>.AllDefsListForReading;
+            foreach (RecipeDef t in defsListForReading)
+            {
+                if (t.recipeUsers != null && !t.IsSurgery) allRecipesCached.Add(t);
+            }
+
+            return allRecipesCached;
+        }
     }
 }

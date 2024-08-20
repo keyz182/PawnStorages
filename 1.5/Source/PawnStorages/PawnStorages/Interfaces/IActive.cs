@@ -1,4 +1,4 @@
-﻿namespace PawnStorages.Farm.Interfaces
+﻿namespace PawnStorages.Interfaces
 {
     public interface IActive
     {

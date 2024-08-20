@@ -117,8 +117,8 @@
         </modExtensions>
     </ThingDef>
     <ThingDef ParentName="BuildingBase">
-        <minifiedDef>MinifiedThing</minifiedDef>
         <defName>PS_BatteryFarm</defName>
+        <minifiedDef>MinifiedThing</minifiedDef>
         <label>Battery Farm</label>
         <description>A battery farm. For animals. Not batteries. \n\n Squeeze in up to 16 animals that give produce, keep them supplied with nutrition, and reap the rewards without the filth!</description>
         <thingClass>PawnStorages.Farm.Building_PSFarm</thingClass>
@@ -227,8 +227,8 @@
         </modExtensions>
     </ThingDef>
     <ThingDef ParentName="BuildingBase">
-        <minifiedDef>MinifiedThing</minifiedDef>
         <defName>PS_BreedingFarm</defName>
+        <minifiedDef>MinifiedThing</minifiedDef>
         <label>Breeding Domes</label>
         <description>A breeding farm. \n\n Squeeze in up to 16 animals that mate, keep them supplied with nutrition, and reap the rewards without the filth!</description>
         <drawerType>MapMeshAndRealTime</drawerType>
@@ -339,5 +339,193 @@
         <modExtensions>
             <li Class="PawnStorages.PSExtension" />
         </modExtensions>
+    </ThingDef>
+
+    <ThingDef ParentName="BuildingBase">
+        <defName>PS_Factory</defName>
+        <minifiedDef>MinifiedThing</minifiedDef>
+        <label>Factory</label>
+        <description>A factory. \n\n Squeeze in up to 24 factory workers, keep them supplied with nutrition and materials and watch the items flow in!</description>
+        <drawerType>MapMeshAndRealTime</drawerType>
+        <thingClass>PawnStorages.Factory.Building_PSFactory</thingClass>
+        <graphicData>
+            <texPath>Things/Building/Production/PS_Factory</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawSize>(9,4)</drawSize>
+            <color>(70, 70, 75)</color>
+        </graphicData>
+        <size>(9,4)</size>
+        <thingCategories>
+            <li>BuildingsProduction</li>
+        </thingCategories>
+        <tickerType>Normal</tickerType>
+        <altitudeLayer>Building</altitudeLayer>
+        <passability>PassThroughOnly</passability>
+        <pathCost>100</pathCost>
+        <blockWind>true</blockWind>
+        <rotatable>true</rotatable>
+        <clearBuildingArea>false</clearBuildingArea>
+        <fillPercent>0.50</fillPercent>
+        <holdsRoof>false</holdsRoof>
+        <inspectorTabs>
+            <li>ITab_BiosculpterNutritionStorage</li>
+            <li>PawnStorages.Factory.ITab_Bills</li>
+        </inspectorTabs>
+        <designationCategory>Production</designationCategory>
+        <comps>
+            <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
+                <drawAssignmentOverlay>false</drawAssignmentOverlay>
+                <maxAssignedPawnsCount>24</maxAssignedPawnsCount>
+                <showGizmo>true</showGizmo>
+            </li>
+            <li Class="PawnStorages.Factory.CompProperties_FactoryProducer"/>
+            <li Class="PawnStorages.CompProperties_PawnStorageNutrition" />
+            <li Class="PawnStorages.CompProperties_PawnStorage">
+                <maxStoredPawns>24</maxStoredPawns>
+                <needsDrop>true</needsDrop>
+                <selfReleaseOption>true</selfReleaseOption>
+                <releaseAllOption>true</releaseAllOption>
+                <convertOption>true</convertOption>
+                <appendOfName>true</appendOfName>
+                <lightEffect>true</lightEffect>
+                <allowNonColonist>true</allowNonColonist>
+                <canBeScheduled>true</canBeScheduled>
+                <canBeRotated>false</canBeRotated>
+            </li>
+            <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_NutritionNetStorage">
+                <storageCapacity>250</storageCapacity>
+                <pipeNet>VNPE_NutrientPasteNet</pipeNet>
+                <barSize>(0.75, 0.20)</barSize>
+                <margin>0.05</margin>
+                <centerOffset>(0, 0, -0.35)</centerOffset>
+                <destroyOption>
+                    <filth>VNPE_Filth_Paste</filth>
+                    <ratio>1</ratio>
+                    <maxRadius>5</maxRadius>
+                </destroyOption>
+                <contentRequirePower>false</contentRequirePower>
+            </li>
+        </comps>
+        <building>
+            <wantsHopperAdjacent>true</wantsHopperAdjacent>
+            <destroySound>BuildingDestroyed_Metal_Big</destroySound>
+            <storageGroupTag>PS_Factory</storageGroupTag>
+            <fixedStorageSettings>
+                <priority>Important</priority>
+                <filter>
+                    <categories>
+                        <li>Foods</li>
+                    </categories>
+                    <specialFiltersToDisallow>
+                        <li>AllowPlantFood</li>
+                    </specialFiltersToDisallow>
+                </filter>
+            </fixedStorageSettings>
+            <defaultStorageSettings>
+                <priority>Important</priority>
+                <filter>
+                    <categories>
+                        <li>Foods</li>
+                    </categories>
+                </filter>
+            </defaultStorageSettings>
+        </building>
+        <statBases>
+            <WorkToBuild>1500</WorkToBuild>
+            <MaxHitPoints>100</MaxHitPoints>
+            <Flammability>0.5</Flammability>
+            <Mass>30</Mass>
+        </statBases>
+        <costList>
+            <Steel>350</Steel>
+            <ComponentIndustrial>3</ComponentIndustrial>
+        </costList>
+        <constructEffect>ConstructMetal</constructEffect>
+        <placeWorkers>
+            <li>PawnStorages.PlaceWorker_DrawRotationArrow</li>
+        </placeWorkers>
+        <uiIconPath>Things/Building/Production/PS_Factory</uiIconPath>
+        <uiIconScale>0.85</uiIconScale>
+        <uiIconColor>(70, 70, 75)</uiIconColor>
+        <modExtensions>
+            <li Class="PawnStorages.PSExtension" />
+        </modExtensions>
+    </ThingDef>
+
+    <ThingDef ParentName="BuildingBase">
+        <defName>PS_FactoryHopper</defName>
+        <label>factory hopper</label>
+        <description>Holds resources for factories.</description>
+        <thingClass>Building_Storage</thingClass>
+        <graphicData>
+            <texPath>Things/Building/Production/Hopper</texPath>
+            <graphicClass>Graphic_Multi</graphicClass>
+            <damageData>
+                <rect>(0.05,0.1,0.9,0.9)</rect>
+                <cornerTL>Damage/Corner</cornerTL>
+                <cornerTR>Damage/Corner</cornerTR>
+            </damageData>
+            <color>(70, 70, 75)</color>
+        </graphicData>
+        <altitudeLayer>Building</altitudeLayer>
+        <passability>PassThroughOnly</passability>
+        <fillPercent>0.5</fillPercent>
+        <pathCost>42</pathCost>
+        <canOverlapZones>false</canOverlapZones>
+        <building>
+            <isHopper>true</isHopper>
+            <storageGroupTag>Hopper</storageGroupTag>
+            <blueprintClass>Blueprint_Storage</blueprintClass>
+            <fixedStorageSettings>
+                <filter>
+                    <disallowNotEverStorable>true</disallowNotEverStorable>
+                    <categories>
+                        <li>Root</li>
+                    </categories>
+                    <disallowedCategories>
+                        <li>Plants</li>
+                        <li>Buildings</li>
+                    </disallowedCategories>
+                </filter>
+            </fixedStorageSettings>
+            <defaultStorageSettings>
+                <priority>Preferred</priority>
+                <filter>
+                    <categories>
+                        <li>ResourcesRaw</li>
+                        <li>Leathers</li>
+                    </categories>
+                </filter>
+            </defaultStorageSettings>
+            <buildingTags>
+                <li>Production</li>
+            </buildingTags>
+        </building>
+        <inspectorTabs>
+            <li>ITab_Storage</li>
+        </inspectorTabs>
+        <castEdgeShadows>true</castEdgeShadows>
+        <statBases>
+            <WorkToBuild>300</WorkToBuild>
+            <MaxHitPoints>100</MaxHitPoints>
+            <Flammability>0.5</Flammability>
+        </statBases>
+        <costList>
+            <Steel>15</Steel>
+        </costList>
+        <tickerType>Never</tickerType>
+        <rotatable>true</rotatable>
+        <neverMultiSelect>true</neverMultiSelect>
+        <designationCategory>Production</designationCategory>
+        <uiOrder>2140</uiOrder>
+        <surfaceType>Item</surfaceType>
+        <placeWorkers>
+            <li>PlaceWorker_NextToHopperAccepter</li>
+        </placeWorkers>
+        <constructEffect>ConstructMetal</constructEffect>
+        <researchPrerequisites />
+        <uiIconPath>Things/Building/Production/Hopper_MenuIcon</uiIconPath>
+        <uiIconScale>0.85</uiIconScale>
+        <uiIconColor>(70, 70, 75)</uiIconColor>
     </ThingDef>
 </Defs>

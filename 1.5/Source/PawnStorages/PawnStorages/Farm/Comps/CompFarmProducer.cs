@@ -1,26 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PawnStorages.Farm.Interfaces;
 using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace PawnStorages.Farm.Comps
 {
-    public class CompFarmProducer : ThingComp
+    public class CompFarmProducer : CompPawnStorageProducer
     {
-        public IProductionParent Parent => parent as IProductionParent;
-
-        protected List<Thing> DaysProduce = new();
-        public bool ProduceNow = false;
-
-        public override void PostExposeData()
-        {
-            base.PostExposeData();
-            Scribe_Collections.Look(ref DaysProduce, "daysProduce", LookMode.Deep);
-        }
-
         public override void CompTick()
         {
             base.CompTick();
@@ -111,17 +99,9 @@ namespace PawnStorages.Farm.Comps
             gatherable.fullness = 0f;
         }
 
-
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
-            yield return new Command_Action
-            {
-                defaultLabel = "PS_Farm_ProduceNow".Translate(DaysProduce.Count),
-                action = delegate { ProduceNow = true; },
-                icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll"),
-                disabled = DaysProduce.Count <= 0,
-                disabledReason = "PS_Farm_NothingToProduce".Translate()
-            };
+            foreach (Gizmo gizmo in base.CompGetGizmosExtra()) yield return gizmo;
             if (!DebugSettings.ShowDevGizmos) yield break;
             yield return new Command_Action
             {

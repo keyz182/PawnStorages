@@ -1,6 +1,6 @@
 ﻿using Verse;
 
-namespace PawnStorages.Farm.Interfaces
+namespace PawnStorages.Interfaces
 {
     public interface IPawnRelease
     {

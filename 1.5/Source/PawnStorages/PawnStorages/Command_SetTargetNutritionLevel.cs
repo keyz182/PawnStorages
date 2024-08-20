@@ -1,17 +1,17 @@
 ﻿using UnityEngine;
 using Verse;
 
-namespace PawnStorages.Farm.Comps;
+namespace PawnStorages;
 
 public class Command_SetTargetNutritionLevel : Command
 {
-    public CompFarmNutrition nutritionComp;
+    public CompPawnStorageNutrition nutritionComp;
 
     public override void ProcessInput(Event ev)
     {
         base.ProcessInput(ev);
         int to = (int) nutritionComp.MaxNutrition;
-        Dialog_Slider dialogSlider = new(x => "PS_Farm_NutritionLevel".Translate(x), 0, to,
+        Dialog_Slider dialogSlider = new(x => "PS_NutritionLevel".Translate(x), 0, to,
             value =>
             {
                 nutritionComp.TargetNutritionLevel = value;

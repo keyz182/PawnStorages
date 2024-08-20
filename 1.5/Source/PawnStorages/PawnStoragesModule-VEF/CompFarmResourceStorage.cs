@@ -1,32 +1,16 @@
 ﻿
 using PawnStorages.Farm.Comps;
-using PawnStorages.Farm.Interfaces;
 using Verse;
 
 namespace PawnStorages.VEF;
 
-public class CompFarmResourceStorage : PipeSystem.CompResourceStorage, INutritionStoreAlternative
+public class CompFarmResourceStorage : CompNutritionNetStorage
 {
-    public float MaxStoreSize { get => AmountCanAccept; }
-
-    public float CurrentStored
-    {
-        get => AmountStored;
-        set
-        {
-            float toStore = value - CurrentStored;
-            if (toStore < 0f)
-                DrawResource(-toStore);
-            else
-                AddResource(toStore);
-        }
-    }
+    public new CompProperties_FarmResourceStorage Props => (CompProperties_FarmResourceStorage)props;
 
     public override void CompTick()
     {
         base.CompTick();
-
-        if (Props is CompProperties_FarmResourceStorage p)
-            p.storageCapacity = PawnStoragesMod.settings.MaxFarmStoredNutrition;
+        if (Props.storageCapacity <= 0) Props.storageCapacity = PawnStoragesMod.settings.MaxFarmStoredNutrition;
     }
 }

@@ -92,12 +92,14 @@
     <PS_FarmTab_Nutrition>Nutrition: {0}</PS_FarmTab_Nutrition>
     <PS_FarmTab_Fullness>Progress: {0} - {1}</PS_FarmTab_Fullness>
 
-    <PS_Farm_NutritionLevel>Target nutrition: {0}</PS_Farm_NutritionLevel>
-    <PS_Farm_CommandSetNutritionLevel>Set Target nutrition</PS_Farm_CommandSetNutritionLevel>
-    <PS_Farm_CommandSetNutritionLevelDesc>Set the target fuel level. The farm will only take in nutrition from hoppers up to the target fuel level.</PS_Farm_CommandSetNutritionLevelDesc>
+    <PS_NutritionLevel>Target nutrition: {0}</PS_NutritionLevel>
+    <PS_CommandSetNutritionLevel>Set Target nutrition</PS_CommandSetNutritionLevel>
+    <PS_CommandSetNutritionLevelDesc>Set the target fuel level. The farm will only take in nutrition from hoppers up to the target fuel level.</PS_CommandSetNutritionLevelDesc>
 
-    <PS_Farm_NothingToProduce>Nothing to produce</PS_Farm_NothingToProduce>
-    <PS_Farm_ProduceNow>Eject produce: {0} batches</PS_Farm_ProduceNow>
-
+    <PS_NothingToProduce>Nothing to produce</PS_NothingToProduce>
+    <PS_ProduceNow>Eject produce: {0} batches</PS_ProduceNow>
+    <PS_CurrentBill>Current bill: {0}</PS_CurrentBill>
+    <PS_NoBill>No Bill</PS_NoBill>
+    <PS_WorkProgress>Work progress: {0} / {1}</PS_WorkProgress>
     <PS_StorageFull>Storage {0} is full, so {1} was ejected</PS_StorageFull>
 </LanguageData>

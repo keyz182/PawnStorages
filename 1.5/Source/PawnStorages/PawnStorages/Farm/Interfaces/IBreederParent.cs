@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using PawnStorages.Interfaces;
 using Verse;
 
 namespace PawnStorages.Farm.Interfaces

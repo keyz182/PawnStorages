@@ -21,9 +21,6 @@ namespace PawnStorages.Farm.Comps
             !pawn.RaceProps.Humanlike &&
             (compAssignable.AssignedPawns.Contains(pawn) || compAssignable.HasFreeSlot);
 
-        public float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(animal =>
-            SimplifiedPastureNutritionSimulator.NutritionConsumedPerDay(animal.def, animal.ageTracker.CurLifeStage));
-
         public IEnumerable<PawnKindDef> HeldPawnTypes => innerContainer.innerList.Select(p => p.kindDef).Distinct();
 
         public Dialog_AutoSlaughter.AnimalCountRecord CountForType(ThingDef def)
