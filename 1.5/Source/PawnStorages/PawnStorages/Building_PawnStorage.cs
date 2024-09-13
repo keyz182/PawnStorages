@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using PawnStorages.TickedStorage;
 using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace PawnStorages;
 
-public class Building_PawnStorage : PSBuilding
+public class Building_PawnStorage : PSBuilding, IPawnListParent
 {
     public CompPawnStorage storageComp;
 
@@ -42,10 +43,18 @@ public class Building_PawnStorage : PSBuilding
             // Grab the set rotation from the storage comp so the user can tweak the rotation
             Rot4 rot = storageComp.Rotation;
             // Pass in PawnHealthState.Mobile as an override to ensure the pawn is drawn upright
-            RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f), rot, new Vector3(0f, 0f, 0.1f), 1.5f, healthStateOverride: PawnHealthState.Mobile);
+            RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f), rot, new Vector3(0f, 0f, 0.1f), compAssignable.Props.cameraZoom, healthStateOverride: PawnHealthState.Mobile);
 
             MaterialRequest req2 = default;
-            req2.mainTex = texture.GetGreyscale();
+            if (compAssignable.Props.drawGrayscale)
+            {
+                req2.mainTex = texture.GetGreyscale();
+            }
+            else
+            {
+                req2.mainTex = texture;
+            }
+
             req2.shader = Graphic.data?.shaderType?.Shader;
             if (req2.shader == null) req2.shader = ShaderDatabase.DefaultShader;
             req2.color = DrawColor;
@@ -61,14 +70,42 @@ public class Building_PawnStorage : PSBuilding
                 pos += StatueOffset.RotatedBy(Rotation);
             }
 
+            s.z *= compAssignable.Props.pawnDrawScaleZ;
+            s.x *= compAssignable.Props.pawnDrawScaleX;
+
             pos += Graphic.DrawOffset(rot);
             pos += StatueOffset;
 
             //Somehow this magically fixes the flipping issue, just keeping it this way.
             mesh.SetUVs(false);
             Printer_Mesh.PrintMesh(layer, Matrix4x4.TRS(pos, Rotation.AsQuat, s), mesh, mat);
+
+            if (ShouldShowOverlay)
+            {
+                pos -= StatueOffset;
+                pos.y = Altitudes.AltitudeFor(AltitudeLayer.MoteOverhead);
+                Printer_Mesh.PrintMesh(layer, Matrix4x4.TRS(pos, Rotation.AsQuat, new Vector3(1,1,1)), OverlayGraphic.MeshAt(Rotation), OverlayGraphic.MatSingle);
+            }
         }
 
         base.Print(layer);
+    }
+
+    public ThingOwner GetDirectlyHeldThings()
+    {
+        return storageComp.GetDirectlyHeldThings();
+    }
+
+    public void ReleasePawn(Pawn pawn)
+    {
+        storageComp.ReleaseSingle(this.Map, pawn, true, true);
+
+    }
+
+    public bool NeedsDrop()
+    {
+        CompTickedStorage cmp = GetComp<CompTickedStorage>();
+
+        return cmp != null && cmp.Props.needsDrop;
     }
 }
