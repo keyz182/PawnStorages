@@ -9,6 +9,7 @@ public class PSExtension : DefModExtension
     public Vector3 statueOffset = Vector3.zero;
 
     public GraphicData overlayGraphicData;
+    public bool onlyRenderPawnNorth = false;
 }
 
 public class PSBuilding : Building
@@ -21,6 +22,7 @@ public class PSBuilding : Building
     protected bool HasExtension => defExtension != null;
     public virtual bool ShouldUseAlternative => HasExtension && defExtension.extraGraphicData != null;
     public virtual bool ShouldShowOverlay => HasExtension && defExtension.overlayGraphicData != null;
+    public virtual bool OnlyRenderPawnNorth => HasExtension && defExtension.onlyRenderPawnNorth;
 
     protected Vector3 StatueOffset => HasExtension ? defExtension.statueOffset : Vector3.zero;
 
