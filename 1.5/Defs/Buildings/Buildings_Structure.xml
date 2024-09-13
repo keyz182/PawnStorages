@@ -585,6 +585,7 @@
                 <TickHediffs>false</TickHediffs>
                 <needsDrop>false</needsDrop>
                 <releaseOption>true</releaseOption>
+                <releaseAllOption>true</releaseAllOption>
                 <maxStoredPawns>16</maxStoredPawns>
                 <convertOption>true</convertOption>
                 <canBeScheduled>true</canBeScheduled>
