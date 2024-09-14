@@ -113,7 +113,7 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
 
     public bool NeedsDrop()
     {
-        return storageComp == null || storageComp.Props.needsDrop;
+        return PawnStoragesMod.settings.AllowNeedsDrop && (storageComp == null || storageComp.Props.needsDrop);
     }
 
     public bool ShouldBeLitNow()

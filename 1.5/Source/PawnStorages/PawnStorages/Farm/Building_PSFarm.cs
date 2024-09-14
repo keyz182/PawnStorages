@@ -203,6 +203,6 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
 
     public bool NeedsDrop()
     {
-        return pawnStorage == null || pawnStorage.Props.needsDrop;
+        return PawnStoragesMod.settings.AllowNeedsDrop && (pawnStorage == null || pawnStorage.Props.needsDrop);
     }
 }
