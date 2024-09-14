@@ -113,9 +113,8 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
 
     public bool NeedsDrop()
     {
-        CompTickedStorage cmp = GetComp<CompTickedStorage>();
-
-        return cmp != null && cmp.Props.needsDrop;
+        CompPawnStorage  cmp = GetComp<CompPawnStorage>();
+        return cmp == null || cmp.Props.needsDrop;
     }
 
     public bool ShouldBeLitNow()
