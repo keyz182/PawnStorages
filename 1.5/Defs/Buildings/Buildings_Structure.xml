@@ -599,8 +599,7 @@
             <Mass>5</Mass>
         </statBases>
         <costList>
-            <Steel>20</Steel>
-            <WoodLog>20</WoodLog>
+            <InsectJelly>15</InsectJelly>
         </costList>
         <uiIconPath>Things/Building/PS_BugWallStorage_UI</uiIconPath>
         <uiIconScale>0.85</uiIconScale>
@@ -683,8 +682,7 @@
             <Mass>5</Mass>
         </statBases>
         <costList>
-            <Steel>20</Steel>
-            <WoodLog>20</WoodLog>
+            <InsectJelly>15</InsectJelly>
         </costList>
         <uiIconPath>Things/Building/PS_BugCocoon</uiIconPath>
         <modExtensions>
@@ -756,8 +754,7 @@
             <Mass>5</Mass>
         </statBases>
         <costList>
-            <Steel>20</Steel>
-            <WoodLog>20</WoodLog>
+            <InsectJelly>20</InsectJelly>
         </costList>
         <uiIconPath>Things/Building/PS_BugCocoon</uiIconPath>
         <modExtensions>
