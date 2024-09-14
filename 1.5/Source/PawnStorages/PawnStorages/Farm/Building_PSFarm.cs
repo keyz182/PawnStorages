@@ -203,7 +203,6 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
 
     public bool NeedsDrop()
     {
-        CompPawnStorage  cmp = GetComp<CompPawnStorage>();
-        return cmp == null || cmp.Props.needsDrop;
+        return pawnStorage == null || pawnStorage.Props.needsDrop;
     }
 }
