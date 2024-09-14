@@ -37,7 +37,7 @@ public class CompTickedStorage: CompPawnStorage
 
     public void EmulateScaledPawnAgeTick(Pawn pawn)
     {
-        int interval = Props.TickInterval;
+        int interval = Props.tickInterval;
 
         int ageBioYears = pawn.ageTracker.AgeBiologicalYears;
 
@@ -58,7 +58,7 @@ public class CompTickedStorage: CompPawnStorage
 
     public void EmulateScaledPawnNutritionTick(Pawn pawn)
     {
-        int interval = Props.TickInterval;
+        int interval = Props.tickInterval;
 
         Need_Food foodNeeds = pawn.needs?.food;
         if (foodNeeds == null)
@@ -113,7 +113,7 @@ public class CompTickedStorage: CompPawnStorage
 
         // Looks like we'd need to emulate each hediff individually to appropriately emulate this,
         // So take the hit and just do per-tick
-        if (Props.TickHediffs)
+        if (Props.tickHediffs)
         {
             foreach (Pawn pawn in StoredPawns)
             {
@@ -121,7 +121,7 @@ public class CompTickedStorage: CompPawnStorage
             }
         }
 
-        if (!parent.IsHashIntervalTick(Props.TickInterval))
+        if (!parent.IsHashIntervalTick(Props.tickInterval))
         {
             return;
         }
@@ -129,12 +129,12 @@ public class CompTickedStorage: CompPawnStorage
         foreach (Pawn pawn in StoredPawns)
         {
 
-            if (Props.TickAge)
+            if (Props.tickAge)
             {
                 EmulateScaledPawnAgeTick(pawn);
             }
 
-            if (Props.TickNutrition)
+            if (Props.tickNutrition)
             {
                 EmulateScaledPawnNutritionTick(pawn);
             }

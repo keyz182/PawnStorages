@@ -2,11 +2,11 @@
 
 public class CompProperties_TickedStorage: CompProperties_PawnStorage
 {
-    public bool TickHediffs = true;
-    public bool TickAge = false;
-    public bool TickNutrition => needsDrop;
+    public bool tickHediffs = true;
+    public bool tickAge = false;
+    public bool tickNutrition => needsDrop;
 
-    public int TickInterval = 300;
+    public int tickInterval = 300;
 
     public CompProperties_TickedStorage()
     {

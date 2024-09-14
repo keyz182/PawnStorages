@@ -581,8 +581,8 @@
                 <showGizmo>true</showGizmo>
             </li>
             <li Class="PawnStorages.TickedStorage.CompProperties_TickedStorage">
-                <TickAge>false</TickAge>
-                <TickHediffs>false</TickHediffs>
+                <tickAge>false</tickAge>
+                <tickHediffs>false</tickHediffs>
                 <needsDrop>false</needsDrop>
                 <releaseOption>true</releaseOption>
                 <releaseAllOption>true</releaseAllOption>
@@ -660,8 +660,8 @@
                 <cameraZoom>1.5</cameraZoom>
             </li>
             <li Class="PawnStorages.TickedStorage.CompProperties_TickedStorage">
-                <TickAge>false</TickAge>
-                <TickHediffs>true</TickHediffs>
+                <tickAge>false</tickAge>
+                <tickHediffs>true</tickHediffs>
                 <needsDrop>false</needsDrop>
                 <releaseOption>true</releaseOption>
                 <releaseAllOption>true</releaseAllOption>
@@ -733,8 +733,8 @@
                 <cameraZoom>1.5</cameraZoom>
             </li>
             <li Class="PawnStorages.TickedStorage.CompProperties_TickedStorage">
-                <TickAge>false</TickAge>
-                <TickHediffs>true</TickHediffs>
+                <tickAge>false</tickAge>
+                <tickHediffs>true</tickHediffs>
                 <needsDrop>false</needsDrop>
                 <releaseOption>true</releaseOption>
                 <releaseAllOption>true</releaseAllOption>
