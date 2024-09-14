@@ -533,4 +533,238 @@
         <uiIconColor>(70, 70, 75)</uiIconColor>
         <techLevel>Industrial</techLevel>
     </ThingDef>
+
+
+    <ThingDef ParentName="BuildingBase">
+        <defName>PS_BugWallStorage</defName>
+        <label>Wall Nest</label>
+        <description>An insect like wall nest capable of storing multiple pawns. Can be placed on walls like a Wall Lamp.</description>
+        <thingClass>PawnStorages.Building_PawnStorage</thingClass>
+        <rotatable>true</rotatable>
+        <graphicData>
+            <texPath>Things/Building/PS_BugWallStorage</texPath>
+            <graphicClass>Graphic_Multi</graphicClass>
+            <drawOffsetNorth>(0,0,0.75)</drawOffsetNorth>
+            <drawOffsetSouth>(0,0,-0.9)</drawOffsetSouth>
+            <drawOffsetWest>(-0.9,0,0)</drawOffsetWest>
+            <drawOffsetEast>(0.9,0,0)</drawOffsetEast>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <tickerType>Normal</tickerType>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <researchPrerequisites IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <uiOrder>2991</uiOrder>
+        <containedPawnsSelectable>true</containedPawnsSelectable>
+        <building>
+            <isEdifice>false</isEdifice>
+            <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+            <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <inspectorTabs>
+            <li>PawnStorages.TickedStorage.ITab_PawnList</li>
+        </inspectorTabs>
+        <designationCategory>Furniture</designationCategory>
+        <comps>
+            <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
+                <drawAssignmentOverlay>false</drawAssignmentOverlay>
+                <maxAssignedPawnsCount>16</maxAssignedPawnsCount>
+                <colonyAnimalsOnly>true</colonyAnimalsOnly>
+                <showGizmo>true</showGizmo>
+            </li>
+            <li Class="PawnStorages.TickedStorage.CompProperties_TickedStorage">
+                <tickAge>false</tickAge>
+                <tickHediffs>false</tickHediffs>
+                <needsDrop>false</needsDrop>
+                <releaseOption>true</releaseOption>
+                <releaseAllOption>true</releaseAllOption>
+                <maxStoredPawns>16</maxStoredPawns>
+                <convertOption>true</convertOption>
+                <canBeScheduled>true</canBeScheduled>
+                <showStoredPawnHeadOnly>true</showStoredPawnHeadOnly>
+            </li>
+        </comps>
+        <statBases>
+            <WorkToBuild>600</WorkToBuild>
+            <MaxHitPoints>50</MaxHitPoints>
+            <Flammability>0.5</Flammability>
+            <Mass>5</Mass>
+        </statBases>
+        <costList>
+            <InsectJelly>15</InsectJelly>
+        </costList>
+        <uiIconPath>Things/Building/PS_BugWallStorage_UI</uiIconPath>
+        <uiIconScale>0.85</uiIconScale>
+        <modExtensions>
+            <li Class="PawnStorages.PSExtension" />
+        </modExtensions>
+    </ThingDef>
+
+    <ThingDef ParentName="BuildingBase">
+        <defName>PS_BugWallCocoon</defName>
+        <label>Wall Mounted Cocoon</label>
+        <description>An insect like cocoon that can bind and suspend a pawn. It provides nutrients while keeping the pawn in a semi hibernated state.\n\nThe pawns hediffs will keep ticking, but age and hunger do not.</description>
+        <thingClass>PawnStorages.Building_PawnStorage</thingClass>
+        <rotatable>true</rotatable>
+        <graphicData>
+            <texPath>Things/Building/PS_BugCocoonWallMount</texPath>
+            <graphicClass>Graphic_Multi</graphicClass>
+            <drawOffsetNorth>(0,0,0.75)</drawOffsetNorth>
+            <drawOffsetSouth>(0,0,-1)</drawOffsetSouth>
+            <drawOffsetWest>(-0.3,0,0)</drawOffsetWest>
+            <drawOffsetEast>(0.3,0,0)</drawOffsetEast>
+            <drawSize>(0.8,0.8)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <tickerType>Normal</tickerType>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <researchPrerequisites IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <uiOrder>2991</uiOrder>
+        <containedPawnsSelectable>true</containedPawnsSelectable>
+        <building>
+            <isEdifice>false</isEdifice>
+            <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+            <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <inspectorTabs>
+            <li>PawnStorages.TickedStorage.ITab_PawnList</li>
+        </inspectorTabs>
+        <designationCategory>Furniture</designationCategory>
+        <comps>
+            <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
+                <drawAssignmentOverlay>false</drawAssignmentOverlay>
+                <maxAssignedPawnsCount>1</maxAssignedPawnsCount>
+                <showGizmo>true</showGizmo>
+                <pawnDrawScaleX>0.6</pawnDrawScaleX>
+                <pawnDrawScaleZ>0.6</pawnDrawScaleZ>
+                <pawnDrawOffsetX>0</pawnDrawOffsetX>
+                <pawnDrawOffsetZ>1.8</pawnDrawOffsetZ>
+                <drawGrayscale>false</drawGrayscale>
+                <cameraZoom>1.5</cameraZoom>
+            </li>
+            <li Class="PawnStorages.TickedStorage.CompProperties_TickedStorage">
+                <tickAge>false</tickAge>
+                <tickHediffs>true</tickHediffs>
+                <needsDrop>false</needsDrop>
+                <releaseOption>true</releaseOption>
+                <releaseAllOption>true</releaseAllOption>
+                <maxStoredPawns>1</maxStoredPawns>
+                <convertOption>true</convertOption>
+                <canBeScheduled>true</canBeScheduled>
+                <showStoredPawnHeadOnly>true</showStoredPawnHeadOnly>
+                <showStoredPawn>true</showStoredPawn>
+            </li>
+            <li Class="CompProperties_Glower">
+                <glowRadius>2</glowRadius>
+                <glowColor>(139, 189, 79,0)</glowColor>
+            </li>
+        </comps>
+        <statBases>
+            <WorkToBuild>600</WorkToBuild>
+            <MaxHitPoints>50</MaxHitPoints>
+            <Flammability>0.5</Flammability>
+            <Mass>5</Mass>
+        </statBases>
+        <costList>
+            <InsectJelly>15</InsectJelly>
+        </costList>
+        <uiIconPath>Things/Building/PS_BugCocoon</uiIconPath>
+        <modExtensions>
+            <li Class="PawnStorages.PSExtension">
+                <onlyRenderPawnNorth>true</onlyRenderPawnNorth>
+                <overlayGraphicData>
+                    <texPath>Things/Building/PS_BugCocoonWallMount_TopLayer</texPath>
+                    <graphicClass>Graphic_Single</graphicClass>
+                    <drawSize>(0.8,0.8)</drawSize>
+                </overlayGraphicData>
+            </li>
+        </modExtensions>
+    </ThingDef>
+
+    <ThingDef ParentName="BuildingBase">
+        <defName>PS_BugCocoon</defName>
+        <label>Cocoon</label>
+        <description>An insect like cocoon that can bind and suspend a pawn. It provides nutrients while keeping the pawn in a semi hibernated state.\n\nThe pawns hediffs will keep ticking, but age and hunger do not.</description>
+        <thingClass>PawnStorages.Building_PawnStorage</thingClass>
+        <rotatable>true</rotatable>
+        <graphicData>
+            <texPath>Things/Building/PS_BugCocoon</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawSize>(1,2)</drawSize>
+        </graphicData>
+        <size>(1,2)</size>
+        <tickerType>Normal</tickerType>
+        <altitudeLayer>Building</altitudeLayer>
+        <passability>PassThroughOnly</passability>
+        <researchPrerequisites IsNull="True" />
+        <pathCost>100</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <uiOrder>2991</uiOrder>
+        <designationCategory>Furniture</designationCategory>
+        <containedPawnsSelectable>true</containedPawnsSelectable>
+        <comps>
+            <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
+                <drawAssignmentOverlay>false</drawAssignmentOverlay>
+                <maxAssignedPawnsCount>1</maxAssignedPawnsCount>
+                <colonyAnimalsOnly>true</colonyAnimalsOnly>
+                <showGizmo>true</showGizmo>
+                <pawnDrawScaleX>1</pawnDrawScaleX>
+                <pawnDrawScaleZ>0.5</pawnDrawScaleZ>
+                <drawGrayscale>false</drawGrayscale>
+                <cameraZoom>1.5</cameraZoom>
+            </li>
+            <li Class="PawnStorages.TickedStorage.CompProperties_TickedStorage">
+                <tickAge>false</tickAge>
+                <tickHediffs>true</tickHediffs>
+                <needsDrop>false</needsDrop>
+                <releaseOption>true</releaseOption>
+                <releaseAllOption>true</releaseAllOption>
+                <maxStoredPawns>1</maxStoredPawns>
+                <convertOption>true</convertOption>
+                <canBeScheduled>true</canBeScheduled>
+                <showStoredPawnHeadOnly>true</showStoredPawnHeadOnly>
+                <showStoredPawn>true</showStoredPawn>
+            </li>
+            <li Class="CompProperties_Glower">
+                <glowRadius>2</glowRadius>
+                <glowColor>(139, 189, 79,0)</glowColor>
+            </li>
+        </comps>
+        <statBases>
+            <WorkToBuild>600</WorkToBuild>
+            <MaxHitPoints>50</MaxHitPoints>
+            <Flammability>0.5</Flammability>
+            <Mass>5</Mass>
+        </statBases>
+        <costList>
+            <InsectJelly>20</InsectJelly>
+        </costList>
+        <uiIconPath>Things/Building/PS_BugCocoon</uiIconPath>
+        <modExtensions>
+            <li Class="PawnStorages.PSExtension" >
+                <overlayGraphicData>
+                    <texPath>Things/Building/PS_BugCocoonTopLayer</texPath>
+                    <graphicClass>Graphic_Single</graphicClass>
+                    <drawSize>(1,2)</drawSize>
+                </overlayGraphicData>
+            </li>
+        </modExtensions>
+    </ThingDef>
 </Defs>

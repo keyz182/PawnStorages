@@ -26,7 +26,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public Rot4 Rotation = Rot4.North.Opposite;
 
-    public Thing Parent => parent;
+    public Building_PawnStorage Parent => parent as Building_PawnStorage;
 
     public CompPawnStorage()
     {
@@ -309,6 +309,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
         ApplyNeedsForStoredPeriodFor(pawn);
         Notify_ReleasedFromStorage(pawn);
+        otherStore.Notify_AddedToStorage(pawn);
     }
 
     public void StorePawn(Pawn pawn, bool effects = true)
@@ -329,6 +330,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         if (compAssignable != null && !compAssignable.AssignedPawns.Contains(pawn)) compAssignable.TryAssignPawn(pawn);
         labelDirty = true;
         pawnStoringTick.SetOrAdd(pawn.thingIDNumber, Find.TickManager.TicksGame);
+        Notify_AddedToStorage(pawn);
     }
 
     public virtual bool CanRelease(Pawn releaser)
@@ -600,5 +602,11 @@ public class CompPawnStorage : ThingComp, IThingHolder
     {
         if (Props.useCharges && chargesRemaining > 0) chargesRemaining--;
         if (chargesRemaining <= 0 && Props.destroyOnZeroCharges) Parent.Destroy();
+        Parent.Notify_PawnRemoved(pawn);
+    }
+
+    public void Notify_AddedToStorage(Pawn pawn)
+    {
+        Parent.Notify_PawnAdded(pawn);
     }
 }

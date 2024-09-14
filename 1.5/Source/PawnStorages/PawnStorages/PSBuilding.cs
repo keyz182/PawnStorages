@@ -7,16 +7,22 @@ public class PSExtension : DefModExtension
 {
     public GraphicData extraGraphicData;
     public Vector3 statueOffset = Vector3.zero;
+
+    public GraphicData overlayGraphicData;
+    public bool onlyRenderPawnNorth = false;
 }
 
 public class PSBuilding : Building
 {
     private Graphic alternativeGraphicInt;
+    private Graphic overlayGraphicInt;
     private PSExtension defExtension;
 
     //
     protected bool HasExtension => defExtension != null;
     public virtual bool ShouldUseAlternative => HasExtension && defExtension.extraGraphicData != null;
+    public virtual bool ShouldShowOverlay => HasExtension && defExtension.overlayGraphicData != null;
+    public virtual bool OnlyRenderPawnNorth => HasExtension && defExtension.onlyRenderPawnNorth;
 
     protected Vector3 StatueOffset => HasExtension ? defExtension.statueOffset : Vector3.zero;
 
@@ -30,6 +36,19 @@ public class PSBuilding : Building
             alternativeGraphicInt = defExtension.extraGraphicData.GraphicColoredFor(this);
 
             return alternativeGraphicInt;
+        }
+    }
+
+    protected Graphic OverlayGraphic
+    {
+        get
+        {
+            if (overlayGraphicInt != null) return overlayGraphicInt;
+            if (!HasExtension || defExtension.overlayGraphicData == null) return BaseContent.BadGraphic;
+
+            overlayGraphicInt = defExtension.overlayGraphicData.GraphicColoredFor(this);
+
+            return overlayGraphicInt;
         }
     }
 

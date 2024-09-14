@@ -102,4 +102,9 @@
     <PS_NoBill>No Bill</PS_NoBill>
     <PS_WorkProgress>Work progress: {0} / {1}</PS_WorkProgress>
     <PS_StorageFull>Storage {0} is full, so {1} was ejected</PS_StorageFull>
+
+    <PS_HediffTickException>Exception ticking hediff {0} for pawn {1}. Removing hediff... Exception: {2}</PS_HediffTickException>
+    <PS_HediffRemovalException>Error while removing hediff: {0}</PS_HediffRemovalException>
+
+    <PS_PawnListTab>Pawns</PS_PawnListTab>
 </LanguageData>

@@ -3,13 +3,14 @@ using System.Linq;
 using System.Text;
 using PawnStorages.Farm.Comps;
 using PawnStorages.Farm.Interfaces;
+using PawnStorages.TickedStorage;
 using PawnStorages.Interfaces;
 using RimWorld;
 using Verse;
 
 namespace PawnStorages.Farm;
 
-public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorageParent, IBreederParent, IProductionParent, IFarmTabParent
+public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorageParent, IBreederParent, IProductionParent, IFarmTabParent, IPawnListParent
 {
     public CompFarmStorage pawnStorage;
     public CompFarmNutrition FarmNutrition;
@@ -193,5 +194,15 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
     public void GetChildHolders(List<IThingHolder> outChildren)
     {
         ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, pawnStorage.GetDirectlyHeldThings());
+    }
+
+    public ThingOwner GetDirectlyHeldThings()
+    {
+        return pawnStorage.GetDirectlyHeldThings();
+    }
+
+    public bool NeedsDrop()
+    {
+        return PawnStoragesMod.settings.AllowNeedsDrop && (pawnStorage == null || pawnStorage.Props.needsDrop);
     }
 }

@@ -22,6 +22,7 @@ public class CompProperties_PawnStorage : CompProperties
     public bool useFromInventory = false;
 
     public bool showStoredPawn;
+    public bool showStoredPawnHeadOnly;
 
     public ThingDef storageStation;
 
