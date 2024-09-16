@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using HarmonyLib;
+using PawnStorages.TickedStorage;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -26,7 +27,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public Rot4 Rotation = Rot4.North.Opposite;
 
-    public Building_PawnStorage Parent => parent as Building_PawnStorage;
+    public IPawnListParent Parent => parent as IPawnListParent;
 
     public CompPawnStorage()
     {
@@ -239,8 +240,8 @@ public class CompPawnStorage : ThingComp, IThingHolder
         Utility.ReleasePawn(this, pawn, cell, map);
     }
 
-    public bool RequiresStation() => Parent.def.EverHaulable &&
-                                     Parent.def.category == ThingCategory.Item &&
+    public bool RequiresStation() => Parent.Def.EverHaulable &&
+                                     Parent.Def.category == ThingCategory.Item &&
                                      Props.storageStation != null;
 
     public virtual void ApplyNeedsForStoredPeriodFor(Pawn pawn)
@@ -592,7 +593,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         return innerContainer ??= new ThingOwner<Pawn>(this);
     }
 
-    public float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(pawn =>
+    public virtual float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(pawn =>
         SimplifiedPastureNutritionSimulator.NutritionConsumedPerDay(pawn.def, pawn.ageTracker.CurLifeStage));
 
     public ThingOwner<Pawn> GetDirectlyHeldPawns() => innerContainer;

@@ -13,7 +13,7 @@ public class CompTickedStorage: CompPawnStorage
     public List<Pawn> StoredPawns => GetDirectlyHeldThings().Select(p => p as Pawn).ToList();
     public new CompProperties_TickedStorage Props => props as CompProperties_TickedStorage;
 
-    public float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(animal =>
+    public override float NutritionRequiredPerDay() => compAssignable.AssignedPawns.Sum(animal =>
         SimplifiedPastureNutritionSimulator.NutritionConsumedPerDay(animal.def, animal.ageTracker.CurLifeStage));
 
     public IEnumerable<PawnKindDef> HeldPawnTypes => innerContainer.innerList.Select(p => p.kindDef).Distinct();
