@@ -119,7 +119,7 @@ public static class OrdersPatch
                                      ? ps
                                      : null)
                                  .Where(ps => ps != null)
-                                 .GroupBy(s => s.Parent.def)
+                                 .GroupBy(s => s.Parent.Def)
                                  .Select(sGroup => sGroup.FirstOrDefault()))
                     {
                         if (comp == null) continue;
@@ -213,7 +213,7 @@ public static class OrdersPatch
                                      ? ps
                                      : null)
                                  .Where(ps => ps != null)
-                                 .GroupBy(s => s.Parent.def)
+                                 .GroupBy(s => s.Parent.Def)
                                  .Select(sGroup => sGroup.FirstOrDefault()))
                     {
                         if (comp == null) continue;

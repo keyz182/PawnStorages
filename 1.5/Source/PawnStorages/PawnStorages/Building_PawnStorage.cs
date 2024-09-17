@@ -91,7 +91,7 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
                 if (ShouldShowOverlay)
                 {
                     pos -= StatueOffset;
-                    pos.y = Altitudes.AltitudeFor(AltitudeLayer.MoteOverhead);
+                    pos.y = AltitudeLayer.MoteOverhead.AltitudeFor();
                     Printer_Mesh.PrintMesh(layer, Matrix4x4.TRS(pos, Rot4.North.AsQuat, new Vector3(1,1,1)), OverlayGraphic.MeshAt(Rotation), OverlayGraphic.MatAt(Rotation));
                 }
             }
@@ -107,7 +107,7 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
 
     public void ReleasePawn(Pawn pawn)
     {
-        storageComp.ReleaseSingle(this.Map, pawn, true, true);
+        storageComp.ReleaseSingle(Map, pawn, true, true);
 
     }
 
@@ -123,11 +123,21 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
 
     public virtual void Notify_PawnAdded(Pawn pawn)
     {
-        glower.UpdateLit(this.Map);
+        glower.UpdateLit(Map);
     }
 
     public virtual void Notify_PawnRemoved(Pawn pawn)
     {
-        glower.UpdateLit(this.Map);
+        glower.UpdateLit(Map);
     }
+
+    public ThingDef Def => def;
+
+    public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
+    {
+        storageComp?.ReleaseContents(Map);
+        base.Destroy(mode);
+    }
+
+    public Building Building => this;
 }

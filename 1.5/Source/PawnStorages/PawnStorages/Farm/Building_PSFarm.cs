@@ -205,4 +205,24 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
     {
         return PawnStoragesMod.settings.AllowNeedsDrop && (pawnStorage == null || pawnStorage.Props.needsDrop);
     }
+
+    public ThingDef Def => def;
+
+    public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
+    {
+        pawnStorage?.ReleaseContents(Map);
+        base.Destroy(mode);
+    }
+
+    public void Notify_PawnAdded(Pawn pawn)
+    {
+
+    }
+
+    public void Notify_PawnRemoved(Pawn pawn)
+    {
+    }
+
+
+    public Building Building => this;
 }
