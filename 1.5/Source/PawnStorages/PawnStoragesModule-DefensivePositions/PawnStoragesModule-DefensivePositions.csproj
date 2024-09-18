@@ -2,12 +2,12 @@
 <Project Sdk="Microsoft.NET.Sdk" InitialTargets="PreCleanAssemblies">
 
     <PropertyGroup>
-        <RootNamespace>PawnStorages.SimpleWarrants</RootNamespace>
-        <AssemblyName>PawnStorages.SimpleWarrants</AssemblyName>
+        <RootNamespace>PawnStorages.DefensivePositions</RootNamespace>
+        <AssemblyName>PawnStorages.DefensivePositions</AssemblyName>
         <TargetFramework>net48</TargetFramework>
         <LangVersion>latest</LangVersion>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <OutputPath>../../../../Compatibility/pb3n.SimpleWarrants/1.5/Assemblies/</OutputPath>
+        <OutputPath>../../../../Compatibility/UnlimitedHugs.DefensivePositions/1.5/Assemblies/</OutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -29,9 +29,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Reference Include="SimpleWarrants">
-            <HintPath Condition="Exists('../../../../../2676828755')">../../../../../2676828755/1.5/Assemblies/SimpleWarrants.dll</HintPath>
-            <HintPath Condition="!Exists('../../../../../2676828755')">../../../../../../../../workshop/content/294100/2676828755/1.5/Assemblies/SimpleWarrants.dll</HintPath>
+        <Reference Include="DefensivePositions">
+            <HintPath Condition="Exists('../../../../../761219125')">../../../../../761219125/v1.5/Assemblies/DefensivePositions.dll</HintPath>
+            <HintPath Condition="!Exists('../../../../../761219125')">../../../../../../../../workshop/content/294100/761219125/v1.5/Assemblies/DefensivePositions.dll</HintPath>
             <Private>False</Private>
         </Reference>
     </ItemGroup>

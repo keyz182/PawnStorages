@@ -83,6 +83,12 @@ public static class Utility
 
     public static void ReleasePawn(CompPawnStorage store, Pawn pawn, IntVec3 cell, Map map)
     {
+
+        if (store.parent is Building bld && bld.def.hasInteractionCell)
+        {
+           cell = store.parent.Position + bld.def.interactionCellOffset;
+        }
+
         if (!cell.Walkable(map))
             foreach (IntVec3 t in GenRadial.RadialPattern)
             {

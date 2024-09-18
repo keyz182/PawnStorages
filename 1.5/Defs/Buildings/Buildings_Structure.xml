@@ -575,12 +575,12 @@
         <designationCategory>Furniture</designationCategory>
         <comps>
             <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
-                <drawAssignmentOverlay>false</drawAssignmentOverlay>
                 <maxAssignedPawnsCount>16</maxAssignedPawnsCount>
                 <colonyAnimalsOnly>true</colonyAnimalsOnly>
                 <showGizmo>true</showGizmo>
             </li>
             <li Class="PawnStorages.TickedStorage.CompProperties_TickedStorage">
+                <allowNonColonist>true</allowNonColonist>
                 <tickAge>false</tickAge>
                 <tickHediffs>false</tickHediffs>
                 <needsDrop>false</needsDrop>
@@ -648,7 +648,6 @@
         <designationCategory>Furniture</designationCategory>
         <comps>
             <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
-                <drawAssignmentOverlay>false</drawAssignmentOverlay>
                 <maxAssignedPawnsCount>1</maxAssignedPawnsCount>
                 <showGizmo>true</showGizmo>
                 <pawnDrawScaleX>0.6</pawnDrawScaleX>
@@ -659,6 +658,7 @@
                 <cameraZoom>1.5</cameraZoom>
             </li>
             <li Class="PawnStorages.TickedStorage.CompProperties_TickedStorage">
+                <allowNonColonist>true</allowNonColonist>
                 <tickAge>false</tickAge>
                 <tickHediffs>true</tickHediffs>
                 <needsDrop>false</needsDrop>
@@ -719,18 +719,20 @@
         <uiOrder>2991</uiOrder>
         <designationCategory>Furniture</designationCategory>
         <containedPawnsSelectable>true</containedPawnsSelectable>
+        <hasInteractionCell>true</hasInteractionCell>
+        <interactionCellOffset>(0, 0, -1)</interactionCellOffset>
         <comps>
             <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
-                <drawAssignmentOverlay>false</drawAssignmentOverlay>
                 <maxAssignedPawnsCount>1</maxAssignedPawnsCount>
-                <colonyAnimalsOnly>true</colonyAnimalsOnly>
+                <colonyAnimalsOnly>false</colonyAnimalsOnly>
                 <showGizmo>true</showGizmo>
                 <pawnDrawScaleX>1</pawnDrawScaleX>
                 <pawnDrawScaleZ>0.5</pawnDrawScaleZ>
                 <drawGrayscale>false</drawGrayscale>
-                <cameraZoom>1.5</cameraZoom>
+                <cameraZoom>1.25</cameraZoom>
             </li>
             <li Class="PawnStorages.TickedStorage.CompProperties_TickedStorage">
+                <allowNonColonist>true</allowNonColonist>
                 <tickAge>false</tickAge>
                 <tickHediffs>true</tickHediffs>
                 <needsDrop>false</needsDrop>

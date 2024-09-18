@@ -610,4 +610,9 @@ public class CompPawnStorage : ThingComp, IThingHolder
     {
         Parent.Notify_PawnAdded(pawn);
     }
+
+    public Thing GetAt(int idx)
+    {
+        return innerContainer.GetAt(idx);
+    }
 }

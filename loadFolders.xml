@@ -18,5 +18,6 @@
 		<li IfModActive="OskarPotocki.VFE.Deserters">Compatibility/OskarPotocki.VFE.Deserters/1.5</li>
 		<li IfModActive="neronix17.outerrim.core">Compatibility/starwars/Common</li>
 		<li IfModActive="pb3n.SimpleWarrants">Compatibility/pb3n.SimpleWarrants/1.5</li>
+		<li IfModActive="unlimitedhugs.defensivepositions">Compatibility/UnlimitedHugs.DefensivePositions/1.5</li>
 	</v1.5>
 </loadFolders>
