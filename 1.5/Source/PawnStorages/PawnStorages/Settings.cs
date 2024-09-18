@@ -94,6 +94,7 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref ProductionScale, "ProductionScale", 0.5f);
         Scribe_Values.Look(ref BreedingScale, "BreedingScale", 2);
         Scribe_Values.Look(ref MaxPawnsInFarm, "MaxPawnsInFarm", 16);
+        Scribe_Values.Look(ref MaxFarmStoredNutrition, "MaxFarmStoredNutrition", 500);
         Scribe_Values.Look(ref ProductionsPerDay, "ProductionsPerDay", 1);
         Scribe_Values.Look(ref SuggestiveSilo, "SuggestiveSilo", false);
         Scribe_Values.Look(ref RusticFarms, "RusticFarms", false);
