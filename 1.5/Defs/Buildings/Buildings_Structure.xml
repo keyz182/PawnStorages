@@ -711,7 +711,7 @@
         <size>(1,2)</size>
         <tickerType>Normal</tickerType>
         <altitudeLayer>Building</altitudeLayer>
-        <passability>PassThroughOnly</passability>
+        <passability>Standable</passability>
         <researchPrerequisites IsNull="True" />
         <pathCost>100</pathCost>
         <overrideMinifiedRot>North</overrideMinifiedRot>

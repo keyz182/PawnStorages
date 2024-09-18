@@ -26,6 +26,8 @@ public class PSBuilding : Building
 
     protected Vector3 StatueOffset => HasExtension ? defExtension.statueOffset : Vector3.zero;
 
+    public Vector3 OverlayDrawOffset => HasExtension ? defExtension.overlayGraphicData.drawOffset : Vector3.zero;
+
     protected Graphic AlternateGraphic
     {
         get

@@ -20,6 +20,7 @@ public class CompProperties_PawnStorage : CompProperties
     public bool destroyOnZeroCharges = false;
     public bool useCharges = false;
     public bool useFromInventory = false;
+    public bool hideBodyWhenRenderingPawn = false;
 
     public bool showStoredPawn;
     public bool showStoredPawnHeadOnly;

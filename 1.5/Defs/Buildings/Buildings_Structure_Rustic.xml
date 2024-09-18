@@ -297,4 +297,73 @@
         <uiIconColor>(139, 69, 19</uiIconColor>
     </ThingDef>
 
+    <ThingDef ParentName="BuildingBase">
+        <defName>PS_Pillory</defName>
+        <label>Pillory</label>
+        <description>A Pillory</description>
+        <thingClass>PawnStorages.Building_PawnStorage</thingClass>
+        <rotatable>true</rotatable>
+        <graphicData>
+            <texPath>Things/Building/PS_Pillory</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawSize>(1,1)</drawSize>
+        </graphicData>
+        <size>(1,1)</size>
+        <tickerType>Normal</tickerType>
+        <altitudeLayer>Building</altitudeLayer>
+        <passability>Standable</passability>
+        <researchPrerequisites IsNull="True" />
+        <pathCost>100</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <uiOrder>2991</uiOrder>
+        <designationCategory>Furniture</designationCategory>
+        <containedPawnsSelectable>true</containedPawnsSelectable>
+        <comps>
+            <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
+                <maxAssignedPawnsCount>1</maxAssignedPawnsCount>
+                <colonyAnimalsOnly>false</colonyAnimalsOnly>
+                <showGizmo>true</showGizmo>
+                <pawnDrawScaleX>1</pawnDrawScaleX>
+                <pawnDrawScaleZ>1</pawnDrawScaleZ>
+                <pawnDrawOffsetZ>0.25</pawnDrawOffsetZ>
+                <drawGrayscale>false</drawGrayscale>
+                <cameraZoom>1.25</cameraZoom>
+            </li>
+            <li Class="PawnStorages.TickedStorage.CompProperties_TickedStorage">
+                <allowNonColonist>true</allowNonColonist>
+                <tickAge>false</tickAge>
+                <tickHediffs>true</tickHediffs>
+                <needsDrop>false</needsDrop>
+                <releaseOption>true</releaseOption>
+                <releaseAllOption>true</releaseAllOption>
+                <maxStoredPawns>1</maxStoredPawns>
+                <convertOption>true</convertOption>
+                <canBeScheduled>true</canBeScheduled>
+                <showStoredPawnHeadOnly>true</showStoredPawnHeadOnly>
+                <showStoredPawn>true</showStoredPawn>
+                <hideBodyWhenRenderingPawn>true</hideBodyWhenRenderingPawn>
+            </li>
+        </comps>
+        <statBases>
+            <WorkToBuild>600</WorkToBuild>
+            <MaxHitPoints>50</MaxHitPoints>
+            <Flammability>0.5</Flammability>
+            <Mass>5</Mass>
+        </statBases>
+        <costList>
+            <WoodLog>20</WoodLog>
+        </costList>
+        <uiIconPath>Things/Building/PS_Pillory</uiIconPath>
+        <modExtensions>
+            <li Class="PawnStorages.PSExtension" >
+                <overlayGraphicData>
+                    <texPath>Things/Building/PS_Pillory_TopLayer</texPath>
+                    <graphicClass>Graphic_Single</graphicClass>
+                    <drawSize>(1,1)</drawSize>
+                    <drawOffset>(0,0,-0.25)</drawOffset>
+                </overlayGraphicData>
+            </li>
+        </modExtensions>
+    </ThingDef>
 </Defs>

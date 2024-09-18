@@ -34,6 +34,7 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
     [TweakValue("STATUE FLIPPING", 0f, 100f)]
     public static bool FLIPBOOL = false;
     */
+    public static string[] NodesToDraw = new[] { "Head", "Hair", "Head wounds" };
 
     public override void Print(SectionLayer layer)
     {
@@ -63,6 +64,16 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
 
             if (OnlyRenderPawnNorth && Rotation == Rot4.North || !OnlyRenderPawnNorth)
             {
+                if (pawn.Drawer.renderer.renderTree.drawRequests.Count == 0)
+                {
+                    // need to do it once to populate draw reqs
+                    PortraitsCache.Get(pawn, new Vector2(175f, 175f), rot, new Vector3(0f, 0f, 0.1f), compAssignable.Props.cameraZoom, healthStateOverride: PawnHealthState.Mobile);
+                }
+                else
+                {
+                    pawn.Drawer.renderer.renderTree.drawRequests.RemoveAll(pgdr=>!NodesToDraw.Contains(pgdr.node.ToString()));
+                }
+
                 // Pass in PawnHealthState.Mobile as an override to ensure the pawn is drawn upright
                 RenderTexture texture = PortraitsCache.Get(pawn, new Vector2(175f, 175f), rot, new Vector3(0f, 0f, 0.1f), compAssignable.Props.cameraZoom, healthStateOverride: PawnHealthState.Mobile);
 
@@ -91,6 +102,7 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
                 if (ShouldShowOverlay)
                 {
                     pos -= StatueOffset;
+                    pos += OverlayDrawOffset;
                     pos.y = AltitudeLayer.MoteOverhead.AltitudeFor();
                     Printer_Mesh.PrintMesh(layer, Matrix4x4.TRS(pos, Rot4.North.AsQuat, new Vector3(1,1,1)), OverlayGraphic.MeshAt(Rotation), OverlayGraphic.MatAt(Rotation));
                 }
