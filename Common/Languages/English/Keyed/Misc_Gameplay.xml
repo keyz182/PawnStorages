@@ -109,5 +109,5 @@
     <PS_PawnListTab>Pawns</PS_PawnListTab>
 
     <PS_ReleaseAllToDefensivePositions>Release all to defensive positions</PS_ReleaseAllToDefensivePositions>
-    <PS_ReleaseAllToDefensivePositions_Tooltop>If the released pawn(s) have a defensive position, they are immediately sent there. Only works with basic mode.</PS_ReleaseAllToDefensivePositions_Tooltop>
+    <PS_ReleaseAllToDefensivePositions_Tooltip>If the released pawn(s) have a defensive position, they are immediately sent there. Only works with basic mode.</PS_ReleaseAllToDefensivePositions_Tooltip>
 </LanguageData>

@@ -66,10 +66,6 @@
         </None>
     </ItemGroup>
 
-    <ItemGroup>
-        <Publicize Include="KCSG" />
-    </ItemGroup>
-
     <Target Name="CleanAssemblies" AfterTargets="Clean">
         <RemoveDir Directories="$(OutputPath)" Condition="Exists('$(OutputPath)')" />
     </Target>

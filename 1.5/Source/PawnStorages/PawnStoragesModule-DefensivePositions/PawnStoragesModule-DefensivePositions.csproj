@@ -30,8 +30,8 @@
 
     <ItemGroup>
         <Reference Include="DefensivePositions">
-            <HintPath Condition="Exists('../../../../../2676828755')">../../../../../761219125/v1.5/Assemblies/DefensivePositions.dll</HintPath>
-            <HintPath Condition="!Exists('../../../../../2676828755')">../../../../../../../../workshop/content/294100/761219125/v1.5/Assemblies/DefensivePositions.dll</HintPath>
+            <HintPath Condition="Exists('../../../../../761219125')">../../../../../761219125/v1.5/Assemblies/DefensivePositions.dll</HintPath>
+            <HintPath Condition="!Exists('../../../../../761219125')">../../../../../../../../workshop/content/294100/761219125/v1.5/Assemblies/DefensivePositions.dll</HintPath>
             <Private>False</Private>
         </Reference>
     </ItemGroup>
@@ -64,10 +64,6 @@
             <Generator>SettingsSingleFileGenerator</Generator>
             <LastGenOutput>Settings.Designer.cs</LastGenOutput>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Publicize Include="KCSG" />
     </ItemGroup>
 
     <Target Name="CleanAssemblies" AfterTargets="Clean">
