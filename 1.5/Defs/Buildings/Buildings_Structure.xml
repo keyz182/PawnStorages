@@ -648,7 +648,6 @@
         <designationCategory>Furniture</designationCategory>
         <comps>
             <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
-                <allowNonColonist>true</allowNonColonist>
                 <maxAssignedPawnsCount>1</maxAssignedPawnsCount>
                 <showGizmo>true</showGizmo>
                 <pawnDrawScaleX>0.6</pawnDrawScaleX>
@@ -720,6 +719,8 @@
         <uiOrder>2991</uiOrder>
         <designationCategory>Furniture</designationCategory>
         <containedPawnsSelectable>true</containedPawnsSelectable>
+        <hasInteractionCell>true</hasInteractionCell>
+        <interactionCellOffset>(0, 0, -1)</interactionCellOffset>
         <comps>
             <li Class="PawnStorages.CompProperties_PSAssignableToPawn">
                 <maxAssignedPawnsCount>1</maxAssignedPawnsCount>

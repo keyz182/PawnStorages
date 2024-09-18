@@ -123,12 +123,12 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
 
     public virtual void Notify_PawnAdded(Pawn pawn)
     {
-        glower.UpdateLit(Map);
+        glower?.UpdateLit(Map);
     }
 
     public virtual void Notify_PawnRemoved(Pawn pawn)
     {
-        glower.UpdateLit(Map);
+        glower?.UpdateLit(Map);
     }
 
     public ThingDef Def => def;
