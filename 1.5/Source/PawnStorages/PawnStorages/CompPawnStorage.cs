@@ -240,9 +240,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         Utility.ReleasePawn(this, pawn, cell, map);
     }
 
-    public bool RequiresStation() => Parent.Def.EverHaulable &&
-                                     Parent.Def.category == ThingCategory.Item &&
-                                     Props.storageStation != null;
+    public bool RequiresStation() => parent.def.category == ThingCategory.Item && parent.def.EverHaulable && Props.storageStation != null;
 
     public virtual void ApplyNeedsForStoredPeriodFor(Pawn pawn)
     {
