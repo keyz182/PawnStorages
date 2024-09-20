@@ -606,7 +606,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public void Notify_AddedToStorage(Pawn pawn)
     {
-        Parent.Notify_PawnAdded(pawn);
+        Parent?.Notify_PawnAdded(pawn);
     }
 
     public Thing GetAt(int idx)
