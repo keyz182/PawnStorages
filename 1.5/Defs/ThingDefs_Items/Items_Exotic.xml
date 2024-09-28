@@ -208,9 +208,8 @@
             <Jade>1</Jade>
             <Steel>20</Steel>
         </costList>
-        <weaponTags>
-            <li>GrenadeDestructive</li>
-            <li>EmpireGrenadeDestructive</li>
+        <weaponTags Inherit="False">
+            <li>PS_Throwable_CaptureItem</li>
         </weaponTags>
         <thingCategories>
             <li>Grenades</li>
@@ -269,7 +268,7 @@
             <explosionDelay>100</explosionDelay>
             <explosionEffect>PS_StarExplosion</explosionEffect>
         </projectile>
-        
+
         <comps>
             <li Class="PawnStorages.CompProperties_PawnStorage">
                 <compClass>PawnStorages.CompPawnStorage</compClass>
