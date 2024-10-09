@@ -106,7 +106,7 @@ public static class Utility
         if (store.Props.lightEffect) FleckMaker.ThrowLightningGlow(cell.ToVector3Shifted(), map, 0.5f);
         if (store.Props.transformEffect)
             FleckMaker.ThrowExplosionCell(cell, map, FleckDefOf.ExplosionFlash, Color.white);
-        map.mapDrawer.MapMeshDirty(store.Parent.Building.Position, MapMeshFlagDefOf.Things);
+        map.mapDrawer.MapMeshDirty(store.parent.Position, MapMeshFlagDefOf.Things);
 
         store.SetLabelDirty();
         store.ApplyNeedsForStoredPeriodFor(pawn);
@@ -140,11 +140,11 @@ public static class Utility
     {
         if (!CheckStation(store, releaser, out Thing station))
         {
-            return JobMaker.MakeJob(PS_DefOf.PS_Release, store.Parent.Building as Building, null, toRelease);
+            return JobMaker.MakeJob(PS_DefOf.PS_Release, store.parent, null, toRelease);
         }
 
         if (station == null) return null;
-        Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, store.Parent.Building, station, toRelease);
+        Job job = JobMaker.MakeJob(PS_DefOf.PS_Release, store.parent, station, toRelease);
         job.count = 1;
         return job;
     }

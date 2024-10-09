@@ -27,7 +27,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
 
     public Rot4 Rotation = Rot4.North.Opposite;
 
-    public IPawnListParent Parent => parent as IPawnListParent;
+    public IPawnListParent ParentAsPawnListParent => parent as IPawnListParent;
 
     public CompPawnStorage()
     {
@@ -146,7 +146,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
             }
             else
             {
-                yield return new FloatMenuOption("PS_NoEnter".Translate(Props.storageStation.label, Parent.Label), null);
+                yield return new FloatMenuOption("PS_NoEnter".Translate(Props.storageStation.label, parent.Label), null);
             }
         }
 
@@ -240,9 +240,9 @@ public class CompPawnStorage : ThingComp, IThingHolder
         Utility.ReleasePawn(this, pawn, cell, map);
     }
 
-    public bool RequiresStation() => Parent.Def.EverHaulable &&
-                                     Parent.Def.category == ThingCategory.Item &&
-                                     Props.storageStation != null;
+    public bool RequiresStation() => (parent.def?.EverHaulable ?? false) &&
+                                     parent.def?.category == ThingCategory.Item &&
+                                     Props?.storageStation != null;
 
     public virtual void ApplyNeedsForStoredPeriodFor(Pawn pawn)
     {
@@ -513,7 +513,7 @@ public class CompPawnStorage : ThingComp, IThingHolder
         if (Props.selfReleaseOption && innerContainer.InnerListForReading.Any())
             yield return new Command_Action
             {
-                defaultLabel = "PS_Release".Translate(),
+                defaultLabel = "PS_Release".Translate("..."),
                 action = delegate
                 {
                     Find.WindowStack.Add(new FloatMenu(GetDirectlyHeldPawnsDefensiveCopy().Select(p => new FloatMenuOption("PS_Release".Translate(p.LabelCap),
@@ -602,13 +602,13 @@ public class CompPawnStorage : ThingComp, IThingHolder
     public void Notify_ReleasedFromStorage(Pawn pawn)
     {
         if (Props.useCharges && chargesRemaining > 0) chargesRemaining--;
-        if (chargesRemaining <= 0 && Props.destroyOnZeroCharges) Parent.Destroy();
-        Parent.Notify_PawnRemoved(pawn);
+        if (chargesRemaining <= 0 && Props.destroyOnZeroCharges) parent.Destroy();
+        ParentAsPawnListParent?.Notify_PawnRemoved(pawn);
     }
 
     public void Notify_AddedToStorage(Pawn pawn)
     {
-        Parent.Notify_PawnAdded(pawn);
+        ParentAsPawnListParent?.Notify_PawnAdded(pawn);
     }
 
     public Thing GetAt(int idx)

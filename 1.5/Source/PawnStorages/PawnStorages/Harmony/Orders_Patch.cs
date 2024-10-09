@@ -119,7 +119,7 @@ public static class OrdersPatch
                                      ? ps
                                      : null)
                                  .Where(ps => ps != null)
-                                 .GroupBy(s => s.Parent.Def)
+                                 .GroupBy(s => s.parent.def)
                                  .Select(sGroup => sGroup.FirstOrDefault()))
                     {
                         if (comp == null) continue;
@@ -129,7 +129,7 @@ public static class OrdersPatch
                                 "PS_CaptureToStorageFloatMenu".Translate((NamedArgument) pTarg.LabelCap, (NamedArgument) comp.parent.LabelNoParenthesisCap),
                                 () =>
                                 {
-                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorageItem, (LocalTargetInfo) (Thing) pTarg, (LocalTargetInfo) (Thing) comp.Parent);
+                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorageItem, (LocalTargetInfo) (Thing) pTarg, (LocalTargetInfo) (Thing) comp.parent);
                                     job.count = 1;
                                     pawn.jobs.TryTakeOrderedJob(job);
                                     if (notArresting)
@@ -191,7 +191,7 @@ public static class OrdersPatch
                     foreach (CompAssignableToPawn_PawnStorage storage in WorkGiver_Warden_TakeToStorage.GetPossibleStorages(pTarg).GroupBy(s => s.parent.def)
                                  .Select(sGroup => sGroup.FirstOrDefault()))
                     {
-                        if (storage == null) continue;
+                        if (storage == null || (storage.Props?.disallowEntityStoringCommand ?? false)) continue;
                         anyStorage = true;
                         opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
                             "PS_StoreEntity".Translate((NamedArgument) localTargetInfo.Thing.Label,
@@ -213,7 +213,7 @@ public static class OrdersPatch
                                      ? ps
                                      : null)
                                  .Where(ps => ps != null)
-                                 .GroupBy(s => s.Parent.Def)
+                                 .GroupBy(s => s.parent.def)
                                  .Select(sGroup => sGroup.FirstOrDefault()))
                     {
                         if (comp == null) continue;
@@ -223,7 +223,7 @@ public static class OrdersPatch
                                 "PS_CaptureToStorageFloatMenu".Translate((NamedArgument) pTarg.LabelCap, (NamedArgument) comp.parent.LabelNoParenthesisCap),
                                 () =>
                                 {
-                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorageItem, (LocalTargetInfo) (Thing) pTarg, (LocalTargetInfo) (Thing) comp.Parent);
+                                    Job job = JobMaker.MakeJob(PS_DefOf.PS_CaptureInPawnStorageItem, (LocalTargetInfo) (Thing) pTarg, (LocalTargetInfo) (Thing) comp.parent);
                                     job.count = 1;
                                     pawn.jobs.TryTakeOrderedJob(job);
                                 },

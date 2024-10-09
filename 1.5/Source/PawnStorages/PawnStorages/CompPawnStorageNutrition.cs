@@ -11,7 +11,7 @@ namespace PawnStorages;
 [StaticConstructorOnStartup]
 public class CompPawnStorageNutrition : ThingComp
 {
-    public INutritionStorageParent Parent => parent as INutritionStorageParent;
+    public INutritionStorageParent ParentAsNutritionStorageParent => parent as INutritionStorageParent;
 
     private float _storedNutrition = 0f;
     private float _targetNutritionLevel = -1f;
@@ -59,7 +59,7 @@ public class CompPawnStorageNutrition : ThingComp
 
         if (!PawnStoragesMod.settings.AllowNeedsDrop) return;
 
-        if (parent.IsHashIntervalTick(Props.TicksToAbsorbNutrients) && Parent.IsActive)
+        if (parent.IsHashIntervalTick(Props.TicksToAbsorbNutrients) && ParentAsNutritionStorageParent.IsActive)
         {
             if (storedNutrition <= TargetNutritionLevel)
             {
@@ -67,9 +67,9 @@ public class CompPawnStorageNutrition : ThingComp
             }
         }
 
-        if (parent.IsHashIntervalTick(Props.PawnTickInterval) && Parent.HasStoredPawns)
+        if (parent.IsHashIntervalTick(Props.PawnTickInterval) && ParentAsNutritionStorageParent.HasStoredPawns)
         {
-            foreach (Pawn pawn in Parent.StoredPawns)
+            foreach (Pawn pawn in ParentAsNutritionStorageParent.StoredPawns)
             {
                 EmulateScaledPawnAgeTick(pawn);
 
@@ -91,13 +91,13 @@ public class CompPawnStorageNutrition : ThingComp
 
                 if (pawn.health.hediffSet.TryGetHediff(HediffDefOf.Malnutrition, out Hediff malnutritionHediff) && malnutritionHediff.Severity >= 0.75f)
                 {
-                    Parent.ReleasePawn(pawn);
+                    ParentAsNutritionStorageParent.ReleasePawn(pawn);
                     SendStavingLetter(pawn);
                     continue;
                 }
 
                 // if not powered
-                if (!Parent.IsActive) continue;
+                if (!ParentAsNutritionStorageParent.IsActive) continue;
 
                 //Hopper absorption ticker
                 if (storedNutrition <= 0)
@@ -109,7 +109,7 @@ public class CompPawnStorageNutrition : ThingComp
             }
         }
 
-        foreach (Pawn pawn in Parent.StoredPawns)
+        foreach (Pawn pawn in ParentAsNutritionStorageParent.StoredPawns)
         {
             //Need fall ticker
             Need_Food foodNeeds = pawn.needs?.food;
@@ -124,11 +124,11 @@ public class CompPawnStorageNutrition : ThingComp
 
         if (storedNutrition > 0)
         {
-            Parent.Notify_NutritionNotEmpty();
+            ParentAsNutritionStorageParent.Notify_NutritionNotEmpty();
         }
         else
         {
-            Parent.Notify_NutritionEmpty();
+            ParentAsNutritionStorageParent.Notify_NutritionEmpty();
         }
     }
 

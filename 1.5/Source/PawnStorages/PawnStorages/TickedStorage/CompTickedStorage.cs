@@ -9,7 +9,7 @@ namespace PawnStorages.TickedStorage;
 
 public class CompTickedStorage: CompPawnStorage
 {
-    public new PSBuilding Parent => parent as PSBuilding;
+    public PSBuilding ParentAsPSBuilding => parent as PSBuilding;
     public List<Pawn> StoredPawns => GetDirectlyHeldThings().Select(p => p as Pawn).ToList();
     public new CompProperties_TickedStorage Props => props as CompProperties_TickedStorage;
 

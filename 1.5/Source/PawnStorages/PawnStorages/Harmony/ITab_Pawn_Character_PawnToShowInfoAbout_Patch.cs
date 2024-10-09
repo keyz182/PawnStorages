@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using HarmonyLib;
+using PawnStorages.TickedStorage;
 using RimWorld;
 using Verse;
 
@@ -11,8 +12,8 @@ public static class ITab_Pawn_Character_PawnToShowInfoAbout_Patch
     public static bool Prefix(ref Pawn __result)
     {
         CompPawnStorage comp = Find.Selector.SingleSelectedThing.TryGetComp<CompPawnStorage>();
-        IThingHolder holder = comp?.Parent as IThingHolder;
-        
+        IPawnListParent holder = comp?.ParentAsPawnListParent;
+
         if (!(holder?.GetDirectlyHeldThings()?.Any() ?? false)) return true;
         __result = (Pawn)holder.GetDirectlyHeldThings().First();
         return false;

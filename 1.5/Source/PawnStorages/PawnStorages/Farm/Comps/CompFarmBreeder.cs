@@ -11,7 +11,7 @@ namespace PawnStorages.Farm.Comps
     public partial class CompFarmBreeder : ThingComp
     {
         public int AutoSlaughterTarget = 0;
-        public IBreederParent Parent => parent as IBreederParent;
+        public IBreederParent ParentAsBreederParent => parent as IBreederParent;
 
         public Dictionary<PawnKindDef, AutoSlaughterConfig> AutoSlaughterSettings = new();
 
@@ -80,7 +80,7 @@ namespace PawnStorages.Farm.Comps
         public void ExecutionInt(
             Pawn victim)
         {
-            Parent.ReleasePawn(victim);
+            ParentAsBreederParent.ReleasePawn(victim);
             int num = Mathf.Max(GenMath.RoundRandom(victim.BodySize * 8), 1);
             for (int index = 0; index < num; ++index)
                 victim.health.DropBloodFilth();
@@ -165,7 +165,7 @@ namespace PawnStorages.Farm.Comps
 
                 float gestationTicks = AnimalProductionUtility.GestationDaysEach(type.Key.race) * 60000 * PawnStoragesMod.settings.BreedingScale;
 
-                float progressPerCycle = Parent.TickInterval / gestationTicks;
+                float progressPerCycle = ParentAsBreederParent.TickInterval / gestationTicks;
 
                 BreedingProgress.TryAdd(type.Key, 0.0f);
 
@@ -173,7 +173,7 @@ namespace PawnStorages.Farm.Comps
 
                 if (!(BreedingProgress[type.Key] >= 1f)) continue;
 
-                if (Parent.BreedablePawns.Count >= PawnStoragesMod.settings.MaxPawnsInFarm) break;
+                if (ParentAsBreederParent.BreedablePawns.Count >= PawnStoragesMod.settings.MaxPawnsInFarm) break;
 
                 BreedingProgress[type.Key] = 0f;
                 Pawn newPawn = PawnGenerator.GeneratePawn(
@@ -185,7 +185,7 @@ namespace PawnStorages.Farm.Comps
                         developmentalStages: DevelopmentalStage.Newborn
                     ));
 
-                Parent.Notify_PawnBorn(newPawn);
+                ParentAsBreederParent.Notify_PawnBorn(newPawn);
             }
         }
 
@@ -196,12 +196,12 @@ namespace PawnStorages.Farm.Comps
             if (!PawnStoragesMod.settings.AllowNeedsDrop) return;
 
 
-            if (!parent.IsHashIntervalTick(Parent.TickInterval))
+            if (!parent.IsHashIntervalTick(ParentAsBreederParent.TickInterval))
             {
                 return;
             }
 
-            List<IGrouping<PawnKindDef, Pawn>> types = (from p in Parent.AllHealthyPawns
+            List<IGrouping<PawnKindDef, Pawn>> types = (from p in ParentAsBreederParent.AllHealthyPawns
                 group p by p.kindDef
                 into def
                 select def).ToList();

@@ -38,10 +38,10 @@ public class CompFactoryProducer : CompPawnStorageProducer
 
         if (!shouldBeActive || !PawnStoragesMod.settings.AllowNeedsDrop) return;
 
-        if (parent.IsHashIntervalTick(Parent.TickInterval) && Parent.ProducingPawns is { } parentProducingPawns && parentProducingPawns.Any())
+        if (parent.IsHashIntervalTick(ParentAsProductionParent.TickInterval) && ParentAsProductionParent.ProducingPawns is { } parentProducingPawns && parentProducingPawns.Any())
         {
             if (CurrentBill == null) TryPickNextBill();
-            if (CurrentBill != null) storedWork += parentProducingPawns.Count * Parent.TickInterval;
+            if (CurrentBill != null) storedWork += parentProducingPawns.Count * ParentAsProductionParent.TickInterval;
             float workAmount = CurrentBill?.GetWorkAmount() ?? 0f;
             while (CurrentBill != null && storedWork > workAmount && TryFinishBill(CurrentBill, BillForeman(parentProducingPawns)))
             {
@@ -50,7 +50,7 @@ public class CompFactoryProducer : CompPawnStorageProducer
             }
         }
 
-        if (!ProduceNow && (!parent.IsHashIntervalTick(60000 / Math.Max(PawnStoragesMod.settings.ProductionsPerDay, 1)) || DaysProduce.Count <= 0 || !Parent.IsActive)) return;
+        if (!ProduceNow && (!parent.IsHashIntervalTick(60000 / Math.Max(PawnStoragesMod.settings.ProductionsPerDay, 1)) || DaysProduce.Count <= 0 || !ParentAsProductionParent.IsActive)) return;
         List<Thing> failedToPlace = [];
         failedToPlace.AddRange(DaysProduce.Where(thing => !GenPlace.TryPlaceThing(thing, parent.Position, parent.Map, ThingPlaceMode.Near)));
         DaysProduce.Clear();
@@ -80,7 +80,7 @@ public class CompFactoryProducer : CompPawnStorageProducer
 
     public Building_PSFactory ParentFactory => parent as Building_PSFactory;
 
-    public Pawn BillForeman(List<Pawn> possiblePawns = null) => (possiblePawns?.Any() ?? false ? possiblePawns : Parent.ProducingPawns)?.RandomElementWithFallback();
+    public Pawn BillForeman(List<Pawn> possiblePawns = null) => (possiblePawns?.Any() ?? false ? possiblePawns : ParentAsProductionParent.ProducingPawns)?.RandomElementWithFallback();
 
     public Dictionary<Thing, int> SelectedIngredientsFor(Bill bill)
     {

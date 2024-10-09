@@ -24,7 +24,7 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
         glower = this.TryGetComp<CompGlower>();
 
         if (storageComp == null)
-            Log.Warning($"{this} has null CompPawnStorage even though of type {nameof(Building_PawnStorage)}");
+            Log.Warning($"{this} has null CompPawnStorage even though of type {GetType().FullName}");
     }
 
     /*
@@ -102,12 +102,12 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
 
     public ThingOwner GetDirectlyHeldThings()
     {
-        return storageComp.GetDirectlyHeldThings();
+        return storageComp?.GetDirectlyHeldThings();
     }
 
     public void ReleasePawn(Pawn pawn)
     {
-        storageComp.ReleaseSingle(Map, pawn, true, true);
+        storageComp?.ReleaseSingle(Map, pawn, true, true);
 
     }
 
@@ -131,13 +131,9 @@ public class Building_PawnStorage : PSBuilding, IPawnListParent, IThingGlower
         glower?.UpdateLit(Map);
     }
 
-    public ThingDef Def => def;
-
     public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
     {
         storageComp?.ReleaseContents(Map);
         base.Destroy(mode);
     }
-
-    public Building Building => this;
 }

@@ -198,15 +198,13 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
 
     public ThingOwner GetDirectlyHeldThings()
     {
-        return pawnStorage.GetDirectlyHeldThings();
+        return pawnStorage?.GetDirectlyHeldThings();
     }
 
     public bool NeedsDrop()
     {
         return PawnStoragesMod.settings.AllowNeedsDrop && (pawnStorage == null || pawnStorage.Props.needsDrop);
     }
-
-    public ThingDef Def => def;
 
     public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
     {
@@ -216,13 +214,9 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
 
     public void Notify_PawnAdded(Pawn pawn)
     {
-
     }
 
     public void Notify_PawnRemoved(Pawn pawn)
     {
     }
-
-
-    public Building Building => this;
 }

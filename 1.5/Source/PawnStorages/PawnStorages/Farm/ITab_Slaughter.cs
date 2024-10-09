@@ -164,7 +164,7 @@ public class ITab_Slaughter : ITab
         {
             TaggedString labelCap = config.animal.LabelCap;
             if (Prefs.DevMode)
-                labelCap += "\n\nDEV: Animals to slaughter:\n" + compFarmBreeder.Parent.Map.autoSlaughterManager.AnimalsToSlaughter
+                labelCap += "\n\nDEV: Animals to slaughter:\n" + compFarmBreeder.ParentAsBreederParent.Map.autoSlaughterManager.AnimalsToSlaughter
                     .Where(x => x.def == config.animal)
                     .Select(DevTipPartForPawn).ToLineList("  - ");
             return labelCap;

@@ -14,7 +14,7 @@ public class ITab_PawnList : ITab
         labelKey = "PS_PawnListTab";
     }
 
-    IPawnListParent Parent => SelThing as IPawnListParent;
+    IPawnListParent ParentAsPawnListParent => SelThing as IPawnListParent;
 
     private static readonly Vector2 WinSize = new(300f, 480f);
     public readonly ThingFilterUI.UIState ThingFilterState = new();
@@ -34,7 +34,7 @@ public class ITab_PawnList : ITab
 
         Widgets.ThingIcon(new Rect(5f, position + 7.5f, 45f, 45f), pawn);
 
-        if (Parent.NeedsDrop())
+        if (ParentAsPawnListParent?.NeedsDrop() ?? false)
         {
             Widgets.Label(new Rect(55f, position, width - 90f, 20f),
                 (pawn.needs?.food?.Starving ?? false ? "PS_FarmTab_NameStarving" : "PS_FarmTab_Name").Translate(pawn.LabelShort));
@@ -54,14 +54,14 @@ public class ITab_PawnList : ITab
 
     public override void FillTab()
     {
-        if (Parent.GetDirectlyHeldThings().Count <= 0) return;
+        if ((ParentAsPawnListParent?.GetDirectlyHeldThings()?.Count ?? 0) <= 0) return;
 
         Widgets.Label(new Rect(5.0f, 0.0f, WinSize.x, 30f), "PS_PawnListTab".Translate());
 
         Rect tabRect = new Rect(0.0f, 30.0f, WinSize.x, WinSize.y - 30f).ContractedBy(10f);
         Rect scrollViewRect = new Rect(tabRect);
 
-        float totalHeight = Parent.GetDirectlyHeldThings().Count * LineHeight;
+        float totalHeight = ParentAsPawnListParent.GetDirectlyHeldThings().Count * LineHeight;
 
         Rect viewRect = new Rect(0.0f, 0.0f, scrollViewRect.width, totalHeight);
 
@@ -71,7 +71,7 @@ public class ITab_PawnList : ITab
         alternate = false;
         float num = 0.0f;
         List<Pawn> removed = [];
-        foreach (Thing thing in Parent.GetDirectlyHeldThings())
+        foreach (Thing thing in ParentAsPawnListParent.GetDirectlyHeldThings())
         {
             Pawn pawn = (Pawn) thing;
             if (DrawLine(num, scrollViewRect.width, pawn))
@@ -84,7 +84,7 @@ public class ITab_PawnList : ITab
 
         foreach (Pawn pawn in removed)
         {
-            Parent.ReleasePawn(pawn);
+            ParentAsPawnListParent.ReleasePawn(pawn);
         }
 
         Widgets.EndScrollView();

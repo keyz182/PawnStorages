@@ -7,7 +7,7 @@ namespace PawnStorages;
 
 public class CompPawnStorageProducer : ThingComp, IActive
 {
-    public IProductionParent Parent => parent as IProductionParent;
+    public IProductionParent ParentAsProductionParent => parent as IProductionParent;
 
     protected List<Thing> DaysProduce = [];
     public bool ProduceNow = false;

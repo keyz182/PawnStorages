@@ -14,18 +14,17 @@ public class PawnStorages_GameComponent : GameComponent
     {
         get
         {
-            if (AssignablesDirty)
-            {
-                _CompAssignables.Clear();
-                foreach (var comp in Find.CurrentMap.spawnedThings.Select(thing =>
-                             thing.TryGetComp<CompAssignableToPawn_PawnStorage>()))
-                {
-                    if (comp != null)
-                        _CompAssignables.Add(comp);
-                }
+            if (!AssignablesDirty) return _CompAssignables;
 
-                AssignablesDirty = false;
+            _CompAssignables.Clear();
+            foreach (CompAssignableToPawn_PawnStorage comp in Find.CurrentMap.spawnedThings.Select(thing =>
+                         thing.TryGetComp<CompAssignableToPawn_PawnStorage>()))
+            {
+                if (comp != null)
+                    _CompAssignables.Add(comp);
             }
+
+            AssignablesDirty = false;
 
             return _CompAssignables;
         }

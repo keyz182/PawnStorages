@@ -377,6 +377,8 @@
                 <drawAssignmentOverlay>false</drawAssignmentOverlay>
                 <maxAssignedPawnsCount>24</maxAssignedPawnsCount>
                 <showGizmo>true</showGizmo>
+                <toolUsersOnly>true</toolUsersOnly>
+                <disallowEntityStoringCommand>true</disallowEntityStoringCommand>
             </li>
             <li Class="PawnStorages.Factory.CompProperties_FactoryProducer"/>
             <li Class="PawnStorages.CompProperties_PawnStorageNutrition" />

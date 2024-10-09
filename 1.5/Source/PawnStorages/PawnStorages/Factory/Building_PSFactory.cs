@@ -2,15 +2,17 @@
 using System.Linq;
 using System.Text;
 using PawnStorages.Interfaces;
+using PawnStorages.TickedStorage;
 using RimWorld;
 using Verse;
 
 namespace PawnStorages.Factory;
 
-public class Building_PSFactory : Building, IStoreSettingsParent, INutritionStorageParent, IProductionParent, IBillGiver
+public class Building_PSFactory : Building, IStoreSettingsParent, INutritionStorageParent, IProductionParent, IBillGiver, IPawnListParent
 {
     public CompPawnStorage pawnStorage;
     public CompPawnStorageNutrition pawnStorageNutrition;
+    public CompAssignableToPawn compAssignable;
     public CompFactoryProducer factoryProducer;
     public BillStack billStack;
     public StorageSettings allowedNutritionSettings;
@@ -72,6 +74,7 @@ public class Building_PSFactory : Building, IStoreSettingsParent, INutritionStor
     {
         pawnStorage = GetComp<CompPawnStorage>();
         pawnStorageNutrition = GetComp<CompPawnStorageNutrition>();
+        compAssignable = GetComp<CompAssignableToPawn>();
         factoryProducer = GetComp<CompFactoryProducer>();
         base.SpawnSetup(map, respawningAfterLoad);
         allowedNutritionSettings = new StorageSettings(this);
@@ -174,5 +177,28 @@ public class Building_PSFactory : Building, IStoreSettingsParent, INutritionStor
 
             return allRecipesCached;
         }
+    }
+
+    public ThingOwner GetDirectlyHeldThings()
+    {
+        return pawnStorage?.GetDirectlyHeldThings();
+    }
+
+    public bool NeedsDrop()
+    {
+        return PawnStoragesMod.settings.AllowNeedsDrop && (pawnStorage == null || pawnStorage.Props.needsDrop);
+    }
+
+    public virtual void Notify_PawnAdded(Pawn pawn)
+    {
+        compAssignable?.TryAssignPawn(pawn);
+    }
+
+    public virtual void Notify_PawnRemoved(Pawn pawn) { }
+
+    public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
+    {
+        pawnStorage?.ReleaseContents(Map);
+        base.Destroy(mode);
     }
 }

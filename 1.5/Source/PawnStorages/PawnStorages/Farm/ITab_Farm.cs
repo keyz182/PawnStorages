@@ -18,7 +18,7 @@ public class ITab_Farm : ITab
         labelKey = "PS_FarmTab";
     }
 
-    public IFarmTabParent Parent => SelThing as IFarmTabParent;
+    public IFarmTabParent ParentAsFarmTabParent => SelThing as IFarmTabParent;
 
     protected float TopAreaHeight => 20f;
 
@@ -37,20 +37,20 @@ public class ITab_Farm : ITab
         Rect buttonRect = new Rect(menuRect.x + 3f, menuRect.y + 3f, (float)(num1 / 2.0 - 3.0 - 1.5), 24f);
         if (Widgets.ButtonText(buttonRect, "ClearAll".Translate()))
         {
-            Parent.DenyAll();
+            ParentAsFarmTabParent.DenyAll();
             SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
         }
 
         if (Widgets.ButtonText(new Rect(buttonRect.xMax + 3f, buttonRect.y, buttonRect.width, 24f), "AllowAll".Translate()))
         {
-            Parent.AllowAll();
+            ParentAsFarmTabParent.AllowAll();
             SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
         }
 
         Rect searchWidgetRect = new(menuRect.x + 3f, menuRect.yMin + 26f, (float)(tabRect.width - 16.0 - 6.0), 24f);
         QuickSearchWidget.OnGUI(searchWidgetRect);
 
-        float totalHeight = Parent.AllowableThing.Count * (LineHeight + 2f);
+        float totalHeight = ParentAsFarmTabParent.AllowableThing.Count * (LineHeight + 2f);
 
         Rect viewRect = new(0.0f, 0.0f, menuRect.width - 20f, totalHeight);
 
@@ -66,12 +66,12 @@ public class ITab_Farm : ITab
         List<ThingDef> allowable;
         if (QuickSearchWidget.filter.Active)
         {
-            allowable = Parent.AllowableThing.Where(tDef =>
+            allowable = ParentAsFarmTabParent.AllowableThing.Where(tDef =>
                 tDef.LabelCap.ToString().ToLower().Contains(QuickSearchWidget.filter.Text.ToLower())).ToList();
         }
         else
         {
-            allowable = Parent.AllowableThing;
+            allowable = ParentAsFarmTabParent.AllowableThing;
         }
 
         allowable.Sort(ThingDefLabelCapComparer.ThingLabelIgnoreCaseComparator);
@@ -102,12 +102,12 @@ public class ITab_Farm : ITab
             GUI.color = Color.white;
 
 
-            bool checkOn = Parent.AllowedThings[tDef];
+            bool checkOn = ParentAsFarmTabParent.AllowedThings[tDef];
             bool flag = checkOn;
 
             Widgets.Checkbox(new Vector2(labelLeft.xMax, num), ref flag, LineHeight, paintable: true);
             if (checkOn != flag)
-                Parent.AllowedThings[tDef] = flag;
+                ParentAsFarmTabParent.AllowedThings[tDef] = flag;
 
             num += LineHeight + 2f;
         }

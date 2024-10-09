@@ -15,24 +15,24 @@ namespace PawnStorages.Farm.Comps
 
             if (!PawnStoragesMod.settings.AllowNeedsDrop) return;
 
-            if (parent.IsHashIntervalTick(Parent.TickInterval))
+            if (parent.IsHashIntervalTick(ParentAsProductionParent.TickInterval))
             {
-                foreach (Pawn pawn in Parent.ProducingPawns)
+                foreach (Pawn pawn in ParentAsProductionParent.ProducingPawns)
                 {
                     if (pawn.TryGetComp(out CompEggLayer compLayer) && (pawn.gender == Gender.Female || !compLayer.Props.eggLayFemaleOnly))
                     {
-                        EggLayerTick(compLayer, Parent.TickInterval);
+                        EggLayerTick(compLayer, ParentAsProductionParent.TickInterval);
                     }
 
                     if (pawn.TryGetComp(out CompHasGatherableBodyResource compGatherable) &&
                         (pawn.gender == Gender.Female || compGatherable is not CompMilkable milkable || !milkable.Props.milkFemaleOnly))
                     {
-                        GatherableTick(compGatherable, Parent.TickInterval);
+                        GatherableTick(compGatherable, ParentAsProductionParent.TickInterval);
                     }
                 }
             }
 
-            if (!ProduceNow && (!parent.IsHashIntervalTick(60000 / Math.Max(PawnStoragesMod.settings.ProductionsPerDay, 1)) || DaysProduce.Count <= 0 || !Parent.IsActive)) return;
+            if (!ProduceNow && (!parent.IsHashIntervalTick(60000 / Math.Max(PawnStoragesMod.settings.ProductionsPerDay, 1)) || DaysProduce.Count <= 0 || !ParentAsProductionParent.IsActive)) return;
             List<Thing> failedToPlace = [];
             failedToPlace.AddRange(DaysProduce.Where(thing => !GenPlace.TryPlaceThing(thing, parent.Position, parent.Map, ThingPlaceMode.Near)));
             DaysProduce.Clear();
@@ -55,7 +55,7 @@ namespace PawnStorages.Farm.Comps
             Thing egg = null;
             if (layer.Props.eggFertilizedDef != null &&
                 layer.Props.eggFertilizationCountMax > 0 &&
-                Parent.ProducingPawns.Find(p => p.kindDef == layingPawn.kindDef) is {} fertilizer &&
+                ParentAsProductionParent.ProducingPawns.Find(p => p.kindDef == layingPawn.kindDef) is {} fertilizer &&
                 (layer.Props.eggUnfertilizedDef == null || Rand.Bool)) // Flip a coin to see if fertilised unless there is no unfertilised option
             {
                 layer.Fertilize(fertilizer);
@@ -108,7 +108,7 @@ namespace PawnStorages.Farm.Comps
                 defaultLabel = "Make all animals ready to produce",
                 action = delegate
                 {
-                    foreach (Pawn storedPawn in Parent.ProducingPawns)
+                    foreach (Pawn storedPawn in ParentAsProductionParent.ProducingPawns)
                     {
                         storedPawn.needs.food.CurLevel = storedPawn.needs.food.MaxLevel;
 

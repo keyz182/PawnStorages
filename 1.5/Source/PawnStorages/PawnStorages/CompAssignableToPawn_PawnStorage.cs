@@ -28,6 +28,7 @@ public class CompAssignableToPawn_PawnStorage : CompAssignableToPawn
                         .ConcatIfNotNull(pawns.SpawnedShamblers)
                         .ConcatIfNotNull(pawns.SpawnedColonyMechs)
                         .ConcatIfNotNull(pawns.SpawnedColonyMutants)
+                        .Where(p => !Props.toolUsersOnly || (p.RaceProps?.ToolUser ?? false))
                         .OrderByDescending(p => CanAssignTo(p).Accepted) : [],
                     BedOwnerType.Prisoner => parent.Map.mapPawns.PrisonersOfColony.OrderByDescending(p => CanAssignTo(p).Accepted),
                     BedOwnerType.Slave => parent.Map.mapPawns.SlavesOfColonySpawned.OrderByDescending(p => CanAssignTo(p).Accepted),
