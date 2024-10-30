@@ -53,6 +53,33 @@ public class CompPawnStorageNutrition : ThingComp
         Scribe_Values.Look(ref _targetNutritionLevel, "targetNutritionLevel", -1f);
     }
 
+    public bool AbsorbToFeedIfNeeded(Need_Food foodNeeds, float desiredFeed, out float amountFed)
+    {
+        amountFed = 0f;
+        if (storedNutrition <= 0 && !TryAbsorbNutritionFromHopper(TargetNutritionLevel)) return false;
+        float available = Mathf.Min(desiredFeed, storedNutrition);
+        storedNutrition -= available;
+        foodNeeds.CurLevel += available;
+        amountFed = available;
+        return true;
+    }
+    
+    public float ResolveStarvationIfPossibleAndNecessary(Need_Food foodNeeds, Pawn pawn) =>
+        !foodNeeds.Starving ? 0f : FeedAndRecordWantedAmount(foodNeeds, foodNeeds.NutritionWanted, pawn);
+
+    public float FeedAndRecordWantedAmount(Need_Food foodNeeds, float neededFood, Pawn pawn, bool record = true)
+    {
+        float totalFeed = 0f;
+        while (neededFood > 0 && AbsorbToFeedIfNeeded(foodNeeds, neededFood, out float amountFed))
+        {
+            totalFeed += amountFed;
+            neededFood -= amountFed;
+        }
+
+        if (totalFeed > 0f && record) pawn.records.AddTo(RecordDefOf.NutritionEaten, totalFeed);
+        return totalFeed;
+    }
+
     public override void CompTick()
     {
         base.CompTick();
@@ -78,7 +105,11 @@ public class CompPawnStorageNutrition : ThingComp
                 if (foodNeeds == null)
                     continue;
 
-                foodNeeds.CurLevel -= foodNeeds.FoodFallPerTick * Props.PawnTickInterval;                if (!foodNeeds.Starving)
+                foodNeeds.CurLevel -= foodNeeds.FoodFallPerTick * Props.PawnTickInterval;
+                ResolveStarvationIfPossibleAndNecessary(foodNeeds, pawn);
+
+                // If still starving, apply malnutrition
+                if (!foodNeeds.Starving)
                     foodNeeds.lastNonStarvingTick = Find.TickManager.TicksGame;
 
                 // Need_Food.NeedInterval hardcodes 150 ticks, so adjust
@@ -93,34 +124,11 @@ public class CompPawnStorageNutrition : ThingComp
                 {
                     ParentAsNutritionStorageParent.ReleasePawn(pawn);
                     SendStavingLetter(pawn);
-                    continue;
-                }
-
-                // if not powered
-                if (!ParentAsNutritionStorageParent.IsActive) continue;
-
-                //Hopper absorption ticker
-                if (storedNutrition <= 0)
-                {
-                    TryAbsorbNutritionFromHopper(TargetNutritionLevel - storedNutrition);
-                    // Still no food available, no point trying to feed
-                    if (storedNutrition <= 0) continue;
                 }
             }
         }
 
-        foreach (Pawn pawn in ParentAsNutritionStorageParent.StoredPawns)
-        {
-            //Need fall ticker
-            Need_Food foodNeeds = pawn.needs?.food;
-            if (foodNeeds == null) continue;
-            if (!parent.IsHashIntervalTick(foodNeeds.TicksUntilHungryWhenFed)) continue;
-            float available = Mathf.Min(foodNeeds.NutritionWanted, storedNutrition);
-            storedNutrition -= available;
-
-            foodNeeds.CurLevel += available;
-            pawn.records.AddTo(RecordDefOf.NutritionEaten, available);
-        }
+        DoFeed();
 
         if (storedNutrition > 0)
         {
@@ -129,6 +137,19 @@ public class CompPawnStorageNutrition : ThingComp
         else
         {
             ParentAsNutritionStorageParent.Notify_NutritionEmpty();
+        }
+    }
+
+    public void DoFeed()
+    {
+        foreach (Pawn pawn in ParentAsNutritionStorageParent.StoredPawns)
+        {
+            //Need fall ticker
+            Need_Food foodNeeds = pawn.needs?.food;
+            if (foodNeeds == null) continue;
+            if (!parent.IsHashIntervalTick(foodNeeds.TicksUntilHungryWhenFed)) continue;
+            float nutritionDesired = foodNeeds.NutritionWanted;
+            FeedAndRecordWantedAmount(foodNeeds, nutritionDesired, pawn);
         }
     }
 
@@ -241,14 +262,19 @@ public class CompPawnStorageNutrition : ThingComp
 
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
-        yield return new Command_SetTargetNutritionLevel
-        {
-            nutritionComp = this,
-            defaultLabel = "PS_CommandSetNutritionLevel".Translate(),
-            defaultDesc = "PS_CommandSetNutritionLevelDesc".Translate(),
-            icon = CompRefuelable.SetTargetFuelLevelCommand
-        };
+        if (!HasAltStore)
+            yield return new Command_SetTargetNutritionLevel
+            {
+                nutritionComp = this,
+                defaultLabel = "PS_CommandSetNutritionLevel".Translate(),
+                defaultDesc = "PS_CommandSetNutritionLevelDesc".Translate(),
+                icon = CompRefuelable.SetTargetFuelLevelCommand
+            };
         if (!DebugSettings.ShowDevGizmos) yield break;
+        yield return new Command_Action
+        {
+            defaultLabel = "Feed Now", action = DoFeed, icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
+        };
         yield return new Command_Action
         {
             defaultLabel = "Fill Nutrition", action = delegate { storedNutrition = MaxNutrition; }, icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")

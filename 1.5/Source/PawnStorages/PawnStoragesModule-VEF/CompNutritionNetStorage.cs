@@ -7,7 +7,7 @@ public class CompNutritionNetStorage : CompResourceStorage, INutritionStoreAlter
 {
     public virtual CompProperties_NutritionNetStorage CompProps => (CompProperties_NutritionNetStorage) props;
 
-    public float MaxStoreSize { get => AmountCanAccept; }
+    public float MaxStoreSize { get => CompProps.storageCapacity; }
 
     public float CurrentStored
     {
@@ -20,5 +20,10 @@ public class CompNutritionNetStorage : CompResourceStorage, INutritionStoreAlter
             else
                 AddResource(toStore);
         }
+    }
+
+    public override void PostExposeData()
+    {
+        base.PostExposeData();
     }
 }

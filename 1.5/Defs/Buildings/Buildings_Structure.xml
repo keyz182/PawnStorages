@@ -172,6 +172,7 @@
             <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_FarmResourceStorage">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
                 <barSize>(0.75, 0.20)</barSize>
+                <storageCapacity>50</storageCapacity>
                 <margin>0.05</margin>
                 <centerOffset>(0, 0, -0.35)</centerOffset>
                 <destroyOption>
@@ -285,6 +286,7 @@
             </li>
             <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_FarmResourceStorage">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
+                <storageCapacity>50</storageCapacity>
                 <barSize>(0.75, 0.20)</barSize>
                 <margin>0.05</margin>
                 <centerOffset>(0, 0, -0.35)</centerOffset>
@@ -395,7 +397,7 @@
                 <canBeRotated>false</canBeRotated>
             </li>
             <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_NutritionNetStorage">
-                <storageCapacity>250</storageCapacity>
+                <storageCapacity>50</storageCapacity>
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
                 <barSize>(0.75, 0.20)</barSize>
                 <margin>0.05</margin>
