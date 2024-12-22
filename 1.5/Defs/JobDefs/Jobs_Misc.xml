@@ -78,7 +78,6 @@
         <dropThingBeforeJob>false</dropThingBeforeJob>
     </JobDef>
 
-
     <WorkGiverDef>
         <defName>PS_TakePrisonerToPawnStorage</defName>
         <label>take prisoners to storage</label>
@@ -102,4 +101,11 @@
         <carryThingAfterJob>true</carryThingAfterJob>
     </JobDef>
 
+    <JobDef>
+        <defName>PS_RopeToFarm</defName>
+        <driverClass>PawnStorages.Jobs.JobDriver_RopeToFarm</driverClass>
+        <reportString>leading TargetA to farm.</reportString>
+        <casualInterruptible>false</casualInterruptible>
+        <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+    </JobDef>
 </Defs>

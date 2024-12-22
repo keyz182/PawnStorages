@@ -86,6 +86,13 @@
     <PS_BreedingTab_TopLabel>Breeding Animals</PS_BreedingTab_TopLabel>
     <PS_AutoSlaughterTooltipDirection>Set the slaughter order from oldest to youngest, or youngest to oldest.</PS_AutoSlaughterTooltipDirection>
 
+    <PS_AssignmentTab>Assign</PS_AssignmentTab>
+    <PS_AssignmentTab_TopLabel>Assignments</PS_AssignmentTab_TopLabel>
+    <PS_AssignmentTab_Reassigned>Reassigned {0} from {1} to {2}</PS_AssignmentTab_Reassigned>
+    <PS_AssignmentTab_Assigned>Assigned {0} to {1}</PS_AssignmentTab_Assigned>
+    <PS_AssignmentTab_Assigned>{0}</PS_AssignmentTab_Assigned>
+    <PS_AssignmentTab_Set>Assign</PS_AssignmentTab_Set>
+
     <PS_FarmTab_TopLabel>Farm Animals</PS_FarmTab_TopLabel>
     <PS_FarmTab_Name>{0}</PS_FarmTab_Name>
     <PS_FarmTab_NameStarving>{0} (Starving!)</PS_FarmTab_NameStarving>

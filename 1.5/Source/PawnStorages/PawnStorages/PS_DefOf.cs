@@ -16,6 +16,7 @@ public static class PS_DefOf
     public static JobDef PS_CaptureAnimalToFarm;
     public static JobDef PS_TakeToPawnStorage;
     public static JobDef PS_CaptureCarriedToPawnStorage;
+    public static JobDef PS_RopeToFarm;
 
     //Things
     public static ThingDef PS_DigitizerFabricator;
