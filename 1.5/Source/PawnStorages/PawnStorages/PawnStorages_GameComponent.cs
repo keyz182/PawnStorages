@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using PawnStorages.Farm.Comps;
+using RimWorld;
 using Verse;
+using Verse.AI;
 
 namespace PawnStorages;
 
 public class PawnStorages_GameComponent : GameComponent
 {
+
     private static HashSet<CompAssignableToPawn_PawnStorage> _CompAssignables = [];
 
     public static bool AssignablesDirty = false;
@@ -53,4 +57,5 @@ public class PawnStorages_GameComponent : GameComponent
         base.FinalizeInit();
         AssignablesDirty = true;
     }
+
 }

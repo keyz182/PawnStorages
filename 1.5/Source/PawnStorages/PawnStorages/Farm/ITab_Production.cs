@@ -106,9 +106,14 @@ namespace PawnStorages.Farm
                 num += LineHeight;
             }
 
+            FarmJob_MapComponent comp = SelThing.Map.GetComponent<FarmJob_MapComponent>();
             foreach (Pawn pawn in removed)
             {
                 compFarmStorage.ReleaseSingle(compFarmStorage.parent.Map, pawn);
+                if (comp != null && comp.farmStorageAssignments.ContainsKey(pawn))
+                {
+                    comp.farmStorageAssignments.Remove(pawn);
+                }
             }
 
             Widgets.EndScrollView();

@@ -29,6 +29,7 @@
         <inspectorTabs>
             <li>PawnStorages.Farm.ITab_Production</li>
             <li>PawnStorages.Farm.ITab_Farm</li>
+            <li>PawnStorages.Farm.ITab_Assignments</li>
             <li>ITab_BiosculpterNutritionStorage</li>
         </inspectorTabs>
         <designationCategory>Production</designationCategory>
@@ -139,6 +140,7 @@
         <inspectorTabs>
             <li>PawnStorages.Farm.ITab_Farm</li>
             <li>ITab_BiosculpterNutritionStorage</li>
+            <li>PawnStorages.Farm.ITab_Assignments</li>
             <li>PawnStorages.Farm.ITab_Breeding</li>
             <li>PawnStorages.Farm.ITab_Slaughter</li>
         </inspectorTabs>
