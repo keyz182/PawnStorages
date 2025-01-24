@@ -40,7 +40,7 @@ namespace PawnStorages.Farm
             Widgets.DefIcon(new Rect(5f, position + 7.5f, 45f, 45f), animal.def, drawPlaceholder: true, color: Listing_TreeThingFilter.NoMatchColor);
 
             Widgets.Label(new Rect(55f, position, width - 90f, 20f),"PS_FarmTab_Name".Translate(animal.NameFullColored));
-            Widgets.Label(new Rect(55f, position + 30f, width - 90f, 20f), comp != null && comp.farmStorageAssignments.TryGetValue(animal, out CompFarmStorage assignment) ? "PS_AssignmentTab_Assigned".Translate(assignment.parent.Label).ToString() : "");
+            Widgets.Label(new Rect(55f, position + 30f, width - 90f, 20f), comp != null && comp.farmStorageAssignments.TryGetValue(animal, out CompFarmStorage assignment) ? "PS_AssignmentTab_Assigned".Translate(animal.NameFullColored, assignment.parent.Label).ToString() : "");
 
             Rect btn = new Rect(new Vector2(width - 100f, position + 15f), new Vector2(80f, 30f));
 

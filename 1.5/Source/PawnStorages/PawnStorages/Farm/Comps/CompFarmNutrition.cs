@@ -19,7 +19,7 @@ public class CompFarmNutrition : CompPawnStorageNutrition
         if (!doesBreeding || !PawnStoragesMod.settings.SuggestiveSilo)
             return;
 
-        float filled = (storedNutrition / Props.MaxNutrition) * 0.6f;
+        float filled = (storedNutrition / MaxNutrition) * 0.6f;
 
         Vector3 pos = parent.DrawPos;
         pos.z += filled;

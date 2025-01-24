@@ -90,7 +90,6 @@
     <PS_AssignmentTab_TopLabel>Assignments</PS_AssignmentTab_TopLabel>
     <PS_AssignmentTab_Reassigned>Reassigned {0} from {1} to {2}</PS_AssignmentTab_Reassigned>
     <PS_AssignmentTab_Assigned>Assigned {0} to {1}</PS_AssignmentTab_Assigned>
-    <PS_AssignmentTab_Assigned>{0}</PS_AssignmentTab_Assigned>
     <PS_AssignmentTab_Set>Assign</PS_AssignmentTab_Set>
 
     <PS_FarmTab_TopLabel>Farm Animals</PS_FarmTab_TopLabel>
@@ -117,4 +116,7 @@
 
     <PS_ReleaseAllToDefensivePositions>Release all to defensive positions</PS_ReleaseAllToDefensivePositions>
     <PS_ReleaseAllToDefensivePositions_Tooltip>If the released pawn(s) have a defensive position, they are immediately sent there. Only works with basic mode.</PS_ReleaseAllToDefensivePositions_Tooltip>
+
+    <PS_AvailableNutrition>Nutrition Avalable</PS_AvailableNutrition>
+    <PS_AvailableNutritionNetwork>Nutrition Avalable In Network</PS_AvailableNutritionNetwork>
 </LanguageData>
