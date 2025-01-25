@@ -4,7 +4,7 @@ using KCSG;
 using RimWorld;
 using Verse;
 
-namespace PawnStorages.VEF;
+namespace PawnStorages.VEF.HarmonyPatches;
 
 [HarmonyPatch(typeof(SymbolUtils), "Generate")]
 public static class GenerateBuildingAt_Patch
@@ -19,7 +19,7 @@ public static class GenerateBuildingAt_Patch
         storageItem.InitializeComps();
         var holder = storageItem as IThingHolder;
         if (holder == null) return true;
-        
+
         CompPawnStorage storageComp = storageItem.GetInnerIfMinified()?.TryGetComp<CompPawnStorage>();
         Faction chosenFaction = symbol.spawnPartOfFaction ? map.ParentFaction : null;
         Pawn pawn = null;

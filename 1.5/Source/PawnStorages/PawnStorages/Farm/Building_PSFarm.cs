@@ -100,9 +100,9 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
         StringBuilder stringBuilder = new();
         stringBuilder.AppendLine(base.GetInspectString());
         stringBuilder.AppendLine("PS_NutritionPerDay".Translate(pawnStorage.NutritionRequiredPerDay().ToStringDecimalIfSmall()));
-        if (FarmNutrition != null)
+        if (FarmNutrition is { IsPiped: false })
         {
-            stringBuilder.AppendLine((FarmNutrition.IsPiped ? "PS_AvailableNutritionNetwork" : "PS_AvailableNutrition").Translate(FarmNutrition.storedNutrition, FarmNutrition.MaxNutrition));
+            stringBuilder.AppendLine("PS_AvailableNutrition".Translate(FarmNutrition.storedNutrition, FarmNutrition.MaxNutrition));
         }
         return stringBuilder.ToString().Trim();
     }

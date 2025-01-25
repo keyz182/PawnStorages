@@ -16,10 +16,13 @@ public class CompFarmNutrition : CompPawnStorageNutrition
 
         base.PostDraw();
 
-        if (!doesBreeding || !PawnStoragesMod.settings.SuggestiveSilo)
-            return;
+        float filled = 0.6f;
 
-        float filled = (storedNutrition / MaxNutrition) * 0.6f;
+        if (doesBreeding && PawnStoragesMod.settings.SuggestiveSilo)
+        {
+            filled = Mathf.Clamp01(storedNutrition / MaxNutrition) * 0.6f;
+        }
+
 
         Vector3 pos = parent.DrawPos;
         pos.z += filled;

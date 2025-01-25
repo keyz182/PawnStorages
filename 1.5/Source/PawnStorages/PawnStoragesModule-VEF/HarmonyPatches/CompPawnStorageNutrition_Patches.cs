@@ -14,7 +14,7 @@ public static class CompPawnStorageNutrition_Patches
         pipeNet = null;
         if (resource is not { PipeNet: { } net }) return false;
         pipeNet = net;
-        return true;
+        return pipeNet.connectors.Count > 1;
     }
 
     [HarmonyPatch(nameof(CompPawnStorageNutrition.MaxNutrition), MethodType.Getter)]

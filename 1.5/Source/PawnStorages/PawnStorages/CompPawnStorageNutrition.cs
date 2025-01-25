@@ -20,7 +20,7 @@ public class CompPawnStorageNutrition : ThingComp
     public virtual bool IsPiped
     {
         [MethodImpl(MethodImplOptions.NoInlining)]
-        get => true;
+        get => false;
     }
 
     public virtual float storedNutrition
@@ -85,7 +85,7 @@ public class CompPawnStorageNutrition : ThingComp
 
         if (!PawnStoragesMod.settings.AllowNeedsDrop) return;
 
-        if (parent.IsHashIntervalTick(Props.TicksToAbsorbNutrients) && ParentAsNutritionStorageParent.IsActive)
+        if (!IsPiped && parent.IsHashIntervalTick(Props.TicksToAbsorbNutrients) && ParentAsNutritionStorageParent.IsActive)
         {
             if (storedNutrition <= TargetNutritionLevel)
             {

@@ -173,19 +173,6 @@
             <li MayRequire="VanillaExpanded.VNutrientE" Class="PipeSystem.CompProperties_Resource">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
             </li>
-            <!-- <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_FarmResourceStorage"> -->
-            <!--     <pipeNet>VNPE_NutrientPasteNet</pipeNet> -->
-            <!--     <barSize>(0.75, 0.20)</barSize> -->
-            <!--     <storageCapacity>50</storageCapacity> -->
-            <!--     <margin>0.05</margin> -->
-            <!--     <centerOffset>(0, 0, -0.35)</centerOffset> -->
-            <!--     <destroyOption> -->
-            <!--         <filth>VNPE_Filth_Paste</filth> -->
-            <!--         <ratio>1</ratio> -->
-            <!--         <maxRadius>5</maxRadius> -->
-            <!--     </destroyOption> -->
-            <!--     <contentRequirePower>false</contentRequirePower> -->
-            <!-- </li> -->
         </comps>
         <building>
             <wantsHopperAdjacent>true</wantsHopperAdjacent>
@@ -292,19 +279,6 @@
             <li MayRequire="VanillaExpanded.VNutrientE" Class="PipeSystem.CompProperties_Resource">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
             </li>
-            <!-- <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_FarmResourceStorage"> -->
-            <!--     <pipeNet>VNPE_NutrientPasteNet</pipeNet> -->
-            <!--     <storageCapacity>50</storageCapacity> -->
-            <!--     <barSize>(0.75, 0.20)</barSize> -->
-            <!--     <margin>0.05</margin> -->
-            <!--     <centerOffset>(0, 0, -0.35)</centerOffset> -->
-            <!--     <destroyOption> -->
-            <!--         <filth>VNPE_Filth_Paste</filth> -->
-            <!--         <ratio>1</ratio> -->
-            <!--         <maxRadius>5</maxRadius> -->
-            <!--     </destroyOption> -->
-            <!--     <contentRequirePower>false</contentRequirePower> -->
-            <!-- </li> -->
         </comps>
         <building>
             <wantsHopperAdjacent>true</wantsHopperAdjacent>
@@ -407,19 +381,6 @@
             <li MayRequire="VanillaExpanded.VNutrientE" Class="PipeSystem.CompProperties_Resource">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
             </li>
-            <!-- <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_NutritionNetStorage"> -->
-            <!--     <storageCapacity>50</storageCapacity> -->
-            <!--     <pipeNet>VNPE_NutrientPasteNet</pipeNet> -->
-            <!--     <barSize>(0.75, 0.20)</barSize> -->
-            <!--     <margin>0.05</margin> -->
-            <!--     <centerOffset>(0, 0, -0.35)</centerOffset> -->
-            <!--     <destroyOption> -->
-            <!--         <filth>VNPE_Filth_Paste</filth> -->
-            <!--         <ratio>1</ratio> -->
-            <!--         <maxRadius>5</maxRadius> -->
-            <!--     </destroyOption> -->
-            <!--     <contentRequirePower>false</contentRequirePower> -->
-            <!-- </li> -->
         </comps>
         <building>
             <wantsHopperAdjacent>true</wantsHopperAdjacent>

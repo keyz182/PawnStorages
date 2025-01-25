@@ -117,6 +117,5 @@
     <PS_ReleaseAllToDefensivePositions>Release all to defensive positions</PS_ReleaseAllToDefensivePositions>
     <PS_ReleaseAllToDefensivePositions_Tooltip>If the released pawn(s) have a defensive position, they are immediately sent there. Only works with basic mode.</PS_ReleaseAllToDefensivePositions_Tooltip>
 
-    <PS_AvailableNutrition>Nutrition Avalable</PS_AvailableNutrition>
-    <PS_AvailableNutritionNetwork>Nutrition Avalable In Network</PS_AvailableNutritionNetwork>
+    <PS_AvailableNutrition>Nutrition Avalable {0}/{0}</PS_AvailableNutrition>
 </LanguageData>
