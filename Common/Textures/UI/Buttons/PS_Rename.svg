@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="256"
+   height="256"
+   viewBox="0 0 67.733332 67.733333"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4 (86a8ad7, 2024-10-11)"
+   sodipodi:docname="PS_Rename.svg"
+   inkscape:export-filename="PS_Rename.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="2.955623"
+     inkscape:cx="94.396342"
+     inkscape:cy="102.00895"
+     inkscape:window-width="2560"
+     inkscape:window-height="1377"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <rect
+       x="101.50144"
+       y="136.01193"
+       width="511.90561"
+       height="431.04279"
+       id="rect1" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="rect2"
+       style="fill:#ffffff;stroke:#000000;stroke-width:1.52714;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.2"
+       d="m 26.96999,19.221995 v 4.108281 h 4.803408 v 21.07278 h -4.946117 v 4.108282 h 5.345962 v -0.952265 h 2.862053 v 0.952265 h 5.728708 v -4.108282 h -4.661359 v -21.07278 h 4.803408 v -4.108281 h -5.608358 v 0.952264 h -2.862054 v -0.952264 z" />
+  </g>
+</svg>

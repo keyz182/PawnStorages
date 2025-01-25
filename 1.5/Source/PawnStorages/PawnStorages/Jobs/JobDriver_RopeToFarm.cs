@@ -31,15 +31,16 @@ public class JobDriver_RopeToFarm: JobDriver_RopeToDestination
 
     public override void ProcessArrivedRopee(Pawn ropee)
     {
+        Map map = ropee.Map;
         if(Comp == null) return;
         if(!Comp.CanAssign(ropee)) return;
         Comp.TryAssignPawn(ropee);
         Comp.StorePawn(ropee);
 
         // So they're not put straight back in if ejected
-        FarmJob_MapComponent comp = ropee.Map.GetComponent<FarmJob_MapComponent>();
-        if(comp.farmStorageAssignments.ContainsKey(ropee))
-            comp.farmStorageAssignments.Remove(ropee);
+        FarmJob_MapComponent comp = map.GetComponent<FarmJob_MapComponent>();
+        if(comp.farmAssignments.ContainsKey(ropee))
+            comp.farmAssignments.Remove(ropee);
     }
 
     public override bool ShouldOpportunisticallyRopeAnimal(Pawn animal)
@@ -55,7 +56,7 @@ public class JobDriver_RopeToFarm: JobDriver_RopeToDestination
 
         Building dest = comp.GetFarmAnimalShouldBeTakenTo(pawn, animal, out string _);
 
-        if (!comp.farmStorageAssignments.ContainsKey(animal)) return false;
+        if (!comp.farmAssignments.ContainsKey(animal)) return false;
 
         return dest != null && Farm == dest;
     }

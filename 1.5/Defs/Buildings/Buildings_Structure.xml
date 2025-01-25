@@ -173,6 +173,7 @@
             <li MayRequire="VanillaExpanded.VNutrientE" Class="PipeSystem.CompProperties_Resource">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
             </li>
+            <li Class="PawnStorages.CompProperties_Renamable" />
         </comps>
         <building>
             <wantsHopperAdjacent>true</wantsHopperAdjacent>
@@ -279,6 +280,7 @@
             <li MayRequire="VanillaExpanded.VNutrientE" Class="PipeSystem.CompProperties_Resource">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
             </li>
+            <li Class="PawnStorages.CompProperties_Renamable" />
         </comps>
         <building>
             <wantsHopperAdjacent>true</wantsHopperAdjacent>
@@ -381,6 +383,7 @@
             <li MayRequire="VanillaExpanded.VNutrientE" Class="PipeSystem.CompProperties_Resource">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
             </li>
+            <li Class="PawnStorages.CompProperties_Renamable" />
         </comps>
         <building>
             <wantsHopperAdjacent>true</wantsHopperAdjacent>
