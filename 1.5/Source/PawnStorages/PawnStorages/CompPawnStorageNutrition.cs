@@ -261,6 +261,16 @@ public class CompPawnStorageNutrition : ThingComp
 
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
+        if (!IsPiped)
+        {
+            yield return new Command_SetTargetNutritionLevel
+            {
+                nutritionComp = this,
+                defaultLabel = "PS_CommandSetNutritionLevel".Translate(),
+                defaultDesc = "PS_CommandSetNutritionLevelDesc".Translate(),
+                icon = CompRefuelable.SetTargetFuelLevelCommand
+            };
+        }
         if (!DebugSettings.ShowDevGizmos) yield break;
         yield return new Command_Action
         {
