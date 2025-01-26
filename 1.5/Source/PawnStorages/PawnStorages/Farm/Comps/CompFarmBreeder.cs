@@ -149,27 +149,26 @@ namespace PawnStorages.Farm.Comps
             foreach (IGrouping<PawnKindDef, Pawn> type in types)
             {
                 bool males = type.Any(p => p.gender == Gender.Male);
-                List<Pawn> females = type.Where(p => p.gender != Gender.Male).ToList();
+                List<Pawn> nonMales = type.Where(p => p.gender != Gender.Male).ToList();
 
-                if (!females.Any())
-                {
-                    // no more females, reset
-                    BreedingProgress[type.Key] = 0f;
-                }
+                bool genderless = !type.Key.RaceProps.hasGenders;
+
+                // no more females, reset
+                if (!nonMales.Any() && !genderless) BreedingProgress[type.Key] = 0f;
 
                 // no males, stop progress
-                if (!males)
-                {
-                    continue;
-                }
+                if (!males && !genderless) continue;
 
-                float gestationTicks = AnimalProductionUtility.GestationDaysEach(type.Key.race) * 60000 * PawnStoragesMod.settings.BreedingScale;
+                float gestationDays = AnimalProductionUtility.GestationDaysEach(type.Key.race);
+                if (gestationDays <= 0f) continue;
+
+                float gestationTicks = gestationDays * 60000 * PawnStoragesMod.settings.BreedingScale;
 
                 float progressPerCycle = ParentAsBreederParent.TickInterval / gestationTicks;
 
                 BreedingProgress.TryAdd(type.Key, 0.0f);
 
-                BreedingProgress[type.Key] = Mathf.Clamp(BreedingProgress[type.Key] + progressPerCycle * females.Count, 0f, 1f);
+                BreedingProgress[type.Key] = Mathf.Clamp(BreedingProgress[type.Key] + progressPerCycle * nonMales.Count, 0f, 1f);
 
                 if (!(BreedingProgress[type.Key] >= 1f)) continue;
 
