@@ -86,6 +86,7 @@ public class CompPawnStorageNutrition : ThingComp
 
         if (!IsPiped && parent.IsHashIntervalTick(Props.TicksToAbsorbNutrients) && ParentAsNutritionStorageParent.IsActive)
         {
+            parent.DirtyMapMesh(parent.Map);
             if (storedNutrition <= TargetNutritionLevel)
             {
                 TryAbsorbNutritionFromHopper(TargetNutritionLevel - storedNutrition);
@@ -94,6 +95,7 @@ public class CompPawnStorageNutrition : ThingComp
 
         if (parent.IsHashIntervalTick(Props.PawnTickInterval) && ParentAsNutritionStorageParent.HasStoredPawns)
         {
+            parent.DirtyMapMesh(parent.Map);
             foreach (Pawn pawn in ParentAsNutritionStorageParent.StoredPawns)
             {
                 EmulateScaledPawnAgeTick(pawn);
@@ -312,7 +314,6 @@ public class CompPawnStorageNutrition : ThingComp
         {
             filled = Mathf.Clamp01(storedNutrition / MaxNutrition) * 0.6f;
         }
-
 
         Vector3 pos = parent.DrawPos;
         pos.z += filled;
