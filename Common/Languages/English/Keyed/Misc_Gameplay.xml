@@ -62,7 +62,7 @@
 
 	<PS_Settings_SuggestiveSilo>Enable "Suggestive" silos</PS_Settings_SuggestiveSilo>
 	<PS_Settings_Production_Scale>Set animal produce timescale multiplier: {0}</PS_Settings_Production_Scale>
-	<PS_Settings_Breeding_Scale>Set animal breeding divider: {0}</PS_Settings_Breeding_Scale>
+	<PS_Settings_Breeding_Scale>Time to breed in Farm multiplier (Big -> Long): {0}</PS_Settings_Breeding_Scale>
 	<PS_Settings_Max_Farm>Max animals stored per farm: {0}</PS_Settings_Max_Farm>
 	<PS_Settings_ShowStoredPawnsInBar>Show stored pawns in colonist bar</PS_Settings_ShowStoredPawnsInBar>
 	<PS_Settings_Max_Farm_Nutrition>The maximum amount of nutrition to store in a farm: {0}</PS_Settings_Max_Farm_Nutrition>
