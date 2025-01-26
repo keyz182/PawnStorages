@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using PawnStorages.Farm.Comps;
 using PawnStorages.Farm.Interfaces;
 using PawnStorages.Interfaces;
 using RimWorld;
@@ -16,31 +18,27 @@ public class CompPawnStorageNutrition : ThingComp
     private float _storedNutrition = 0f;
     private float _targetNutritionLevel = -1f;
 
-    public virtual INutritionStoreAlternative AlternativeStore => (INutritionStoreAlternative) parent.AllComps.FirstOrDefault(c => c is INutritionStoreAlternative);
-
-    public bool HasAltStore => AlternativeStore != null;
-
-    public float storedNutrition
+    public virtual bool IsPiped
     {
-        get => HasAltStore ? AlternativeStore.CurrentStored : _storedNutrition;
+        get => false;
+    }
+
+    public virtual float storedNutrition
+    {
+        get => _storedNutrition;
         set
         {
-            if (HasAltStore)
-            {
-                AlternativeStore.CurrentStored = value;
-            }
-            else
-                _storedNutrition = value;
+            _storedNutrition = value;
         }
     }
 
-    public float TargetNutritionLevel
+    public virtual float TargetNutritionLevel
     {
         get => _targetNutritionLevel <= 0 ? MaxNutrition : _targetNutritionLevel;
         set => _targetNutritionLevel = value;
     }
 
-    public float MaxNutrition => HasAltStore ? AlternativeStore.MaxStoreSize : Props.MaxNutrition;
+    public virtual float MaxNutrition => Props.MaxNutrition;
 
     private List<IntVec3> cachedAdjCellsCardinal;
 
@@ -53,7 +51,7 @@ public class CompPawnStorageNutrition : ThingComp
         Scribe_Values.Look(ref _targetNutritionLevel, "targetNutritionLevel", -1f);
     }
 
-    public bool AbsorbToFeedIfNeeded(Need_Food foodNeeds, float desiredFeed, out float amountFed)
+    public virtual bool AbsorbToFeedIfNeeded(Need_Food foodNeeds, float desiredFeed, out float amountFed)
     {
         amountFed = 0f;
         if (storedNutrition <= 0 && !TryAbsorbNutritionFromHopper(TargetNutritionLevel)) return false;
@@ -63,11 +61,11 @@ public class CompPawnStorageNutrition : ThingComp
         amountFed = available;
         return true;
     }
-    
-    public float ResolveStarvationIfPossibleAndNecessary(Need_Food foodNeeds, Pawn pawn) =>
+
+    public virtual float ResolveStarvationIfPossibleAndNecessary(Need_Food foodNeeds, Pawn pawn) =>
         !foodNeeds.Starving ? 0f : FeedAndRecordWantedAmount(foodNeeds, foodNeeds.NutritionWanted, pawn);
 
-    public float FeedAndRecordWantedAmount(Need_Food foodNeeds, float neededFood, Pawn pawn, bool record = true)
+    public virtual float FeedAndRecordWantedAmount(Need_Food foodNeeds, float neededFood, Pawn pawn, bool record = true)
     {
         float totalFeed = 0f;
         while (neededFood > 0 && AbsorbToFeedIfNeeded(foodNeeds, neededFood, out float amountFed))
@@ -86,8 +84,9 @@ public class CompPawnStorageNutrition : ThingComp
 
         if (!PawnStoragesMod.settings.AllowNeedsDrop) return;
 
-        if (parent.IsHashIntervalTick(Props.TicksToAbsorbNutrients) && ParentAsNutritionStorageParent.IsActive)
+        if (!IsPiped && parent.IsHashIntervalTick(Props.TicksToAbsorbNutrients) && ParentAsNutritionStorageParent.IsActive)
         {
+            parent.DirtyMapMesh(parent.Map);
             if (storedNutrition <= TargetNutritionLevel)
             {
                 TryAbsorbNutritionFromHopper(TargetNutritionLevel - storedNutrition);
@@ -96,6 +95,7 @@ public class CompPawnStorageNutrition : ThingComp
 
         if (parent.IsHashIntervalTick(Props.PawnTickInterval) && ParentAsNutritionStorageParent.HasStoredPawns)
         {
+            parent.DirtyMapMesh(parent.Map);
             foreach (Pawn pawn in ParentAsNutritionStorageParent.StoredPawns)
             {
                 EmulateScaledPawnAgeTick(pawn);
@@ -140,7 +140,7 @@ public class CompPawnStorageNutrition : ThingComp
         }
     }
 
-    public void DoFeed()
+    public virtual void DoFeed()
     {
         foreach (Pawn pawn in ParentAsNutritionStorageParent.StoredPawns)
         {
@@ -153,7 +153,7 @@ public class CompPawnStorageNutrition : ThingComp
         }
     }
 
-    public void SendStavingLetter(Pawn pawn)
+    public virtual void SendStavingLetter(Pawn pawn)
     {
         LookTargets targets = new(pawn);
         ChoiceLetter letter = LetterMaker.MakeLetter(
@@ -165,7 +165,7 @@ public class CompPawnStorageNutrition : ThingComp
         Find.LetterStack.ReceiveLetter(letter);
     }
 
-    public void EmulateScaledPawnAgeTick(Pawn pawn)
+    public virtual void EmulateScaledPawnAgeTick(Pawn pawn)
     {
         int interval = Props.PawnTickInterval;
         int ageBioYears = pawn.ageTracker.AgeBiologicalYears;
@@ -191,7 +191,7 @@ public class CompPawnStorageNutrition : ThingComp
             .Where(c => c.InBounds(parent.Map))
             .ToList();
 
-    public bool TryAbsorbNutritionFromHopper(float nutrition)
+    public virtual bool TryAbsorbNutritionFromHopper(float nutrition)
     {
         if (nutrition <= 0) return false;
         if (!HasEnoughFeedstockInHoppers()) return false;
@@ -262,7 +262,8 @@ public class CompPawnStorageNutrition : ThingComp
 
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
-        if (!HasAltStore)
+        if (!IsPiped)
+        {
             yield return new Command_SetTargetNutritionLevel
             {
                 nutritionComp = this,
@@ -270,6 +271,7 @@ public class CompPawnStorageNutrition : ThingComp
                 defaultDesc = "PS_CommandSetNutritionLevelDesc".Translate(),
                 icon = CompRefuelable.SetTargetFuelLevelCommand
             };
+        }
         if (!DebugSettings.ShowDevGizmos) yield break;
         yield return new Command_Action
         {
@@ -295,5 +297,29 @@ public class CompPawnStorageNutrition : ThingComp
             action = delegate { TryAbsorbNutritionFromHopper(TargetNutritionLevel - storedNutrition); },
             icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
         };
+    }
+
+    public bool doesBreeding => parent.GetComp<CompFarmBreeder>() != null;
+
+    public override void PostDraw()
+    {
+        base.PostDraw();
+        if (!Props.HasTip) return;
+
+        ((Graphic_Single) parent.Graphic).mat = Props.MainTexture;
+
+        float filled = 0.6f;
+
+        if (doesBreeding && PawnStoragesMod.settings.SuggestiveSilo)
+        {
+            filled = Mathf.Clamp01(storedNutrition / MaxNutrition) * 0.6f;
+        }
+
+        Vector3 pos = parent.DrawPos;
+        pos.z += filled;
+        pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
+
+        Matrix4x4 matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0.0f, 0f, 0.0f), new Vector3(Props.TipScale, 1f, Props.TipScale));
+        Graphics.DrawMesh(MeshPool.plane10, matrix, Props.TipTexture, 0);
     }
 }

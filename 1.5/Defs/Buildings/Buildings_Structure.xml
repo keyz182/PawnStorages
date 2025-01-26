@@ -163,26 +163,17 @@
                 <lightEffect>true</lightEffect>
                 <storageStation>PS_BatteryFarm</storageStation>
             </li>
-            <li Class="PawnStorages.Farm.Comps.CompProperties_FarmNutrition">
+            <li Class="PawnStorages.CompProperties_PawnStorageNutrition">
                 <HasTip>false</HasTip>
                 <MainTex>Things/Building/Production/PS_BatteryFarm</MainTex>
                 <AltTex>Things/Building/Production/PS_BatteryFarmRustic</AltTex>
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmProducer">
             </li>
-            <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_FarmResourceStorage">
+            <li MayRequire="VanillaExpanded.VNutrientE" Class="PipeSystem.CompProperties_Resource">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
-                <barSize>(0.75, 0.20)</barSize>
-                <storageCapacity>50</storageCapacity>
-                <margin>0.05</margin>
-                <centerOffset>(0, 0, -0.35)</centerOffset>
-                <destroyOption>
-                    <filth>VNPE_Filth_Paste</filth>
-                    <ratio>1</ratio>
-                    <maxRadius>5</maxRadius>
-                </destroyOption>
-                <contentRequirePower>false</contentRequirePower>
             </li>
+            <li Class="PawnStorages.CompProperties_Renamable" />
         </comps>
         <building>
             <wantsHopperAdjacent>true</wantsHopperAdjacent>
@@ -277,7 +268,7 @@
                 <lightEffect>true</lightEffect>
                 <storageStation>PS_BatteryFarm</storageStation>
             </li>
-            <li Class="PawnStorages.Farm.Comps.CompProperties_FarmNutrition">
+            <li Class="PawnStorages.CompProperties_PawnStorageNutrition">
                 <HasTip>true</HasTip>
                 <TipScale>5</TipScale>
                 <MainTex>Things/Building/Production/PS_BreedingDomes</MainTex>
@@ -286,19 +277,10 @@
             </li>
             <li Class="PawnStorages.Farm.Comps.CompProperties_FarmBreeder">
             </li>
-            <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_FarmResourceStorage">
+            <li MayRequire="VanillaExpanded.VNutrientE" Class="PipeSystem.CompProperties_Resource">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
-                <storageCapacity>50</storageCapacity>
-                <barSize>(0.75, 0.20)</barSize>
-                <margin>0.05</margin>
-                <centerOffset>(0, 0, -0.35)</centerOffset>
-                <destroyOption>
-                    <filth>VNPE_Filth_Paste</filth>
-                    <ratio>1</ratio>
-                    <maxRadius>5</maxRadius>
-                </destroyOption>
-                <contentRequirePower>false</contentRequirePower>
             </li>
+            <li Class="PawnStorages.CompProperties_Renamable" />
         </comps>
         <building>
             <wantsHopperAdjacent>true</wantsHopperAdjacent>
@@ -398,19 +380,10 @@
                 <canBeScheduled>true</canBeScheduled>
                 <canBeRotated>false</canBeRotated>
             </li>
-            <li MayRequire="VanillaExpanded.VNutrientE" Class="PawnStorages.VEF.CompProperties_NutritionNetStorage">
-                <storageCapacity>50</storageCapacity>
+            <li MayRequire="VanillaExpanded.VNutrientE" Class="PipeSystem.CompProperties_Resource">
                 <pipeNet>VNPE_NutrientPasteNet</pipeNet>
-                <barSize>(0.75, 0.20)</barSize>
-                <margin>0.05</margin>
-                <centerOffset>(0, 0, -0.35)</centerOffset>
-                <destroyOption>
-                    <filth>VNPE_Filth_Paste</filth>
-                    <ratio>1</ratio>
-                    <maxRadius>5</maxRadius>
-                </destroyOption>
-                <contentRequirePower>false</contentRequirePower>
             </li>
+            <li Class="PawnStorages.CompProperties_Renamable" />
         </comps>
         <building>
             <wantsHopperAdjacent>true</wantsHopperAdjacent>

@@ -110,9 +110,9 @@ namespace PawnStorages.Farm
             foreach (Pawn pawn in removed)
             {
                 compFarmStorage.ReleaseSingle(compFarmStorage.parent.Map, pawn);
-                if (comp != null && comp.farmStorageAssignments.ContainsKey(pawn))
+                if (comp != null && comp.farmAssignments.ContainsKey(pawn))
                 {
-                    comp.farmStorageAssignments.Remove(pawn);
+                    comp.farmAssignments.Remove(pawn);
                 }
             }
 

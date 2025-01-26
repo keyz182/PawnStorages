@@ -10,10 +10,15 @@
         <li>ludeon.rimworld.anomaly</li>
         <li>unlimitedhugs.hugslib</li>
         <li>unlimitedhugs.defensivepositions</li>
+        <li>keyz182.keyzlocalmodalert</li>
         <li>pb3n.simplewarrants</li>
-        <li>oskarpotocki.vanillafactionsexpanded.core</li>
+        <li>oskarpotocki.vanillafactionsexpanded.core_steam</li>
         <li>vanillaexpanded.vnutriente</li>
         <li>orpheusly.pawnstorages</li>
+        <li>vanillaexpanded.vchemfuele</li>
+        <li>vanillaexpanded.helixiengas</li>
+        <li>bambaryla.vcepu</li>
+        <li>smashphil.xmlpatchhelper</li>
     </activeMods>
     <knownExpansions>
         <li>ludeon.rimworld</li>

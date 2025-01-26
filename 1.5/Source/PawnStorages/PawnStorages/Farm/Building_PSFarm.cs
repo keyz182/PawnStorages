@@ -13,7 +13,7 @@ namespace PawnStorages.Farm;
 public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorageParent, IBreederParent, IProductionParent, IFarmTabParent, IPawnListParent
 {
     public CompFarmStorage pawnStorage;
-    public CompFarmNutrition FarmNutrition;
+    public CompPawnStorageNutrition FarmNutrition;
     public CompFarmBreeder FarmBreeder;
     public CompFarmProducer FarmProducer;
     private StorageSettings allowedNutritionSettings;
@@ -62,7 +62,7 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
     public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
         pawnStorage = GetComp<CompFarmStorage>();
-        FarmNutrition = GetComp<CompFarmNutrition>();
+        FarmNutrition = GetComp<CompPawnStorageNutrition>();
         FarmBreeder = GetComp<CompFarmBreeder>();
         FarmProducer = GetComp<CompFarmProducer>();
         base.SpawnSetup(map, respawningAfterLoad);
@@ -100,8 +100,10 @@ public class Building_PSFarm : Building, IStoreSettingsParent, INutritionStorage
         StringBuilder stringBuilder = new();
         stringBuilder.AppendLine(base.GetInspectString());
         stringBuilder.AppendLine("PS_NutritionPerDay".Translate(pawnStorage.NutritionRequiredPerDay().ToStringDecimalIfSmall()));
-        if (!FarmNutrition.HasAltStore)
-            stringBuilder.AppendLine("PS_NutritionStored".Translate(FarmNutrition.storedNutrition, FarmNutrition.MaxNutrition));
+        if (FarmNutrition is { IsPiped: false })
+        {
+            stringBuilder.AppendLine("PS_AvailableNutrition".Translate(FarmNutrition.storedNutrition, FarmNutrition.MaxNutrition));
+        }
         return stringBuilder.ToString().Trim();
     }
 

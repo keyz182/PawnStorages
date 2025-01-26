@@ -8,12 +8,12 @@ namespace PawnStorages;
 
 public class FarmJob_MapComponent(Map map) : MapComponent(map)
 {
-    public Dictionary<Pawn, CompFarmStorage> farmStorageAssignments = new Dictionary<Pawn, CompFarmStorage>();
+    public Dictionary<Pawn, Building> farmAssignments = new Dictionary<Pawn, Building>();
 
     public override void ExposeData()
     {
         base.ExposeData();
-        Scribe_Collections.Look(ref farmStorageAssignments, "farmStorageAssignments", LookMode.Reference, LookMode.Reference);
+        Scribe_Collections.Look(ref farmAssignments, "farmStorageAssignments", LookMode.Reference, LookMode.Reference);
     }
 
     public Building GetFarmAnimalShouldBeTakenTo(
@@ -23,7 +23,7 @@ public class FarmJob_MapComponent(Map map) : MapComponent(map)
         bool forced = false)
     {
         jobFailReason = null;
-        if (animal == null || !farmStorageAssignments.ContainsKey(animal)) return null;
+        if (animal == null || !farmAssignments.ContainsKey(animal)) return null;
         if (animal == roper)
             return null;
         if (animal.Faction != roper.Faction)
@@ -42,6 +42,6 @@ public class FarmJob_MapComponent(Map map) : MapComponent(map)
         if (!WorkGiver_InteractAnimal.CanInteractWithAnimal(roper, animal, out jobFailReason, forced, true, true, true))
             return null;
 
-        return farmStorageAssignments[animal].parent as Building;
+        return farmAssignments[animal];
     }
 }

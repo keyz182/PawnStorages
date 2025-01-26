@@ -29,6 +29,7 @@ namespace PawnStorages.Farm
             Rect rect = new Rect(0.0f, position, width, LineHeight);
 
             FarmJob_MapComponent comp = SelThing.Map.GetComponent<FarmJob_MapComponent>();
+            if (comp == null) return;
 
             if (alternate)
             {
@@ -40,20 +41,30 @@ namespace PawnStorages.Farm
             Widgets.DefIcon(new Rect(5f, position + 7.5f, 45f, 45f), animal.def, drawPlaceholder: true, color: Listing_TreeThingFilter.NoMatchColor);
 
             Widgets.Label(new Rect(55f, position, width - 90f, 20f),"PS_FarmTab_Name".Translate(animal.NameFullColored));
-            Widgets.Label(new Rect(55f, position + 30f, width - 90f, 20f), comp != null && comp.farmStorageAssignments.TryGetValue(animal, out CompFarmStorage assignment) ? "PS_AssignmentTab_Assigned".Translate(assignment.parent.Label).ToString() : "");
+            if (comp.farmAssignments.TryGetValue(animal, out Building f))
+            {
+                if (f.HasComp<CompFarmStorage>())
+                {
+                    Widgets.Label(new Rect(55f, position + 20f, width - 120f, 40f), "PS_AssignmentTab_AssignedTo".Translate(f.Label).ToString());
+                }
+            }
 
-            Rect btn = new Rect(new Vector2(width - 100f, position + 15f), new Vector2(80f, 30f));
+            Rect btn = new Rect(new Vector2(width - 80f, position + 15f), new Vector2(70f, 30f));
 
             if (!Widgets.ButtonText(btn, "PS_AssignmentTab_Set".Translate(), true, false, true)) return;
 
+            string message = "PS_AssignmentTab_Assigned".Translate(animal.NameFullColored, compFarmStorage.parent.Label);
 
-            if (comp == null) return;
+            if (comp.farmAssignments.TryGetValue(animal, out Building farm))
+            {
+                if (farm.HasComp<CompFarmStorage>())
+                {
+                    message = "PS_AssignmentTab_Reassigned".Translate(animal.NameFullColored, farm.Label, compFarmStorage.parent.Label);
+                }
+            }
 
-            Messages.Message(
-                comp.farmStorageAssignments.TryGetValue(animal, out CompFarmStorage storageAssignment)
-                    ? "PS_AssignmentTab_Reassigned".Translate(animal.NameFullColored, storageAssignment.parent.Label, compFarmStorage.parent.Label)
-                    : "PS_AssignmentTab_Assigned".Translate(animal.NameFullColored, compFarmStorage.parent.Label), MessageTypeDefOf.RejectInput, false);
-            comp.farmStorageAssignments[animal] = compFarmStorage;
+            Messages.Message(message, MessageTypeDefOf.RejectInput, false);
+            comp.farmAssignments[animal] = compFarmStorage.parent as Building;
         }
 
         public override void FillTab()
