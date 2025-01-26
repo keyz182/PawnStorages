@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using PawnStorages.Farm.Comps;
 using PawnStorages.Farm.Interfaces;
 using PawnStorages.Interfaces;
 using RimWorld;
@@ -19,13 +20,11 @@ public class CompPawnStorageNutrition : ThingComp
 
     public virtual bool IsPiped
     {
-        [MethodImpl(MethodImplOptions.NoInlining)]
         get => false;
     }
 
     public virtual float storedNutrition
     {
-        [MethodImpl(MethodImplOptions.NoInlining)]
         get => _storedNutrition;
         set
         {
@@ -296,5 +295,30 @@ public class CompPawnStorageNutrition : ThingComp
             action = delegate { TryAbsorbNutritionFromHopper(TargetNutritionLevel - storedNutrition); },
             icon = ContentFinder<Texture2D>.Get("UI/Buttons/ReleaseAll")
         };
+    }
+
+    public bool doesBreeding => parent.GetComp<CompFarmBreeder>() != null;
+
+    public override void PostDraw()
+    {
+        base.PostDraw();
+        if (!Props.HasTip) return;
+
+        ((Graphic_Single) parent.Graphic).mat = Props.MainTexture;
+
+        float filled = 0.6f;
+
+        if (doesBreeding && PawnStoragesMod.settings.SuggestiveSilo)
+        {
+            filled = Mathf.Clamp01(storedNutrition / MaxNutrition) * 0.6f;
+        }
+
+
+        Vector3 pos = parent.DrawPos;
+        pos.z += filled;
+        pos.y = AltitudeLayer.BuildingOnTop.AltitudeFor();
+
+        Matrix4x4 matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0.0f, 0f, 0.0f), new Vector3(Props.TipScale, 1f, Props.TipScale));
+        Graphics.DrawMesh(MeshPool.plane10, matrix, Props.TipTexture, 0);
     }
 }
