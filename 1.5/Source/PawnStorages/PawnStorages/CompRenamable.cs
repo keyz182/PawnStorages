@@ -8,7 +8,12 @@ namespace PawnStorages;
 [StaticConstructorOnStartup]
 public class CompRenamable: ThingComp
 {
-    private static readonly Texture2D Rename = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rename");
+    private static readonly Texture2D Rename;
+
+    static CompRenamable()
+    {
+        Rename = ContentFinder<Texture2D>.Get("UI/Buttons/PS_Rename");
+    }
 
     public string NewLabel;
 
