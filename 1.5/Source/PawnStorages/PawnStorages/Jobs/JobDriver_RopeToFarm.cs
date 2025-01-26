@@ -31,9 +31,9 @@ public class JobDriver_RopeToFarm: JobDriver_RopeToDestination
 
     public override void ProcessArrivedRopee(Pawn ropee)
     {
-        Map map = ropee.Map;
         if(Comp == null) return;
         if(!Comp.CanAssign(ropee)) return;
+        Map map = ropee.Map;
         Comp.TryAssignPawn(ropee);
         Comp.StorePawn(ropee);
 
